@@ -5,7 +5,6 @@ import sys
 from os import path
 
 import click
-from click.exceptions import Exit
 from utils import get_shader_path, get_shaders_dir
 
 EMPTY_STR = "[[EMPTY]]"
@@ -19,7 +18,7 @@ def ls() -> int:
     for shader in os.listdir(shaders_dir):
         shader = path.splitext(shader)[0]
         click.echo(shader)
-    raise Exit(0)
+    return 0
 
 
 @click.command()
@@ -29,7 +28,7 @@ def on(shader: str) -> int:
 
     shader_path = get_shader_path(shader)
     code = os.system(f"hyprctl keyword decoration:screen_shader '{shader_path}'")
-    raise Exit(code)
+    return code
 
 
 @click.command()
@@ -37,7 +36,28 @@ def off() -> int:
     """Turn off screen shader"""
 
     code = os.system(f"hyprctl keyword decoration:screen_shader '{EMPTY_STR}'")
-    raise Exit(code)
+    return code
+
+
+@click.command()
+@click.argument("shader", required=True, type=str)
+@click.pass_context
+def toggle(ctx: click.Context, shader) -> int:
+    """Toggle screen shader"""
+
+    current_shader = (
+        os.popen("hyprctl -j getoption decoration:screen_shader | jq -r '.str'")
+        .read()
+        .strip()
+    )
+
+    if path.isfile(current_shader) and path.samefile(
+        get_shader_path(shader), current_shader
+    ):
+        ctx.invoke(off)
+        return 0
+
+    return ctx.invoke(on, shader=shader)
 
 
 @click.group()
@@ -49,6 +69,7 @@ COMMANDS = [
     ls,
     off,
     on,
+    toggle,
 ]
 for command in COMMANDS:
     cli.add_command(command)
