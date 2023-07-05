@@ -48,7 +48,7 @@ def toggle(ctx: click.Context, shader: str) -> int:
     import json
     from json import JSONDecodeError
 
-    current_shader: str = None
+    current_shader: str | None = None
     try:
         o = json.load(os.popen("hyprctl -j getoption decoration:screen_shader"))
         current_shader = str(o["str"]).strip()
