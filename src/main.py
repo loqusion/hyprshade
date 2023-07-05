@@ -2,13 +2,25 @@
 
 import os
 import sys
+from os import path
 
 import click
 from click.exceptions import Exit
 
-from utils import get_shader_path
+from utils import get_shader_path, get_shaders_dir
 
 EMPTY_STR = "[[EMPTY]]"
+
+
+@click.command()
+def ls() -> int:
+    """List available screen shaders"""
+
+    shaders_dir = get_shaders_dir()
+    for shader in os.listdir(shaders_dir):
+        shader = path.splitext(shader)[0]
+        click.echo(shader)
+    raise Exit(0)
 
 
 @click.command()
@@ -35,6 +47,7 @@ def cli():
 
 
 COMMANDS = [
+    ls,
     off,
     on,
 ]
