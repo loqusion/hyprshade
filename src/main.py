@@ -42,7 +42,7 @@ def off() -> int:
 @click.command()
 @click.argument("shader", required=True, type=str)
 @click.pass_context
-def toggle(ctx: click.Context, shader) -> int:
+def toggle(ctx: click.Context, shader: str) -> int:
     """Toggle screen shader"""
 
     import json
