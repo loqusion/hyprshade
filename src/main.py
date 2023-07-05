@@ -45,11 +45,16 @@ def off() -> int:
 def toggle(ctx: click.Context, shader) -> int:
     """Toggle screen shader"""
 
-    current_shader = (
-        os.popen("hyprctl -j getoption decoration:screen_shader | jq -r '.str'")
-        .read()
-        .strip()
-    )
+    import json
+    from json import JSONDecodeError
+
+    current_shader: str = None
+    try:
+        o = json.load(os.popen("hyprctl -j getoption decoration:screen_shader"))
+        current_shader = str(o["str"]).strip()
+    except JSONDecodeError:
+        click.echo("Failed to get current screen shader", err=True)
+        return 1
 
     if path.isfile(current_shader) and path.samefile(
         get_shader_path(shader), current_shader
