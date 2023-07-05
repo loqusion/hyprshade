@@ -15,6 +15,7 @@ ruff = "^0.0.277"
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
 twine = "^4.0.2"
+mypy = "^1.4.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.0"
