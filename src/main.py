@@ -65,12 +65,24 @@ def toggle(ctx: click.Context, shader: str) -> int:
     return ctx.invoke(on, shader=shader)
 
 
+@click.command()
+def auto() -> int:
+    from config import Config
+
+    c = Config("examples/config.toml")
+    for shade in c.shades:
+        print(shade)
+
+    return 0
+
+
 @click.group()
 def cli():
     pass
 
 
 COMMANDS = [
+    auto,
     ls,
     off,
     on,
