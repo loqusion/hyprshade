@@ -84,5 +84,5 @@ if __name__ == "__main__":
     try:
         sys.exit(cli.main(standalone_mode=False))
     except Exception as err:
-        click.echo(err)
+        click.echo(err, err=True)
         sys.exit(1)
