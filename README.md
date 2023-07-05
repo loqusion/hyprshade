@@ -1,2 +1,3 @@
-# hyprgamma
-Blue light filter for Hyprland
+# hyprshade
+
+Swap screen shaders on the fly
