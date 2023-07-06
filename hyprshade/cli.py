@@ -1,26 +1,28 @@
 import os
+import sys
 from os import path
 
-import click
+import typer
 
 from hyprshade.helpers import get_shader_path, get_shaders_dir
 
 EMPTY_STR = "[[EMPTY]]"
 
+app = typer.Typer()
 
-@click.command()
+
+@app.command()
 def ls() -> int:
     """List available screen shaders"""
 
     shaders_dir = get_shaders_dir()
     for shader in os.listdir(shaders_dir):
         shader = path.splitext(shader)[0]
-        click.echo(shader)
+        typer.echo(shader)
     return 0
 
 
-@click.command()
-@click.argument("shader", required=True, type=str)
+@app.command()
 def on(shader: str) -> int:
     """Turn on screen shader"""
 
@@ -29,7 +31,7 @@ def on(shader: str) -> int:
     return code
 
 
-@click.command()
+@app.command()
 def off() -> int:
     """Turn off screen shader"""
 
@@ -37,10 +39,8 @@ def off() -> int:
     return code
 
 
-@click.command()
-@click.argument("shader", required=True, type=str)
-@click.pass_context
-def toggle(ctx: click.Context, shader: str) -> int:
+@app.command()
+def toggle(shader: str) -> int:
     """Toggle screen shader"""
 
     import json
@@ -51,48 +51,28 @@ def toggle(ctx: click.Context, shader: str) -> int:
         o = json.load(os.popen("hyprctl -j getoption decoration:screen_shader"))
         current_shader = str(o["str"]).strip()
     except JSONDecodeError:
-        click.echo("Failed to get current screen shader", err=True)
+        typer.echo("Failed to get current screen shader", file=sys.stderr)
         return 1
 
     if path.isfile(current_shader) and path.samefile(
         get_shader_path(shader), current_shader
     ):
-        ctx.invoke(off)
+        off()
         return 0
 
-    return ctx.invoke(on, shader=shader)
+    return on(shader)
 
 
-@click.command()
+@app.command()
 def auto() -> int:
     from hyprshade.config import Config
 
     c = Config("examples/config.toml")
     for shade in c.shades:
-        print(shade)
+        typer.echo(shade)
 
     return 0
 
 
-@click.group()
-def cli():
-    pass
-
-
-COMMANDS = [
-    auto,
-    ls,
-    off,
-    on,
-    toggle,
-]
-for command in COMMANDS:
-    cli.add_command(command)
-
-
 def main():
-    try:
-        return cli.main(standalone_mode=False)
-    except Exception as err:
-        click.echo(err, err=True)
-        return 1
+    app()
