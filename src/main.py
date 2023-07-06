@@ -5,7 +5,7 @@ import sys
 from os import path
 
 import click
-from utils import get_shader_path, get_shaders_dir
+from helpers import get_shader_path, get_shaders_dir
 
 EMPTY_STR = "[[EMPTY]]"
 
