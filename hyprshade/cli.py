@@ -1,11 +1,9 @@
-#!/usr/bin/env python
-
 import os
-import sys
 from os import path
 
 import click
-from helpers import get_shader_path, get_shaders_dir
+
+from hyprshade.helpers import get_shader_path, get_shaders_dir
 
 EMPTY_STR = "[[EMPTY]]"
 
@@ -67,7 +65,7 @@ def toggle(ctx: click.Context, shader: str) -> int:
 
 @click.command()
 def auto() -> int:
-    from config import Config
+    from hyprshade.config import Config
 
     c = Config("examples/config.toml")
     for shade in c.shades:
@@ -92,9 +90,9 @@ for command in COMMANDS:
     cli.add_command(command)
 
 
-if __name__ == "__main__":
+def main():
     try:
-        sys.exit(cli.main(standalone_mode=False))
+        return cli.main(standalone_mode=False)
     except Exception as err:
         click.echo(err, err=True)
-        sys.exit(1)
+        return 1

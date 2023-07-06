@@ -9,16 +9,16 @@ V = TypeVar("V")
 
 class ShadeConfig:
     name: str
-    time: time
+    start_time: time
     shade_config: dict
 
-    def __init__(self, name: str, shade_config: dict):
-        self.name = name
-        self.time = shade_config["time"]
+    def __init__(self, shade_config: dict):
+        self.name = shade_config["name"]
+        self.start_time = shade_config["start_time"]
         self.shade_config = shade_config
 
     def __repr__(self) -> str:
-        return f"ShadeConfig({self.name}, {self.shade_config})"
+        return f"ShadeConfig({self.shade_config})"
 
 
 class Config:
@@ -28,8 +28,8 @@ class Config:
         if config_path is None:
             config_path = Config.get_path()
         config = Config.load(config_path)
-        shades_dict: dict = config["shades"]
-        self.shades = list(map(ShadeConfig, *zip(*shades_dict.items(), strict=True)))
+        shades_list: list = config["shades"]
+        self.shades = list(map(ShadeConfig, shades_list))
 
     @staticmethod
     def load(config_path: str) -> dict[str, Any]:

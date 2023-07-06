@@ -1,6 +1,6 @@
 from os import path
 
-from utils import xdg_config_home
+from hyprshade.utils import xdg_config_home
 
 
 def get_shaders_dir() -> str:

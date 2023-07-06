@@ -5,7 +5,7 @@ description = ""
 authors = ["John Bernard <loqusion@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{ include = "main", from = "src" }]
+packages = [{ include = "hyprshade" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -19,6 +19,9 @@ mypy = "^1.4.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.0"
+
+[tool.poetry.scripts]
+hyprshade = 'hyprshade.cli:main'
 
 
 [build-system]
