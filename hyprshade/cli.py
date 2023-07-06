@@ -18,7 +18,7 @@ def ls() -> int:
     shaders_dir = get_shaders_dir()
     for shader in os.listdir(shaders_dir):
         shader = path.splitext(shader)[0]
-        typer.echo(shader)
+        print(shader)
     return 0
 
 
@@ -51,7 +51,7 @@ def toggle(shader: str) -> int:
         o = json.load(os.popen("hyprctl -j getoption decoration:screen_shader"))
         current_shader = str(o["str"]).strip()
     except JSONDecodeError:
-        typer.echo("Failed to get current screen shader", file=sys.stderr)
+        print("Failed to get current screen shader", file=sys.stderr)
         return 1
 
     if path.isfile(current_shader) and path.samefile(
@@ -69,7 +69,7 @@ def auto() -> int:
 
     c = Config("examples/config.toml")
     for shade in c.shades:
-        typer.echo(shade)
+        print(shade)
 
     return 0
 
