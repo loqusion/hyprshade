@@ -1,4 +1,5 @@
 import os
+from datetime import time
 from os import path
 
 
@@ -18,3 +19,9 @@ def hypr_config_home():
 
 def hyprshade_config_home():
     return path.join(xdg_config_home(), "hyprshade")
+
+
+def is_time_between(time: time, start_time: time, end_time: time) -> bool:
+    if end_time <= start_time:
+        return start_time <= time or time <= end_time
+    return start_time <= time <= end_time
