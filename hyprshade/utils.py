@@ -10,3 +10,11 @@ def xdg_config_home():
             raise ValueError("$HOME environment variable is not set")
         config_home = path.join(home, ".config")
     return config_home
+
+
+def hypr_config_home():
+    return path.join(xdg_config_home(), "hypr")
+
+
+def hyprshade_config_home():
+    return path.join(xdg_config_home(), "hyprshade")
