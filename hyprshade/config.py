@@ -59,7 +59,6 @@ class Config:
         """
 
         start_times: dict[time, ShadeConfig] = {}
-        end_times: dict[time, ShadeConfig] = {}
         shades_mut = copy.deepcopy(self.shades)
         for shade, shade_mut in zip(self.shades, shades_mut, strict=True):
             if shade.default:
@@ -72,17 +71,19 @@ class Config:
                     f"'{shade.name}' and '{start_times[shade.start_time].name}'"
                 )
 
-            def other_shade_has_time_range(s: ShadeConfig) -> bool:
-                return (
-                    s.start_time is not None
-                    and s.end_time is not None
-                    and s.name != shade.name  # noqa: B023
-                )
-
             if shade.start_time is not None:
                 start_times[shade.start_time] = shade_mut
 
-                if shade.end_time is not None:
+            if shade.end_time is not None:
+
+                def other_shade_has_time_range(s: ShadeConfig) -> bool:
+                    return (
+                        s.start_time is not None
+                        and s.end_time is not None
+                        and s.name != shade.name  # noqa: B023
+                    )
+
+                if shade.start_time is not None:
                     for cshade in filter(other_shade_has_time_range, self.shades):
                         if is_time_between(
                             cast(time, cshade.end_time),
@@ -94,9 +95,6 @@ class Config:
                             )
                             cshade_mut.end_time = None
                             break
-
-            if shade.end_time is not None:
-                end_times[shade.end_time] = shade_mut
 
                 for cshade in filter(other_shade_has_time_range, self.shades):
                     if is_time_between(
