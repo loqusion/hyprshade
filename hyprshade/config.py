@@ -47,6 +47,8 @@ class Config:
         self.shades = list(map(ShadeConfig, shades_list))
         self._coerce()
 
+    # FIXME: This is an abomination
+    # Just reject any config that has overlapping time ranges
     def _coerce(self):
         """Performs config file validation and deduplicates time entries.
 
