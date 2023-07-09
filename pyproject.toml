@@ -11,6 +11,7 @@ packages = [{ include = "hyprshade" }]
 python = "^3.11"
 ruff = "^0.0.277"
 typer = { extras = ["all"], version = "^0.9.0" }
+more-itertools = "^9.1.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
