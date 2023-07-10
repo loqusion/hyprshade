@@ -7,6 +7,7 @@ from typing import Final
 import typer
 
 from hyprshade.helpers import get_shader_path, get_shaders_dir
+from hyprshade.utils import systemd_user_config_home
 
 EMPTY_STR: Final = "[[EMPTY]]"
 
@@ -74,6 +75,42 @@ def auto() -> int:
     shade = schedule.contained(t)
     if shade is not None:
         return on(shade)
+
+    return 0
+
+
+@app.command()
+def install() -> int:
+    from hyprshade.config import Config
+
+    schedule = Config().to_schedule()
+
+    with open(path.join(systemd_user_config_home(), "hyprshade.service"), "w") as f:
+        f.write(
+            """[Unit]
+Description=Apply screen filter
+
+[Service]
+Type=oneshot
+ExecStart="/usr/bin/hyprshade" auto
+"""
+        )
+
+    with open(path.join(systemd_user_config_home(), "hyprshade.timer"), "w") as f:
+        on_calendar = "\n".join(
+            f"OnCalendar=*-*-* {x}" for x in schedule.on_calendar_entries()
+        )
+        f.write(
+            f"""[Unit]
+Description=Apply screen filter on schedule
+
+[Timer]
+{on_calendar}
+Persistent=true
+
+[Install]
+WantedBy=timers.target"""
+        )
 
     return 0
 
