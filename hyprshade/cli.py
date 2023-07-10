@@ -76,7 +76,7 @@ def auto() -> int:
     if shade is not None:
         return on(shade)
 
-    return 0
+    return off()
 
 
 @app.command()
