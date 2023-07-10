@@ -11,7 +11,7 @@ from hyprshade.utils import systemd_user_config_home
 
 EMPTY_STR: Final = "[[EMPTY]]"
 
-app = typer.Typer()
+app = typer.Typer(no_args_is_help=True)
 
 
 @app.command()
