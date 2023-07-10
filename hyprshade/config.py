@@ -1,116 +1,111 @@
-import copy
+from collections.abc import Iterable
 from datetime import time
+from itertools import chain, pairwise
 from os import path
-from typing import Any, TypeVar, cast
+from typing import Any, Literal, NotRequired, TypedDict, TypeGuard, cast
 
 import tomllib
+from more_itertools import nth, partition
 
 from hyprshade.utils import hyprshade_config_home, is_time_between
 
-K = TypeVar("K")
-V = TypeVar("V")
 
-
-class ShadeConfig:
+class ShadeDict(TypedDict):
     name: str
-    default: bool
-    start_time: time | None = None
-    end_time: time | None = None
+    start_time: time
+    end_time: NotRequired[time]
 
-    def __init__(self, shade_config: dict):
-        try:
-            self._shade_config = shade_config
-            self.name = shade_config["name"]
-            self.default = shade_config.get("default", False)
-            if not self.default:
-                self.start_time = shade_config["start_time"]
-                self.end_time = shade_config.get("end_time")
-        except KeyError as e:
-            raise ValueError(f"Missing key {e} in shade config") from e
+
+class DefaultShadeDict(TypedDict):
+    name: str
+    default: Literal[True]
+
+
+class ConfigDict(TypedDict):
+    shades: list[ShadeDict | DefaultShadeDict]
+
+
+def partition_shades(
+    shade_dicts: list[ShadeDict | DefaultShadeDict],
+) -> tuple[DefaultShadeDict | None, list[ShadeDict]]:
+    part1, part2 = partition(lambda s: s.get("default", False), shade_dicts)
+
+    other_shades = cast(list[ShadeDict], list(part1))
+    default_shade = cast(DefaultShadeDict, nth(part2, 0))
+
+    assert nth(part2, 0) is None, "There should be only one default shade"
+
+    return default_shade, other_shades
+
+
+class ScheduleEntry:
+    name: str
+    start_time: time
+    end_time: time | None
+
+    def __init__(self, shade_dict: ShadeDict):
+        self.name = shade_dict["name"]
+        self.start_time = shade_dict["start_time"]
+        self.end_time = shade_dict.get("end_time")
 
     def __repr__(self) -> str:
         return (
-            f"ShadeConfig(name={self.name}, default={self.default}, "
-            f"start_time={self.start_time}, end_time={self.end_time})"
+            f'ScheduleEntry("{self.name}", start_time={self.start_time}, '
+            f"end_time={self.end_time})"
         )
 
 
+class Schedule:
+    entries: list[ScheduleEntry]
+    default_shade: str | None
+
+    def __init__(self, config_dict: ConfigDict):
+        default_shade, other_shades = partition_shades(config_dict["shades"])
+        sorted_shades = sorted(other_shades, key=lambda s: s["start_time"])
+        self.entries = list(map(ScheduleEntry, sorted_shades))
+        self.default_shade = default_shade and default_shade["name"]
+
+    def contained(self, t: time) -> str | None:
+        for entry, next_entry in self._pairwise_entries():
+            start_time = entry.start_time
+            end_time = entry.end_time or next_entry.start_time
+            if is_time_between(t, start_time, end_time):
+                return entry.name
+
+        return self.default_shade
+
+    def on_calendar_entries(self) -> Iterable[time]:
+        for entry in self.entries:
+            yield entry.start_time
+            if entry.end_time is not None:
+                yield entry.end_time
+
+    def _pairwise_entries(self):
+        return pairwise(chain(self.entries, [self.entries[0]]))
+
+
 class Config:
-    shades: list[ShadeConfig]
-    default: ShadeConfig | None = None
+    """Parses config.toml into a dict"""
+
+    _config_dict: ConfigDict
 
     def __init__(self, config_path: str | None = None):
         if config_path is None:
             config_path = Config.get_path()
-        config = Config.load(config_path)
-        shades_list: list = config["shades"]
-        self.shades = list(map(ShadeConfig, shades_list))
-        self._coerce()
 
-    # FIXME: This is an abomination
-    # Just reject any config that has overlapping time ranges
-    def _coerce(self):
-        """Performs config file validation and deduplicates time entries.
-
-        If a shade is marked as default, it is set as the default shade.
-        If a shade has an end time in the time range of another shade,
-        the end time is removed.
-
-        If more than one shade is marked as default, or if there are multiple
-        shades with the same start time, an error is raised.
-        """
-
-        start_times: dict[time, ShadeConfig] = {}
-        shades_mut = copy.deepcopy(self.shades)
-        for shade, shade_mut in zip(self.shades, shades_mut, strict=True):
-            if shade.default:
-                self._set_default(shade)
-                continue
-
-            if shade.start_time in start_times:
-                raise ValueError(
-                    f"Multiple shades with start time {shade.start_time}: "
-                    f"'{shade.name}' and '{start_times[shade.start_time].name}'"
-                )
-
-            if shade.start_time is not None:
-                start_times[shade.start_time] = shade_mut
-
-            if shade.end_time is not None:
-
-                def other_shade_has_time_range(s: ShadeConfig) -> bool:
-                    return (
-                        s.start_time is not None
-                        and s.end_time is not None
-                        and s.name != shade.name  # noqa: B023
-                    )
-
-                if shade.start_time is not None:
-                    for cshade in filter(other_shade_has_time_range, self.shades):
-                        if is_time_between(
-                            cast(time, cshade.end_time),
-                            shade.start_time,
-                            shade.end_time,
-                        ):
-                            cshade_mut = next(
-                                s for s in shades_mut if s.name == cshade.name
-                            )
-                            cshade_mut.end_time = None
-                            break
-
-                for cshade in filter(other_shade_has_time_range, self.shades):
-                    if is_time_between(
-                        shade.end_time,
-                        cast(time, cshade.start_time),
-                        cast(time, cshade.end_time),
-                    ):
-                        shade_mut.end_time = None
-                        break
-
-        self.shades = shades_mut
+        config_dict = Config._load(config_path)
+        if Config._validate(config_dict):
+            self._config_dict = config_dict
 
     @staticmethod
-    def load(config_path: str) -> dict[str, Any]:
+    def _validate(config_dict: dict[str, Any]) -> TypeGuard[ConfigDict]:
+        """Validates schema, and rejects any config that has overlapping time ranges."""
+
+        return True
+        raise NotImplementedError
+
+    @staticmethod
+    def _load(config_path: str) -> dict[str, object]:
         with open(config_path, "rb") as f:
             return tomllib.load(f)
 
@@ -118,10 +113,5 @@ class Config:
     def get_path() -> str:
         return path.join(hyprshade_config_home(), "config.toml")
 
-    def _set_default(self, shade: ShadeConfig):
-        if self.default is not None:
-            raise ValueError(
-                f"Multiple default shades: '{self.default.name}' and '{shade.name}'\n"
-                "Please set only one shade as default."
-            )
-        self.default = shade
+    def to_schedule(self) -> Schedule:
+        return Schedule(self._config_dict)

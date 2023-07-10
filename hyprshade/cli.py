@@ -1,12 +1,14 @@
 import os
 import sys
+from datetime import datetime
 from os import path
+from typing import Final
 
 import typer
 
 from hyprshade.helpers import get_shader_path, get_shaders_dir
 
-EMPTY_STR = "[[EMPTY]]"
+EMPTY_STR: Final = "[[EMPTY]]"
 
 app = typer.Typer()
 
@@ -67,9 +69,11 @@ def toggle(shader: str) -> int:
 def auto() -> int:
     from hyprshade.config import Config
 
-    c = Config("examples/config.toml")
-    for shade in c.shades:
-        print(shade)
+    t = datetime.now().time()
+    schedule = Config().to_schedule()
+    shade = schedule.contained(t)
+    if shade is not None:
+        return on(shade)
 
     return 0
 
