@@ -11,14 +11,15 @@ def get_shaders_dir() -> str:
     return path.join(config_home, "shaders")
 
 
-def get_shader_path(shader: str) -> str:
-    shader_path = shader
+def get_shader_path(shader_name_or_path: str) -> str:
+    shader_path = shader_name_or_path
     if not path.isfile(shader_path):
         shaders_dir = get_shaders_dir()
-        shader_path = path.join(shaders_dir, glsl_ext(shader))
+        shader_path = path.join(shaders_dir, glsl_ext(shader_name_or_path))
         if not path.isfile(shader_path):
             raise FileNotFoundError(
-                f"Shader {shader} does not exist; check contents of {shaders_dir}"
+                f"Shader {shader_name_or_path} does not exist; "
+                f"check contents of {shaders_dir}"
             )
     return shader_path
 

@@ -26,10 +26,10 @@ def ls() -> int:
 
 
 @app.command()
-def on(shader: str) -> int:
+def on(shader_name_or_path: str) -> int:
     """Turn on screen shader"""
 
-    shader_path = get_shader_path(shader)
+    shader_path = get_shader_path(shader_name_or_path)
     code = os.system(f"hyprctl keyword decoration:screen_shader '{shader_path}'")
     return code
 
@@ -43,7 +43,7 @@ def off() -> int:
 
 
 @app.command()
-def toggle(shader: str) -> int:
+def toggle(shader_name_or_path: str) -> int:
     """Toggle screen shader"""
 
     import json
@@ -58,12 +58,12 @@ def toggle(shader: str) -> int:
         return 1
 
     if path.isfile(current_shader) and path.samefile(
-        get_shader_path(shader), current_shader
+        get_shader_path(shader_name_or_path), current_shader
     ):
         off()
         return 0
 
-    return on(shader)
+    return on(shader_name_or_path)
 
 
 @app.command()
@@ -72,10 +72,10 @@ def auto() -> int:
 
     t = datetime.now().time()
     schedule = Config().to_schedule()
-    shade = schedule.contained(t)
+    shade = schedule.find_shade(t)
+
     if shade is not None:
         return on(shade)
-
     return off()
 
 
