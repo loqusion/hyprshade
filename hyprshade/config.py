@@ -2,7 +2,7 @@ from collections.abc import Iterable
 from datetime import time
 from itertools import chain, pairwise
 from os import path
-from typing import Any, Literal, NotRequired, TypedDict, TypeGuard, cast
+from typing import Literal, NotRequired, TypedDict, cast
 
 import tomllib
 from more_itertools import nth, partition
@@ -95,15 +95,7 @@ class Config:
             config_path = Config.get_path()
 
         config_dict = Config._load(config_path)
-        if Config._validate(config_dict):
-            self._config_dict = config_dict
-
-    @staticmethod
-    def _validate(config_dict: dict[str, Any]) -> TypeGuard[ConfigDict]:
-        """Validates schema, and rejects any config that has overlapping time ranges."""
-
-        return True
-        raise NotImplementedError
+        self._config_dict = cast(ConfigDict, config_dict)
 
     @staticmethod
     def _load(config_path: str) -> dict[str, object]:
