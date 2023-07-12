@@ -1,5 +1,5 @@
 import os
-from collections.abc import Iterable
+from collections.abc import Iterator
 from datetime import time
 from itertools import chain, pairwise
 from os import path
@@ -75,13 +75,13 @@ class Schedule:
 
         return self.default_shade_name
 
-    def on_calendar_entries(self) -> Iterable[time]:
+    def on_calendar_entries(self) -> Iterator[time]:
         for entry in self.entries:
             yield entry.start_time
             if entry.end_time is not None:
                 yield entry.end_time
 
-    def _resolved_entries(self) -> Iterable[tuple[str, TimeInterval]]:
+    def _resolved_entries(self) -> Iterator[tuple[str, TimeInterval]]:
         for entry, next_entry in pairwise(chain(self.entries, [self.entries[0]])):
             start_time = entry.start_time
             end_time = entry.end_time or next_entry.start_time
