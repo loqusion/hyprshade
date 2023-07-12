@@ -25,7 +25,7 @@ def systemd_user_config_home():
     return path.join(xdg_config_home(), "systemd/user")
 
 
-def is_time_between(time: time, start_time: time, end_time: time) -> bool:
+def is_time_between(time_: time, start_time: time, end_time: time) -> bool:
     if end_time <= start_time:
-        return start_time <= time or time <= end_time
-    return start_time <= time <= end_time
+        return start_time <= time_ or time_ <= end_time
+    return start_time <= time_ <= end_time
