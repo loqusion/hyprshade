@@ -1,3 +1,4 @@
+import os
 from collections.abc import Iterable
 from datetime import time
 from itertools import chain, pairwise
@@ -5,9 +6,9 @@ from os import path
 from typing import Literal, NotRequired, TypedDict, cast
 
 import tomllib
-from more_itertools import nth, partition
+from more_itertools import first_true, nth, partition
 
-from hyprshade.utils import hyprshade_config_home, is_time_between
+from hyprshade.utils import hypr_config_home, hyprshade_config_home, is_time_between
 
 TimeInterval = tuple[time, time]
 
@@ -95,6 +96,8 @@ class Config:
     def __init__(self, config_path: str | None = None):
         if config_path is None:
             config_path = Config.get_path()
+            if config_path is None:
+                raise FileNotFoundError("Config file not found")
 
         config_dict = Config._load(config_path)
         self._config_dict = cast(ConfigDict, config_dict)
@@ -105,8 +108,13 @@ class Config:
             return tomllib.load(f)
 
     @staticmethod
-    def get_path() -> str:
-        return path.join(hyprshade_config_home(), "config.toml")
+    def get_path() -> str | None:
+        candidates = [
+            os.getenv("HYPRSHADE_CONFIG"),
+            path.join(hypr_config_home(), "hyprshade.toml"),
+            path.join(hyprshade_config_home(), "config.toml"),
+        ]
+        return first_true([c for c in candidates if c is not None], pred=path.isfile)
 
     def to_schedule(self) -> Schedule:
         return Schedule(self._config_dict)
