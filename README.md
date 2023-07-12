@@ -2,16 +2,6 @@
 
 Frontend to Hyprland's screen shader feature
 
-<!--toc:start-->
-
-- [Hyprshade](#hyprshade)
-  - [Description](#description)
-  - [Installation](#installation)
-    - [Arch Linux](#arch-linux)
-    - [Other](#other)
-  - [Scheduling](#scheduling)
-  <!--toc:end-->
-
 ## Description
 
 Hyprshade takes full advantage of Hyprland's `decoration:screen_shader` feature
