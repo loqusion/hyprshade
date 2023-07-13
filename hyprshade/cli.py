@@ -33,7 +33,9 @@ def toggle(shader_name_or_path: str) -> int:
     """Toggle screen shader"""
 
     current_shader = get_screen_shader()
-    if path.samefile(resolve_shader_path(shader_name_or_path), current_shader):
+    if current_shader is not None and path.samefile(
+        resolve_shader_path(shader_name_or_path), current_shader
+    ):
         return off()
 
     return on(shader_name_or_path)
@@ -95,14 +97,18 @@ WantedBy=timers.target"""
 def ls() -> int:
     """List available screen shaders"""
 
+    current_shader = get_screen_shader()
+    shader_base = path.basename(current_shader) if current_shader else None
+
     for shader in chain(
         *map(
             os.listdir,
             SHADER_DIRS,
         )
     ):
+        c = "*" if shader == shader_base else " "
         shader, _ = path.splitext(shader)
-        print(shader)
+        print(f"{c} {shader}")
 
     return 0
 

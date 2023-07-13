@@ -15,7 +15,7 @@ def clear_screen_shader() -> int:
     return set_screen_shader(EMPTY_STR)
 
 
-def get_screen_shader() -> str:
+def get_screen_shader() -> str | None:
     try:
         o = json.load(os.popen("hyprctl -j getoption decoration:screen_shader"))
     except JSONDecodeError as e:
@@ -25,4 +25,6 @@ def get_screen_shader() -> str:
     if not path.isfile(shader):
         raise RuntimeError(f"Got shader {shader} from hyprctl, which does not exist")
 
+    if shader == EMPTY_STR:
+        return None
     return shader
