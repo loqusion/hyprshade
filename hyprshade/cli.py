@@ -5,10 +5,10 @@ from os import path
 
 import typer
 
-from hyprshade.constants import SHADER_DIRS
-from hyprshade.helpers import resolve_shader_path
-from hyprshade.hyprctl import clear_screen_shader, get_screen_shader, set_screen_shader
-from hyprshade.utils import systemd_user_config_home
+from .constants import SHADER_DIRS
+from .helpers import resolve_shader_path
+from .hyprctl import clear_screen_shader, get_screen_shader, set_screen_shader
+from .utils import systemd_user_config_home
 
 app = typer.Typer(no_args_is_help=True)
 

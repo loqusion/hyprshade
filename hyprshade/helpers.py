@@ -1,6 +1,6 @@
 from os import path
 
-from hyprshade.constants import SHADER_DIRS
+from .constants import SHADER_DIRS
 
 
 def resolve_shader_path(shader_name_or_path: str) -> str:

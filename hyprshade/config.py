@@ -8,7 +8,7 @@ from typing import Literal, NotRequired, TypedDict, cast
 import tomllib
 from more_itertools import first_true, nth, partition
 
-from hyprshade.utils import hypr_config_home, hyprshade_config_home, is_time_between
+from .utils import hypr_config_home, hyprshade_config_home, is_time_between
 
 TimeInterval = tuple[time, time]
 

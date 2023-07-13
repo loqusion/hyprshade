@@ -1,7 +1,7 @@
 from os import path
 from typing import Final
 
-from hyprshade.utils import hypr_config_home
+from .utils import hypr_config_home
 
 _SYSTEM_SHADERS_DIR = "/usr/share/hyprshade/shaders"
 SYSTEM_SHADERS_DIR: Final = (
