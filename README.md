@@ -47,6 +47,11 @@ Or with [pipx](https://pypa.github.io/pipx/):
 pipx install hyprshade
 ```
 
+## Usage
+
+Hyprshade uses the shader files in your `~/.config/hypr/shaders` directory
+(in addition to the ones installed to `/usr/share/hyprshade`) for all of its commands.
+
 ## Scheduling
 
 To have specific shaders enabled during certain periods of the day, you can
