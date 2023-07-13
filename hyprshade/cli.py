@@ -45,7 +45,7 @@ def toggle(shader_name_or_path: str) -> int:
 def auto() -> int:
     """Turn on/off screen shader based on schedule"""
 
-    from hyprshade.config import Config
+    from .config import Config
 
     t = datetime.now().time()
     schedule = Config().to_schedule()
@@ -60,7 +60,7 @@ def auto() -> int:
 def install() -> int:
     """Instal systemd user units"""
 
-    from hyprshade.config import Config
+    from .config import Config
 
     schedule = Config().to_schedule()
 
