@@ -52,7 +52,7 @@ pipx install hyprshade
 Hyprshade uses the shader files in your `~/.config/hypr/shaders` directory
 (in addition to the ones installed to `/usr/share/hyprshade`) for all of its commands.
 
-## Scheduling
+### Scheduling
 
 To have specific shaders enabled during certain periods of the day, you can
 create a config file in either `~/.config/hypr/hyprshade.toml` or `~/.config/hyprshade/config.toml`.
