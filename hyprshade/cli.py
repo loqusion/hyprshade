@@ -109,7 +109,7 @@ ExecStart="/usr/bin/hyprshade" auto
 
     with open(path.join(systemd_user_config_home(), "hyprshade.timer"), "w") as f:
         on_calendar = "\n".join(
-            f"OnCalendar=*-*-* {x}" for x in schedule.on_calendar_entries()
+            sorted([f"OnCalendar=*-*-* {x}" for x in schedule.on_calendar_entries()])
         )
         f.write(
             f"""[Unit]
