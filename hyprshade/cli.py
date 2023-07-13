@@ -1,15 +1,17 @@
 import os
 import sys
 from datetime import datetime
+from itertools import chain
 from os import path
-from typing import Final
 
 import typer
 
-from hyprshade.helpers import get_shader_path, get_shaders_dir
+from hyprshade.constants import (
+    EMPTY_STR,
+    SHADER_DIRS,
+)
+from hyprshade.helpers import resolve_shader_path
 from hyprshade.utils import systemd_user_config_home
-
-EMPTY_STR: Final = "[[EMPTY]]"
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -18,10 +20,15 @@ app = typer.Typer(no_args_is_help=True)
 def ls() -> int:
     """List available screen shaders"""
 
-    shaders_dir = get_shaders_dir()
-    for shader in os.listdir(shaders_dir):
-        shader = path.splitext(shader)[0]
+    for shader in chain(
+        *map(
+            os.listdir,
+            SHADER_DIRS,
+        )
+    ):
+        shader, _ = path.splitext(shader)
         print(shader)
+
     return 0
 
 
@@ -29,7 +36,7 @@ def ls() -> int:
 def on(shader_name_or_path: str) -> int:
     """Turn on screen shader"""
 
-    shader_path = get_shader_path(shader_name_or_path)
+    shader_path = resolve_shader_path(shader_name_or_path)
     code = os.system(f"hyprctl keyword decoration:screen_shader '{shader_path}'")
     return code
 
@@ -58,7 +65,7 @@ def toggle(shader_name_or_path: str) -> int:
         return 1
 
     if path.isfile(current_shader) and path.samefile(
-        get_shader_path(shader_name_or_path), current_shader
+        resolve_shader_path(shader_name_or_path), current_shader
     ):
         off()
         return 0
