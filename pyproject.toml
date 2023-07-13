@@ -6,7 +6,7 @@ authors = ["John Bernard <loqusion@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{ include = "hyprshade" }]
-include = ["shaders"]
+include = ["examples", "shaders"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
