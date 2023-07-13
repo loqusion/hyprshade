@@ -83,7 +83,6 @@ Description=Apply screen filter on schedule
 
 [Timer]
 {on_calendar}
-Persistent=true
 
 [Install]
 WantedBy=timers.target"""
