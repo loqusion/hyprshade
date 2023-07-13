@@ -80,3 +80,11 @@ systemctl --user enable --now hyprshade.timer
 > `hyprshade install` must be run after updating `hyprshade.toml`.
 
 By default, they are installed to `~/.config/systemd/user` as [user units](https://wiki.archlinux.org/title/Systemd/User).
+
+You also probably want the following line in your `hyprland.conf`:
+
+```sh
+exec = hyprshade auto
+```
+
+This ensures that the correct shader is enabled when you log in.
