@@ -1,35 +1,16 @@
 import os
-import sys
 from datetime import datetime
 from itertools import chain
 from os import path
 
 import typer
 
-from hyprshade.constants import (
-    EMPTY_STR,
-    SHADER_DIRS,
-)
+from hyprshade.constants import SHADER_DIRS
 from hyprshade.helpers import resolve_shader_path
+from hyprshade.hyprctl import clear_screen_shader, get_screen_shader, set_screen_shader
 from hyprshade.utils import systemd_user_config_home
 
 app = typer.Typer(no_args_is_help=True)
-
-
-@app.command()
-def ls() -> int:
-    """List available screen shaders"""
-
-    for shader in chain(
-        *map(
-            os.listdir,
-            SHADER_DIRS,
-        )
-    ):
-        shader, _ = path.splitext(shader)
-        print(shader)
-
-    return 0
 
 
 @app.command()
@@ -37,38 +18,23 @@ def on(shader_name_or_path: str) -> int:
     """Turn on screen shader"""
 
     shader_path = resolve_shader_path(shader_name_or_path)
-    code = os.system(f"hyprctl keyword decoration:screen_shader '{shader_path}'")
-    return code
+    return set_screen_shader(shader_path)
 
 
 @app.command()
 def off() -> int:
     """Turn off screen shader"""
 
-    code = os.system(f"hyprctl keyword decoration:screen_shader '{EMPTY_STR}'")
-    return code
+    return clear_screen_shader()
 
 
 @app.command()
 def toggle(shader_name_or_path: str) -> int:
     """Toggle screen shader"""
 
-    import json
-    from json import JSONDecodeError
-
-    current_shader: str | None = None
-    try:
-        o = json.load(os.popen("hyprctl -j getoption decoration:screen_shader"))
-        current_shader = str(o["str"]).strip()
-    except JSONDecodeError:
-        print("Failed to get current screen shader", file=sys.stderr)
-        return 1
-
-    if path.isfile(current_shader) and path.samefile(
-        resolve_shader_path(shader_name_or_path), current_shader
-    ):
-        off()
-        return 0
+    current_shader = get_screen_shader()
+    if path.samefile(resolve_shader_path(shader_name_or_path), current_shader):
+        return off()
 
     return on(shader_name_or_path)
 
@@ -122,6 +88,22 @@ Persistent=true
 [Install]
 WantedBy=timers.target"""
         )
+
+    return 0
+
+
+@app.command()
+def ls() -> int:
+    """List available screen shaders"""
+
+    for shader in chain(
+        *map(
+            os.listdir,
+            SHADER_DIRS,
+        )
+    ):
+        shader, _ = path.splitext(shader)
+        print(shader)
 
     return 0
 

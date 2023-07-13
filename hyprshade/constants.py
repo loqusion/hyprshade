@@ -3,8 +3,6 @@ from typing import Final
 
 from hyprshade.utils import hypr_config_home
 
-EMPTY_STR: Final = "[[EMPTY]]"
-
 _SYSTEM_SHADERS_DIR = "/usr/share/hyprshade/shaders"
 SYSTEM_SHADERS_DIR: Final = (
     _SYSTEM_SHADERS_DIR if path.isdir(_SYSTEM_SHADERS_DIR) else None
