@@ -22,9 +22,9 @@ def get_screen_shader() -> str | None:
         raise RuntimeError("Failed to parse JSON returned by hyprctl") from e
 
     shader = str(o["str"]).strip()
+    if shader == EMPTY_STR:
+        return None
     if not path.isfile(shader):
         raise RuntimeError(f"Got shader {shader} from hyprctl, which does not exist")
 
-    if shader == EMPTY_STR:
-        return None
     return shader
