@@ -1,23 +1,20 @@
+from glob import iglob
 from os import path
+
+from more_itertools import first
 
 from .constants import SHADER_DIRS
 
 
 def resolve_shader_path(shader_name_or_path: str) -> str:
-    shader_path = shader_name_or_path
-    if not path.isfile(shader_path):
-        for shaders_dir in SHADER_DIRS:
-            shader_path = path.join(shaders_dir, glsl_ext(shader_name_or_path))
-            if path.isfile(shader_path):
-                break
+    if path.isfile(shader_name_or_path):
+        return shader_name_or_path
 
-    if not path.isfile(shader_path):
-        raise FileNotFoundError(f"Shader {shader_name_or_path} does not exist")
+    for shaders_dir in SHADER_DIRS:
+        shader_path = first(
+            iglob(f"{shader_name_or_path}*", root_dir=shaders_dir), None
+        )
+        if shader_path is not None:
+            return path.join(shaders_dir, shader_path)
 
-    return shader_path
-
-
-def glsl_ext(pathname: str) -> str:
-    if pathname.endswith(".glsl"):
-        return pathname
-    return f"{pathname}.glsl"
+    raise FileNotFoundError(f"Shader {shader_name_or_path} does not exist")
