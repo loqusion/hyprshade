@@ -58,7 +58,7 @@ def auto() -> int:
 
 @app.command()
 def install() -> int:
-    """Instal systemd user units"""
+    """Install systemd user units"""
 
     from .config import Config
 

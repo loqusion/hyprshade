@@ -32,7 +32,7 @@ cd hyprshade
 makepkg -si
 ```
 
-### Other
+### PyPI
 
 If your distribution isn't officially supported, you can also install directly
 from [PyPI](https://pypi.org/project/hyprshade/) with pip:
@@ -48,6 +48,20 @@ pipx install hyprshade
 ```
 
 ## Usage
+
+```text
+Usage: hyprshade [OPTIONS] COMMAND [ARGS]...
+
+Commands:
+  auto     Turn on/off screen shader based on schedule
+  install  Install systemd user units
+  ls       List available screen shaders
+  off      Turn off screen shader
+  on       Turn on screen shader
+  toggle   Toggle screen shader
+```
+
+### Adding Shaders
 
 Hyprshade uses the shader files in your `~/.config/hypr/shaders` directory
 (in addition to the ones installed to `/usr/share/hyprshade`) for all of its commands.
