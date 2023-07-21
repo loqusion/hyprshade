@@ -61,8 +61,6 @@ Commands:
   toggle   Toggle screen shader
 ```
 
-### Adding Shaders
-
 Commands which take a shader name accept either the basename:
 
 ```sh
