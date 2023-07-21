@@ -63,8 +63,19 @@ Commands:
 
 ### Adding Shaders
 
-Hyprshade uses the shader files in your `~/.config/hypr/shaders` directory
-(in addition to the ones installed to `/usr/share/hyprshade`) for all of its commands.
+Commands which take a shader name accept either the basename:
+
+```sh
+hyprshade on blue-light-filter
+```
+
+or a full path name:
+
+```sh
+hyprshade on ~/.config/hypr/shaders/blue-light-filter.glsl
+```
+
+If you provide the basename, Hyprshade searches in `~/.config/hypr/shaders` and `/usr/share/hyprshade`.
 
 ### Scheduling
 
