@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from itertools import chain
 from os import path
+from typing import Annotated, Optional
 
 import typer
 
@@ -29,16 +30,33 @@ def off() -> int:
 
 
 @app.command()
-def toggle(shader_name_or_path: str) -> int:
-    """Toggle screen shader"""
+def toggle(
+    shader_name_or_path: Annotated[
+        Optional[str], typer.Argument()  # noqa: UP007
+    ] = None
+) -> int:
+    """Toggle screen shader
+
+    If run with no arguments, will infer shader based on schedule.
+    """
+
+    from .config import Config
+
+    shade: str | None
+    if shader_name_or_path is not None:
+        shade = shader_name_or_path
+    else:
+        t = datetime.now().time()
+        shade = Config().to_schedule().find_shade(t)
+        if shade is None:
+            return off()
+    shade = resolve_shader_path(shade)
 
     current_shader = get_screen_shader()
-    if current_shader is not None and path.samefile(
-        resolve_shader_path(shader_name_or_path), current_shader
-    ):
+    if current_shader is not None and path.samefile(shade, current_shader):
         return off()
 
-    return on(shader_name_or_path)
+    return on(shade)
 
 
 @app.command()
@@ -48,8 +66,7 @@ def auto() -> int:
     from .config import Config
 
     t = datetime.now().time()
-    schedule = Config().to_schedule()
-    shade = schedule.find_shade(t)
+    shade = Config().to_schedule().find_shade(t)
 
     if shade is not None:
         return on(shade)
