@@ -131,4 +131,4 @@ def ls() -> int:
 
 
 def main():
-    app()
+    return app()
