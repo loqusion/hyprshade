@@ -88,8 +88,7 @@ Description=Apply screen filter
 
 [Service]
 Type=oneshot
-ExecStart="/usr/bin/hyprshade" auto
-"""
+ExecStart="/usr/bin/hyprshade" auto"""
         )
 
     with open(path.join(systemd_user_config_home(), "hyprshade.timer"), "w") as f:
