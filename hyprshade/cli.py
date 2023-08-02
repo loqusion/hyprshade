@@ -15,7 +15,7 @@ app = typer.Typer(no_args_is_help=True)
 
 
 @app.command()
-def on(shader_name_or_path: str) -> int:
+def on(shader_name_or_path: Annotated[str, typer.Argument(show_default=False)]) -> int:
     """Turn on screen shader"""
 
     shader_path = resolve_shader_path(shader_name_or_path)
@@ -32,8 +32,8 @@ def off() -> int:
 @app.command()
 def toggle(
     shader_name_or_path: Annotated[
-        Optional[str], typer.Argument()  # noqa: UP007
-    ] = None
+        Optional[str], typer.Argument(show_default=False)  # noqa: UP007
+    ] = None,
 ) -> int:
     """Toggle screen shader
 
