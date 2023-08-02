@@ -16,7 +16,7 @@ app = typer.Typer(no_args_is_help=True)
 
 @app.command()
 def on(shader_name_or_path: Annotated[str, typer.Argument(show_default=False)]) -> int:
-    """Turn on screen shader"""
+    """Turn on screen shader."""
 
     shader_path = resolve_shader_path(shader_name_or_path)
     return set_screen_shader(shader_path)
@@ -24,7 +24,7 @@ def on(shader_name_or_path: Annotated[str, typer.Argument(show_default=False)]) 
 
 @app.command()
 def off() -> int:
-    """Turn off screen shader"""
+    """Turn off screen shader."""
 
     return clear_screen_shader()
 
@@ -35,7 +35,7 @@ def toggle(
         Optional[str], typer.Argument(show_default=False)  # noqa: UP007
     ] = None,
 ) -> int:
-    """Toggle screen shader
+    """Toggle screen shader.
 
     If run with no arguments, will infer shader based on schedule.
     """
@@ -61,7 +61,7 @@ def toggle(
 
 @app.command()
 def auto() -> int:
-    """Turn on/off screen shader based on schedule"""
+    """Turn on/off screen shader based on schedule."""
 
     from .config import Config
 
@@ -75,7 +75,7 @@ def auto() -> int:
 
 @app.command()
 def install() -> int:
-    """Install systemd user units"""
+    """Install systemd user units."""
 
     from .config import Config
 
@@ -111,7 +111,7 @@ WantedBy=timers.target"""
 
 @app.command()
 def ls() -> int:
-    """List available screen shaders"""
+    """List available screen shaders."""
 
     current_shader = get_screen_shader()
     shader_base = path.basename(current_shader) if current_shader else None
