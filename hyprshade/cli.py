@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from itertools import chain
 from os import path
-from typing import Annotated, Optional
+from typing import Annotated, Optional, cast
 
 import typer
 
@@ -34,27 +34,54 @@ def toggle(
     shader_name_or_path: Annotated[
         Optional[str], typer.Argument(show_default=False)  # noqa: UP007
     ] = None,
+    fallback: Annotated[
+        Optional[str],  # noqa: UP007
+        typer.Option(
+            help="Shader to switch to instead of toggling off.",
+            show_default=False,
+            metavar="shader",
+        ),
+    ] = None,
+    fallback_default: Annotated[
+        bool,
+        typer.Option(
+            "--fallback-default",
+            help="Use default shader as fallback. (see --fallback)",
+            show_default=False,
+        ),
+    ] = False,
 ) -> int:
     """Toggle screen shader.
 
-    If run with no arguments, will infer shader based on schedule.
+    If run with no arguments, SHADER_NAME_OR_PATH is inferred based on schedule.
+
+    When --fallback is specified, will toggle between SHADER_NAME_OR_PATH and the
+    fallback shader. --fallback-default will toggle between SHADER_NAME_OR_PATH and the
+    default shader.
     """
 
     from .config import Config
 
-    shade: str | None
-    if shader_name_or_path is not None:
-        shade = shader_name_or_path
-    else:
-        t = datetime.now().time()
-        shade = Config().to_schedule().find_shade(t)
-        if shade is None:
-            return off()
+    if fallback and fallback_default:
+        raise typer.BadParameter(
+            "Cannot specify both --fallback and --fallback-default"
+        )
+
+    t = datetime.now().time()
+    schedule = Config().to_schedule()
+
+    if fallback_default:
+        fallback = schedule.default_shade_name
+    toggle_off = off if fallback is None else lambda: on(cast(str, fallback))
+
+    shade = shader_name_or_path or schedule.find_shade(t)
+    if shade is None:
+        return off()
     shade = resolve_shader_path(shade)
 
     current_shader = get_screen_shader()
     if current_shader is not None and path.samefile(shade, current_shader):
-        return off()
+        return toggle_off()
 
     return on(shade)
 
