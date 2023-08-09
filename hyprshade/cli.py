@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from functools import cache
 from itertools import chain
 from os import path
 from typing import Annotated, Optional, cast
@@ -60,7 +61,13 @@ def toggle(
     default shader.
     """
 
-    from .config import Config
+    from .config import Schedule
+
+    @cache
+    def schedule() -> Schedule:
+        from .config import Config
+
+        return Config().to_schedule()
 
     if fallback and fallback_default:
         raise typer.BadParameter(
@@ -68,13 +75,12 @@ def toggle(
         )
 
     t = datetime.now().time()
-    schedule = Config().to_schedule()
 
     if fallback_default:
-        fallback = schedule.default_shade_name
+        fallback = schedule().default_shade_name
     toggle_off = off if fallback is None else lambda: on(cast(str, fallback))
 
-    shade = shader_name_or_path or schedule.find_shade(t)
+    shade = shader_name_or_path or schedule().find_shade(t)
     if shade is None:
         return off()
     shade = resolve_shader_path(shade)
