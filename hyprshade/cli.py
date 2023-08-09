@@ -117,7 +117,7 @@ def toggle(
 
 @cli.command()
 @click.pass_context
-def auto(ctx):
+def auto(ctx: click.Context):
     """Turn on/off screen shader based on schedule."""
 
     from .config import Config
