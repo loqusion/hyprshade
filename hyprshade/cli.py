@@ -67,7 +67,11 @@ def toggle(
     def schedule() -> Schedule:
         from .config import Config
 
-        return Config().to_schedule()
+        try:
+            return Config().to_schedule()
+        except FileNotFoundError as e:
+            print(f"Error: {e}")
+            raise typer.Exit(1) from e
 
     if fallback and fallback_default:
         raise typer.BadParameter(
