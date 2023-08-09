@@ -1,57 +1,67 @@
 import os
+import sys
 from datetime import datetime
 from functools import cache
 from itertools import chain
 from os import path
-from typing import Annotated, Optional, cast
 
-import typer
+import click
 
 from .constants import SHADER_DIRS
 from .helpers import resolve_shader_path
 from .hyprctl import clear_screen_shader, get_screen_shader, set_screen_shader
 from .utils import systemd_user_config_home
 
-app = typer.Typer(no_args_is_help=True)
+
+@click.group()
+def cli():
+    pass
 
 
-@app.command()
-def on(shader_name_or_path: Annotated[str, typer.Argument(show_default=False)]) -> int:
+def main():
+    try:
+        cli()
+    except Exception as e:
+        click.echo(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+@cli.command()
+@click.argument("shader_name_or_path")
+def on(shader_name_or_path: str):
     """Turn on screen shader."""
 
     shader_path = resolve_shader_path(shader_name_or_path)
-    return set_screen_shader(shader_path)
+    set_screen_shader(shader_path)
 
 
-@app.command()
-def off() -> int:
+@cli.command()
+def off():
     """Turn off screen shader."""
 
-    return clear_screen_shader()
+    clear_screen_shader()
 
 
-@app.command()
+@cli.command()
+@click.argument("shader_name_or_path", default=None)
+@click.option(
+    "--fallback",
+    metavar="SHADER",
+    help="Shader to switch to instead of toggling off.",
+)
+@click.option(
+    "--fallback-default",
+    is_flag=True,
+    default=False,
+    help="Use default shader as fallback. (see --fallback)",
+)
+@click.pass_context
 def toggle(
-    shader_name_or_path: Annotated[
-        Optional[str], typer.Argument(show_default=False)  # noqa: UP007
-    ] = None,
-    fallback: Annotated[
-        Optional[str],  # noqa: UP007
-        typer.Option(
-            help="Shader to switch to instead of toggling off.",
-            show_default=False,
-            metavar="shader",
-        ),
-    ] = None,
-    fallback_default: Annotated[
-        bool,
-        typer.Option(
-            "--fallback-default",
-            help="Use default shader as fallback. (see --fallback)",
-            show_default=False,
-        ),
-    ] = False,
-) -> int:
+    ctx: click.Context,
+    shader_name_or_path: str | None,
+    fallback: str | None,
+    fallback_default: bool,
+):
     """Toggle screen shader.
 
     If run with no arguments, SHADER_NAME_OR_PATH is inferred based on schedule.
@@ -70,34 +80,44 @@ def toggle(
         try:
             return Config().to_schedule()
         except FileNotFoundError as e:
-            print(f"Error: {e}")
-            raise typer.Exit(1) from e
+            click.echo(f"Error: {e}")
+            sys.exit(1)
 
     if fallback and fallback_default:
-        raise typer.BadParameter(
-            "Cannot specify both --fallback and --fallback-default"
+        raise click.BadOptionUsage(
+            "--fallback", "Cannot specify both --fallback and --fallback-default"
         )
 
     t = datetime.now().time()
 
     if fallback_default:
         fallback = schedule().default_shade_name
-    toggle_off = off if fallback is None else lambda: on(cast(str, fallback))
+
+    def toggle_off():
+        if fallback is None:
+            ctx.invoke(off)
+            ctx.exit()
+        else:
+            ctx.invoke(on, shader_name_or_path=fallback)
+            ctx.exit()
 
     shade = shader_name_or_path or schedule().find_shade(t)
     if shade is None:
-        return off()
+        ctx.invoke(off)
+        ctx.exit()
     shade = resolve_shader_path(shade)
 
     current_shader = get_screen_shader()
     if current_shader is not None and path.samefile(shade, current_shader):
-        return toggle_off()
+        toggle_off()
+        ctx.exit()
 
-    return on(shade)
+    ctx.invoke(on, shader_name_or_path=shade)
 
 
-@app.command()
-def auto() -> int:
+@cli.command()
+@click.pass_context
+def auto(ctx):
     """Turn on/off screen shader based on schedule."""
 
     from .config import Config
@@ -106,12 +126,13 @@ def auto() -> int:
     shade = Config().to_schedule().find_shade(t)
 
     if shade is not None:
-        return on(shade)
-    return off()
+        ctx.invoke(on, shade_or_path=shade)
+        ctx.exit()
+    ctx.invoke(off)
 
 
-@app.command()
-def install() -> int:
+@cli.command()
+def install():
     """Install systemd user units."""
 
     from .config import Config
@@ -143,11 +164,9 @@ Description=Apply screen filter on schedule
 WantedBy=timers.target"""
         )
 
-    return 0
 
-
-@app.command()
-def ls() -> int:
+@cli.command()
+def ls():
     """List available screen shaders."""
 
     current_shader = get_screen_shader()
@@ -161,10 +180,4 @@ def ls() -> int:
     ):
         c = "*" if shader == shader_base else " "
         shader, _ = path.splitext(shader)
-        print(f"{c} {shader}")
-
-    return 0
-
-
-def main():
-    return app()
+        click.echo(f"{c} {shader}")
