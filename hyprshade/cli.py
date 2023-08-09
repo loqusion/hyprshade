@@ -92,10 +92,8 @@ def toggle(
     def toggle_off():
         if fallback is None:
             ctx.invoke(off)
-            ctx.exit()
         else:
             ctx.invoke(on, shader_name_or_path=fallback)
-            ctx.exit()
 
     shade = shader_name_or_path or schedule().find_shade(t)
     if shade is None:
