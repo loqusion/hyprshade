@@ -17,7 +17,7 @@ def clear_screen_shader() -> int:
 
 def get_screen_shader() -> str | None:
     try:
-        o = json.load(os.popen("hyprctl -j getoption decoration:screen_shader"))
+        o = json.load(os.popen("hyprctl -j getoption decoration:screen_shader | cut -d' ' -f2- | head -n -1 | tail -n +4"))
     except JSONDecodeError as e:
         raise RuntimeError("Failed to parse JSON returned by hyprctl") from e
 
