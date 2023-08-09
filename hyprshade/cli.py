@@ -77,11 +77,7 @@ def toggle(
     def schedule() -> Schedule:
         from .config import Config
 
-        try:
-            return Config().to_schedule()
-        except FileNotFoundError as e:
-            click.echo(f"Error: {e}")
-            sys.exit(1)
+        return Config().to_schedule()
 
     if fallback and fallback_default:
         raise click.BadOptionUsage(
