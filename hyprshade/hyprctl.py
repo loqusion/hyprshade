@@ -17,7 +17,11 @@ def clear_screen_shader() -> int:
 
 def get_screen_shader() -> str | None:
     try:
-        o = json.load(os.popen("hyprctl -j getoption decoration:screen_shader"))
+        o = json.load(
+            # TODO: Remove sed workaround when hyprwm/Hyprland@4743041 is pushed to
+            # a stable release
+            os.popen("hyprctl -j getoption decoration:screen_shader | sed '/^adding/d'")
+        )
     except JSONDecodeError as e:
         raise RuntimeError("Failed to parse JSON returned by hyprctl") from e
 
