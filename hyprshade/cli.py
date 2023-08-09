@@ -126,7 +126,7 @@ def auto(ctx):
     shade = Config().to_schedule().find_shade(t)
 
     if shade is not None:
-        ctx.invoke(on, shade_or_path=shade)
+        ctx.invoke(on, shader_name_or_path=shade)
         ctx.exit()
     ctx.invoke(off)
 
