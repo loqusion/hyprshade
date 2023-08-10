@@ -166,10 +166,14 @@ def ls():
     current_shader = get_screen_shader()
     shader_base = path.basename(current_shader) if current_shader else None
 
-    for shader in flatten(
-        map(
-            os.listdir,
-            SHADER_DIRS,
+    for shader in unique_justseen(
+        sorted(
+            flatten(
+                map(
+                    os.listdir,
+                    SHADER_DIRS,
+                )
+            )
         )
     ):
         c = "*" if shader == shader_base else " "
