@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from datetime import datetime
@@ -13,15 +14,20 @@ from .utils import systemd_user_config_home
 
 
 @click.group()
-def cli():
-    pass
+@click.version_option()
+@click.option("-v", "--verbose", is_flag=True, help="Enable verbose output.")
+def cli(verbose: bool):
+    level = logging.DEBUG if verbose else logging.WARNING
+    logging.basicConfig(level=level)
 
 
 def main():
     try:
         cli()
     except Exception as e:
-        click.echo(f"Error: {e}", file=sys.stderr)
+        if logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
+            raise e
+        click.echo(f"Error: {e}", err=True)
         sys.exit(1)
 
 
