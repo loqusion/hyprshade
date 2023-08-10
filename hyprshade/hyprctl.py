@@ -1,5 +1,5 @@
 import json
-import os
+import subprocess
 from json import JSONDecodeError
 from os import path
 from typing import Final
@@ -7,25 +7,39 @@ from typing import Final
 EMPTY_STR: Final = "[[EMPTY]]"
 
 
-def set_screen_shader(shader_path: str) -> int:
-    return os.system(f"hyprctl keyword decoration:screen_shader '{shader_path}'")
+def set_screen_shader(shader_path: str) -> None:
+    subprocess.run(
+        ["hyprctl", "keyword", "decoration:screen_shader", shader_path],
+        capture_output=True,
+        check=True,
+    )
 
 
-def clear_screen_shader() -> int:
-    return set_screen_shader(EMPTY_STR)
+def clear_screen_shader() -> None:
+    set_screen_shader(EMPTY_STR)
 
 
 def get_screen_shader() -> str | None:
     try:
-        o = json.load(
-            # TODO: Remove sed workaround when hyprwm/Hyprland@4743041 is pushed to
-            # a stable release
-            os.popen("hyprctl -j getoption decoration:screen_shader | sed '/^adding/d'")
+        hyprctl_pipe = subprocess.run(
+            ["hyprctl", "-j", "getoption", "decoration:screen_shader"],
+            capture_output=True,
+            check=True,
+            encoding="utf-8",
         )
+        # TODO: Remove sed workaround when hyprwm/Hyprland@4743041 is pushed in a stable release
+        hyprctl_pipe = subprocess.run(
+            ["sed", "/^adding/d"],
+            input=hyprctl_pipe.stdout,
+            capture_output=True,
+            check=True,
+            encoding="utf-8",
+        )
+        shader_json = json.loads(hyprctl_pipe.stdout)
     except JSONDecodeError as e:
         raise RuntimeError("Failed to parse JSON returned by hyprctl") from e
 
-    shader = str(o["str"]).strip()
+    shader = str(shader_json["str"]).strip()
     if shader == EMPTY_STR:
         return None
     if not path.isfile(shader):
