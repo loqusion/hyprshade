@@ -1,14 +1,13 @@
 import os
 import sys
 from datetime import datetime
-from functools import cache
-from itertools import chain
 from os import path
 
 import click
+from more_itertools import flatten, unique_justseen
 
 from .constants import SHADER_DIRS
-from .helpers import resolve_shader_path
+from .helpers import resolve_shader_path, schedule_from_config
 from .hyprctl import clear_screen_shader, get_screen_shader, set_screen_shader
 from .utils import systemd_user_config_home
 
@@ -71,23 +70,17 @@ def toggle(
     default shader.
     """
 
-    from .config import Schedule
-
-    @cache
-    def schedule() -> Schedule:
-        from .config import Config
-
-        return Config().to_schedule()
-
     if fallback and fallback_default:
         raise click.BadOptionUsage(
             "--fallback", "Cannot specify both --fallback and --fallback-default"
         )
 
     t = datetime.now().time()
+    current_shader = get_screen_shader()
+    shade = shader_name_or_path or schedule_from_config().find_shade(t)
 
     if fallback_default:
-        fallback = schedule().default_shade_name
+        fallback = schedule_from_config().default_shade_name
 
     def toggle_off():
         if fallback is None:
@@ -95,7 +88,7 @@ def toggle(
         else:
             ctx.invoke(on, shader_name_or_path=fallback)
 
-    shade = shader_name_or_path or schedule().find_shade(t)
+    shade = shader_name_or_path or schedule_from_config().find_shade(t)
     if shade is None:
         ctx.invoke(off)
         ctx.exit()
@@ -114,24 +107,20 @@ def toggle(
 def auto(ctx: click.Context):
     """Turn on/off screen shader based on schedule."""
 
-    from .config import Config
-
     t = datetime.now().time()
-    shade = Config().to_schedule().find_shade(t)
+    shade = schedule_from_config().find_shade(t)
 
-    if shade is not None:
+    if shade is None:
+        ctx.invoke(off)
+    else:
         ctx.invoke(on, shader_name_or_path=shade)
-        ctx.exit()
-    ctx.invoke(off)
 
 
 @cli.command()
 def install():
     """Install systemd user units."""
 
-    from .config import Config
-
-    schedule = Config().to_schedule()
+    schedule = schedule_from_config()
 
     with open(path.join(systemd_user_config_home(), "hyprshade.service"), "w") as f:
         f.write(
