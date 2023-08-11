@@ -27,7 +27,8 @@ def get_screen_shader() -> str | None:
             check=True,
             encoding="utf-8",
         )
-        # TODO: Remove sed workaround when hyprwm/Hyprland@4743041 is pushed in a stable release
+        # TODO: Remove sed workaround
+        # (when hyprwm/Hyprland@4743041 is pushed in a stable release)
         hyprctl_pipe = subprocess.run(
             ["sed", "/^adding/d"],
             input=hyprctl_pipe.stdout,
