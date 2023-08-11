@@ -24,10 +24,10 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install poetry and tox
+    - name: Install poetry
       run: |
         python -m pip install --upgrade pip
-        python -m pip install poetry tox
+        python -m pip install poetry
     - name: Install dependencies with poetry
       run: |
         poetry install --sync
@@ -39,4 +39,4 @@ jobs:
         poetry run mypy hyprshade
     - name: Test with tox
       run: |
-        tox
+        poetry run pytest
