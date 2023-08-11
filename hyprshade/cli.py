@@ -10,7 +10,7 @@ from more_itertools import flatten, quantify, unique_justseen
 from .constants import SHADER_DIRS
 from .helpers import resolve_shader_path, schedule_from_config
 from .hyprctl import clear_screen_shader, get_screen_shader, set_screen_shader
-from .utils import systemd_user_config_home
+from .utils import optional_param, systemd_user_config_home
 
 
 @click.group()
@@ -55,7 +55,7 @@ def is_same_shader(s: str | None, s2: str | None) -> bool:
 
 
 @cli.command()
-@click.argument("shader_name_or_path", default=None)
+@click.argument("shader_name_or_path", **optional_param("SHADER_NAME_OR_PATH"))
 @click.option(
     "--fallback",
     metavar="SHADER",
