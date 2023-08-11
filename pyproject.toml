@@ -21,7 +21,6 @@ ruff = "^0.0.277"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.0"
-tox = "^4.7.0"
 
 [tool.poetry.scripts]
 hyprshade = 'hyprshade.cli:main'
