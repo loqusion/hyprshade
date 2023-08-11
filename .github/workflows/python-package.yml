@@ -24,19 +24,19 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install poetry
+    - name: Install poetry and tox
       run: |
         python -m pip install --upgrade pip
-        python -m pip install poetry
+        python -m pip install poetry tox
     - name: Install dependencies with poetry
       run: |
         poetry install --sync
     - name: Lint with ruff
       run: |
-        ruff check hyprshade
+        poetry run ruff check hyprshade
     - name: Check types with mypy
       run: |
-        mypy hyprshade
+        poetry run mypy hyprshade
     - name: Test with tox
       run: |
         tox
