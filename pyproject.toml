@@ -38,8 +38,9 @@ extend-select = [
   "ERA", # flake8-eradicate/eradicate
   "I",   # isort
   "N",   # pep8-naming
-  "PIE", # flake8-pie
   "PGH", # pygrep
+  "PIE", # flake8-pie
+  "PT",  # flake8-pytest-style
   "RUF", # ruff checks
   "SIM", # flake8-simplify
   "TCH", # flake8-type-checking
@@ -49,3 +50,6 @@ extend-select = [
 
 [tool.mypy]
 check_untyped_defs = true
+
+[tool.pytest.ini_options]
+addopts = ["--import-mode=importlib"]
