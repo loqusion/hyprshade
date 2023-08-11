@@ -24,7 +24,7 @@ def resolve_shader_path(shader_name_or_path: str) -> str:
 
 
 @cache
-def schedule_from_config() -> Schedule:
+def schedule_from_config(config_path: str | None = None) -> Schedule:
     from .config import Config
 
-    return Config().to_schedule()
+    return Config(config_path).to_schedule()
