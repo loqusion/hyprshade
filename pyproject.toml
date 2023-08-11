@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "hyprshade"
 version = "0.9.2"
-description = ""
+description = "Hyprland shade configuration tool"
 authors = ["John Bernard <loqusion@gmail.com>"]
 license = "MIT"
 readme = "README.md"
