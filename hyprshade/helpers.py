@@ -4,8 +4,7 @@ from os import path
 
 from more_itertools import first
 
-from hyprshade.config import Schedule
-
+from .config import Schedule
 from .constants import SHADER_DIRS
 
 
