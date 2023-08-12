@@ -22,6 +22,12 @@ class Shader:
         )
         self._name = _stripped_basename(shader_name_or_path)
 
+    def __eq__(self, __value: object) -> bool:
+        if not isinstance(__value, Shader):
+            return False
+        s, s2 = self._resolve_path(), __value._resolve_path()
+        return path.samefile(s, s2)
+
     def __str__(self) -> str:
         return self._name
 
