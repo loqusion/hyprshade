@@ -1,4 +1,3 @@
-from functools import cache
 from glob import iglob
 from os import path
 from typing import Literal
@@ -7,7 +6,6 @@ from more_itertools import first
 
 from hyprshade.utils import systemd_user_config_home
 
-from .config import Schedule
 from .constants import SHADER_DIRS
 
 
@@ -23,13 +21,6 @@ def resolve_shader_path(shader_name_or_path: str) -> str:
             return path.join(shaders_dir, shader_path)
 
     raise FileNotFoundError(f"Shader {shader_name_or_path} does not exist")
-
-
-@cache
-def schedule_from_config(config_path: str | None = None) -> Schedule:
-    from .config import Config
-
-    return Config(config_path).to_schedule()
 
 
 SystemdUnitType = Literal["service", "timer"]

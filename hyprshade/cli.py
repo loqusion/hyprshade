@@ -6,8 +6,9 @@ import click
 from more_itertools import quantify
 
 from .click_utils import convert_to_shader, optional_param
+from .config import Config
 from .constants import SHADER_DIRS
-from .helpers import schedule_from_config, write_systemd_user_unit
+from .helpers import write_systemd_user_unit
 from .shader import Shader
 from .utils import ls_dirs
 
@@ -94,7 +95,7 @@ def toggle(
 
     current = Shader.current()
     try:
-        schedule = schedule_from_config()
+        schedule = Config().to_schedule()
         scheduled_shader = schedule.scheduled_shader(t)
     except FileNotFoundError:
         schedule = None
@@ -130,7 +131,7 @@ def auto(ctx: click.Context):
     """Turn on/off screen shader based on schedule."""
 
     t = datetime.now().time()
-    shader = schedule_from_config().scheduled_shader(t)
+    shader = Config().to_schedule().scheduled_shader(t)
 
     if shader is None:
         Shader.off()
@@ -142,7 +143,7 @@ def auto(ctx: click.Context):
 def install():
     """Install systemd user units."""
 
-    schedule = schedule_from_config()
+    schedule = Config().to_schedule()
     timer_config = "\n".join(
         sorted([f"OnCalendar=*-*-* {x}" for x in schedule.event_times()])
     )
