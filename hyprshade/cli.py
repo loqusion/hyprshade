@@ -1,16 +1,15 @@
 import logging
 import sys
 from datetime import datetime
-from os import path
 
 import click
 from more_itertools import quantify
 
-from . import hyprctl
+from .click_utils import convert_to_shader, optional_param
 from .constants import SHADER_DIRS
-from .helpers import resolve_shader_path, schedule_from_config, write_systemd_user_unit
+from .helpers import schedule_from_config, write_systemd_user_unit
 from .shader import Shader
-from .utils import ls_dirs, optional_param
+from .utils import ls_dirs
 
 
 @click.group()
@@ -32,11 +31,11 @@ def main():
 
 
 @cli.command()
-@click.argument("shader_name_or_path")
-def on(shader_name_or_path: str):
+@click.argument("shader", callback=convert_to_shader)
+def on(shader: Shader):
     """Turn on screen shader."""
 
-    Shader(shader_name_or_path).on()
+    shader.on()
 
 
 @cli.command()
@@ -46,18 +45,12 @@ def off():
     Shader.off()
 
 
-def is_same_shader(s: str | None, s2: str | None) -> bool:
-    if s is None or s2 is None:
-        return False
-    s, s2 = resolve_shader_path(s), resolve_shader_path(s2)
-    return path.samefile(s, s2)
-
-
 @cli.command()
-@click.argument("shader_name_or_path", **optional_param("SHADER_NAME_OR_PATH"))
+@click.argument("shader", **optional_param("SHADER", convert_to_shader))
 @click.option(
     "--fallback",
     metavar="SHADER",
+    callback=convert_to_shader,
     help="Shader to switch to instead of toggling off.",
 )
 @click.option(
@@ -74,11 +67,9 @@ def is_same_shader(s: str | None, s2: str | None) -> bool:
     " (If the currently scheduled shader is SHADER_NAME_OR_PATH, the default"
     " shader will be used as the fallback instead.)",
 )
-@click.pass_context
 def toggle(
-    ctx: click.Context,
-    shader_name_or_path: str | None,
-    fallback: str | None,
+    shader: Shader | None,
+    fallback: Shader | None,
     fallback_default: bool,
     fallback_auto: bool,
 ):
@@ -93,33 +84,44 @@ def toggle(
     if the currently scheduled shader is SHADER_NAME_OR_PATH.)
     """
 
+    t = datetime.now().time()
+
     fallback_opts = [fallback, fallback_default, fallback_auto]
     if quantify(fallback_opts) > 1:
         raise click.BadOptionUsage(
             "--fallback", "Cannot specify more than 1 --fallback* option"
         )
 
-    t = datetime.now().time()
-    current_shader = hyprctl.get_screen_shader()
-    shade = shader_name_or_path or schedule_from_config().find_shade(t)
+    current = Shader.current()
+    try:
+        schedule = schedule_from_config()
+        scheduled_shader = schedule.scheduled_shader(t)
+    except FileNotFoundError:
+        schedule = None
+        scheduled_shader = None
+    shader = shader or scheduled_shader
 
-    if fallback_default or (
-        fallback_auto and is_same_shader(shade, schedule_from_config().find_shade(t))
-    ):
-        fallback = schedule_from_config().default_shade_name
-    elif fallback_auto:
-        fallback = schedule_from_config().find_shade(t)
+    def get_fallback() -> Shader | None:
+        if not schedule:
+            return fallback
+        if fallback_default or (
+            fallback_auto
+            and shader
+            and scheduled_shader
+            and shader.samefile(scheduled_shader)
+        ):
+            return schedule.default_shader
+        elif fallback_auto:
+            return scheduled_shader
+        return fallback
 
-    def toggle_off():
-        if fallback is None:
-            ctx.invoke(off)
-        else:
-            ctx.invoke(on, shader_name_or_path=fallback)
+    fallback = get_fallback()
+    toggle_off = Shader.off if fallback is None else fallback.on
 
-    if is_same_shader(shade, current_shader):
+    if current is not None and shader is not None and shader.samefile(current):
         toggle_off()
-    elif shade is not None:
-        ctx.invoke(on, shader_name_or_path=shade)
+    elif shader is not None:
+        shader.on()
 
 
 @cli.command()
@@ -128,12 +130,12 @@ def auto(ctx: click.Context):
     """Turn on/off screen shader based on schedule."""
 
     t = datetime.now().time()
-    shade = schedule_from_config().find_shade(t)
+    shader = schedule_from_config().scheduled_shader(t)
 
-    if shade is None:
-        ctx.invoke(off)
+    if shader is None:
+        Shader.off()
     else:
-        ctx.invoke(on, shader_name_or_path=shade)
+        shader.on()
 
 
 @cli.command()
@@ -142,7 +144,7 @@ def install():
 
     schedule = schedule_from_config()
     timer_config = "\n".join(
-        sorted([f"OnCalendar=*-*-* {x}" for x in schedule.on_calendar_entries()])
+        sorted([f"OnCalendar=*-*-* {x}" for x in schedule.event_times()])
     )
 
     write_systemd_user_unit(

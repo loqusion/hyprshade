@@ -1,9 +1,7 @@
-# mypy: disable-error-code="arg-type"
 import re
 from datetime import time
 from pathlib import Path
 
-import click
 import pytest
 
 from . import utils
@@ -51,15 +49,3 @@ class TestIsTimeBetween:
     def test_wrapping(self):
         assert utils.is_time_between(time(1, 0), time(20, 0), time(2, 0))
         assert utils.is_time_between(time(23, 0), time(20, 0), time(2, 0))
-
-
-class TestClickValidateOptionalParam:
-    def test_empty(self):
-        assert utils.validate_optional_param(None, None, ()) is None
-
-    def test_single(self):
-        assert utils.validate_optional_param(None, None, ("foo",)) == "foo"
-
-    def test_multiple(self):
-        with pytest.raises(click.UsageError):
-            utils.validate_optional_param(None, None, ("foo", "bar"))

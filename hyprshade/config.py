@@ -1,111 +1,104 @@
+from __future__ import annotations
+
 import os
-from collections.abc import Iterator
 from datetime import time
 from itertools import chain, pairwise
 from os import path
-from typing import Literal, NotRequired, TypedDict, cast
+from typing import TYPE_CHECKING, Literal, NotRequired, TypedDict, cast
 
 import tomllib
 from more_itertools import first_true, nth, partition
 
+from .shader import Shader
 from .utils import hypr_config_home, hyprshade_config_home, is_time_between
 
-TimeInterval = tuple[time, time]
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+TimeRange = tuple[time, time]
 
 
-class ShadeDict(TypedDict):
+class ShaderConfig(TypedDict):
     name: str
     start_time: time
     end_time: NotRequired[time]
 
 
-class DefaultShadeDict(TypedDict):
+class DefaultShadeConfig(TypedDict):
     name: str
     default: Literal[True]
 
 
 class ConfigDict(TypedDict):
-    shades: list[ShadeDict | DefaultShadeDict]
-
-
-def partition_shades(
-    shade_dicts: list[ShadeDict | DefaultShadeDict],
-) -> tuple[DefaultShadeDict | None, list[ShadeDict]]:
-    part1, part2 = partition(lambda s: s.get("default", False), shade_dicts)
-
-    other_shades = cast(list[ShadeDict], list(part1))
-    default_shade = cast(DefaultShadeDict, nth(part2, 0))
-
-    assert nth(part2, 0) is None, "There should be only one default shade"
-
-    return default_shade, other_shades
+    shades: list[ShaderConfig | DefaultShadeConfig]
 
 
 class ScheduleEntry:
-    name: str
+    shader: Shader
     start_time: time
     end_time: time | None
 
-    def __init__(self, shade_dict: ShadeDict):
-        self.name = shade_dict["name"]
-        self.start_time = shade_dict["start_time"]
-        self.end_time = shade_dict.get("end_time")
+    def __init__(self, shader_config: ShaderConfig):
+        self.shader = Shader(shader_config["name"])
+        self.start_time = shader_config["start_time"]
+        self.end_time = shader_config.get("end_time")
 
     def __repr__(self) -> str:
         return (
-            f'ScheduleEntry("{self.name}", start_time={self.start_time}, '
+            f'ScheduleEntry("{self.shader}", start_time={self.start_time}, '
             f"end_time={self.end_time})"
         )
 
 
 class Schedule:
     entries: list[ScheduleEntry]
-    default_shade_name: str | None
+    default_shader: Shader | None
 
-    def __init__(self, config_dict: ConfigDict):
-        default_shade, other_shades = partition_shades(config_dict["shades"])
-        sorted_shades = sorted(other_shades, key=lambda s: s["start_time"])
-        self.entries = list(map(ScheduleEntry, sorted_shades))
-        self.default_shade_name = default_shade and default_shade["name"]
+    def __init__(self, config: Config):
+        rest_shader_configs, default_shader_config = config.partition()
+        sorted_rest_shader_configs = sorted(
+            rest_shader_configs, key=lambda s: s["start_time"]
+        )
+        self.entries = list(map(ScheduleEntry, sorted_rest_shader_configs))
+        self.default_shader = (
+            Shader(default_shader_config["name"])
+            if default_shader_config is not None
+            else None
+        )
 
-    def find_shade(self, t: time) -> str | None:
-        for entry_name, (start_time, end_time) in self._resolved_entries():
+    def scheduled_shader(self, t: time) -> Shader | None:
+        for shader, (start_time, end_time) in self._resolved_entries():
             if is_time_between(t, start_time, end_time):
-                return entry_name
+                return shader
 
-        return self.default_shade_name
+        return self.default_shader
 
-    def on_calendar_entries(self) -> Iterator[time]:
+    def event_times(self) -> Iterator[time]:
         for entry in self.entries:
             yield entry.start_time
             if entry.end_time is not None:
                 yield entry.end_time
 
-    def _resolved_entries(self) -> Iterator[tuple[str, TimeInterval]]:
+    def _resolved_entries(self) -> Iterator[tuple[Shader, TimeRange]]:
         for entry, next_entry in pairwise(chain(self.entries, [self.entries[0]])):
             start_time = entry.start_time
             end_time = entry.end_time or next_entry.start_time
-            yield entry.name, (start_time, end_time)
+            yield entry.shader, (start_time, end_time)
 
 
 class Config:
-    """Parses config.toml into a dict"""
+    _dict: ConfigDict
 
-    _config_dict: ConfigDict
-
-    def __init__(self, config_path: str | None = None):
-        if config_path is None:
-            config_path = Config.get_path()
-            if config_path is None:
-                raise FileNotFoundError("Config file not found")
-
-        config_dict = Config._load(config_path)
-        self._config_dict = cast(ConfigDict, config_dict)
+    def __init__(self, path_: str | None = None):
+        path_ = path_ or Config.get_path()
+        if path_ is None:
+            raise FileNotFoundError("Config file not found")
+        self._dict = Config._load(path_)
 
     @staticmethod
-    def _load(config_path: str) -> dict[str, object]:
-        with open(config_path, "rb") as f:
-            return tomllib.load(f)
+    def _load(path_: str) -> ConfigDict:
+        with open(path_, "rb") as f:
+            return cast(ConfigDict, tomllib.load(f))
 
     @staticmethod
     def get_path() -> str | None:
@@ -114,7 +107,19 @@ class Config:
             path.join(hypr_config_home(), "hyprshade.toml"),
             path.join(hyprshade_config_home(), "config.toml"),
         ]
-        return first_true([c for c in candidates if c is not None], pred=path.isfile)
+        return first_true((c for c in candidates if c is not None), pred=path.isfile)
+
+    def partition(self) -> tuple[list[ShaderConfig], DefaultShadeConfig | None]:
+        no_default, yes_default = partition(
+            lambda s: s.get("default", False), self._dict["shades"]
+        )
+        rest = cast(list[ShaderConfig], list(no_default))
+        default = cast(DefaultShadeConfig, nth(yes_default, 0))
+
+        # TODO: Should raise an exception instead of asserting
+        assert nth(yes_default, 0) is None, "There should be only one default shade"
+
+        return rest, default
 
     def to_schedule(self) -> Schedule:
-        return Schedule(self._config_dict)
+        return Schedule(self)
