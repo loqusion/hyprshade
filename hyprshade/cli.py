@@ -1,16 +1,16 @@
 import logging
-import os
 import sys
 from datetime import datetime
 from os import path
 
 import click
-from more_itertools import flatten, quantify, unique_justseen
+from more_itertools import quantify
 
+from . import hyprctl
 from .constants import SHADER_DIRS
-from .helpers import resolve_shader_path, schedule_from_config
-from .hyprctl import clear_screen_shader, get_screen_shader, set_screen_shader
-from .utils import optional_param, systemd_user_config_home
+from .helpers import resolve_shader_path, schedule_from_config, write_systemd_user_unit
+from .shader import Shader
+from .utils import ls_dirs, optional_param
 
 
 @click.group()
@@ -36,15 +36,14 @@ def main():
 def on(shader_name_or_path: str):
     """Turn on screen shader."""
 
-    shader_path = resolve_shader_path(shader_name_or_path)
-    set_screen_shader(shader_path)
+    Shader(shader_name_or_path).on()
 
 
 @cli.command()
 def off():
     """Turn off screen shader."""
 
-    clear_screen_shader()
+    Shader.off()
 
 
 def is_same_shader(s: str | None, s2: str | None) -> bool:
@@ -101,7 +100,7 @@ def toggle(
         )
 
     t = datetime.now().time()
-    current_shader = get_screen_shader()
+    current_shader = hyprctl.get_screen_shader()
     shade = shader_name_or_path or schedule_from_config().find_shade(t)
 
     if fallback_default or (
@@ -142,52 +141,41 @@ def install():
     """Install systemd user units."""
 
     schedule = schedule_from_config()
+    timer_config = "\n".join(
+        sorted([f"OnCalendar=*-*-* {x}" for x in schedule.on_calendar_entries()])
+    )
 
-    with open(path.join(systemd_user_config_home(), "hyprshade.service"), "w") as f:
-        f.write(
-            """[Unit]
+    write_systemd_user_unit(
+        "service",
+        """[Unit]
 Description=Apply screen filter
 
 [Service]
 Type=oneshot
 ExecStart="/usr/bin/hyprshade" auto
-"""
-        )
+""",
+    )
 
-    with open(path.join(systemd_user_config_home(), "hyprshade.timer"), "w") as f:
-        on_calendar = "\n".join(
-            sorted([f"OnCalendar=*-*-* {x}" for x in schedule.on_calendar_entries()])
-        )
-        f.write(
-            f"""[Unit]
+    write_systemd_user_unit(
+        "timer",
+        f"""[Unit]
 Description=Apply screen filter on schedule
 
 [Timer]
-{on_calendar}
+{timer_config}
 
 [Install]
 WantedBy=timers.target
-"""
-        )
+""",
+    )
 
 
 @cli.command()
 def ls():
     """List available screen shaders."""
 
-    current_shader = get_screen_shader()
-    shader_base = path.basename(current_shader) if current_shader else None
+    current = Shader.current()
 
-    for shader in unique_justseen(
-        sorted(
-            flatten(
-                map(
-                    os.listdir,
-                    SHADER_DIRS,
-                )
-            )
-        )
-    ):
-        c = "*" if shader == shader_base else " "
-        shader, _ = path.splitext(shader)
+    for shader in map(Shader, ls_dirs(SHADER_DIRS)):
+        c = "*" if shader == current else " "
         click.echo(f"{c} {shader}")

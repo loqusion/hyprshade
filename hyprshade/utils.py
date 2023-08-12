@@ -1,9 +1,11 @@
 import os
+from collections.abc import Iterable, Iterator
 from datetime import time
-from os import path
+from os import PathLike, path
 from typing import TypeVar
 
 import click
+from more_itertools import flatten, unique_justseen
 
 
 def xdg_config_home():
@@ -32,6 +34,10 @@ def is_time_between(time_: time, start_time: time, end_time: time) -> bool:
     if end_time <= start_time:
         return start_time <= time_ or time_ <= end_time
     return start_time <= time_ <= end_time
+
+
+def ls_dirs(dirs: Iterable[str | PathLike[str]]) -> Iterator[str]:
+    return unique_justseen(sorted(flatten(map(os.listdir, dirs))))
 
 
 T = TypeVar("T", str, int, float, bool, click.ParamType)
