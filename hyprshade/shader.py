@@ -15,10 +15,10 @@ def _stripped_basename(s: str) -> str:
 
 class Shader:
     def __init__(self, shader_name_or_path: str):
-        self._shader_path = (
+        self._given_path = (
             shader_name_or_path if path.isfile(shader_name_or_path) else None
         )
-        self._shader_name = _stripped_basename(shader_name_or_path)
+        self._name = _stripped_basename(shader_name_or_path)
 
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Shader):
@@ -27,14 +27,14 @@ class Shader:
         return path.samefile(s, s2)
 
     def __str__(self) -> str:
-        return self._shader_name
+        return self._name
 
     def __repr__(self) -> str:
-        return f"Shader({self._shader_name!r})"
+        return f"Shader({self._name!r})"
 
     @property
     def shader_name(self) -> str:
-        return self._shader_name
+        return self._name
 
     def on(self) -> None:
         shader_path = self._resolve_path()
@@ -50,12 +50,12 @@ class Shader:
         return None if shader_name is None else Shader(shader_name)
 
     def _resolve_path(self) -> str:
-        if self._shader_path:
-            return self._shader_path
+        if self._given_path:
+            return self._given_path
 
         for dir in SHADER_DIRS:
-            shader_path = first(iglob(f"{self._shader_name}*", root_dir=dir), None)
+            shader_path = first(iglob(f"{self._name}*", root_dir=dir), None)
             if shader_path is not None:
                 return path.join(dir, shader_path)
 
-        raise FileNotFoundError(f"Shader {self._shader_name} does not exist")
+        raise FileNotFoundError(f"Shader {self._name} does not exist")
