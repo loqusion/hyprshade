@@ -58,15 +58,14 @@ def off():
     "--fallback-default",
     is_flag=True,
     default=False,
-    help="Use default shader as fallback. (see --fallback)",
+    help="Use default shader as fallback.",
 )
 @click.option(
     "--fallback-auto",
     is_flag=True,
     default=False,
-    help="Use currently scheduled shader as fallback."
-    " (If the currently scheduled shader is SHADER_NAME_OR_PATH, the default"
-    " shader will be used as the fallback instead.)",
+    help="Use currently scheduled shader as fallback. Equivalent to --fallback-default"
+    " when the currently scheduled shader is SHADER.",
 )
 def toggle(
     shader: Shader | None,
@@ -78,11 +77,8 @@ def toggle(
 
     If run with no arguments, SHADER_NAME_OR_PATH is inferred based on schedule.
 
-    When --fallback is specified, will toggle between SHADER_NAME_OR_PATH and the
-    fallback shader. --fallback-default will toggle between SHADER_NAME_OR_PATH and the
-    default shader, whereas --fallback-auto will toggle between SHADER_NAME_OR_PATH and
-    the currently scheduled shader. (--fallback-auto is equivalent to --fallback-default
-    if the currently scheduled shader is SHADER_NAME_OR_PATH.)
+    When a fallback shader is specified, will instead toggle between SHADER_NAME_OR_PATH
+    and the fallback shader.
     """
 
     t = datetime.now().time()
