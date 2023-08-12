@@ -177,5 +177,5 @@ def ls():
     current = Shader.current()
 
     for shader in map(Shader, ls_dirs(SHADER_DIRS)):
-        c = "*" if shader == current else " "
+        c = "*" if current is not None and shader.samefile(current) else " "
         click.echo(f"{c} {shader}")
