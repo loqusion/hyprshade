@@ -21,6 +21,7 @@ ruff = "^0.0.277"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.0"
+coverage = "^7.2.7"
 
 [tool.poetry.scripts]
 hyprshade = 'hyprshade.cli:main'
