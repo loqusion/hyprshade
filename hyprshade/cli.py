@@ -150,7 +150,8 @@ Description=Apply screen filter
 
 [Service]
 Type=oneshot
-ExecStart="/usr/bin/hyprshade" auto"""
+ExecStart="/usr/bin/hyprshade" auto
+"""
         )
 
     with open(path.join(systemd_user_config_home(), "hyprshade.timer"), "w") as f:
@@ -165,7 +166,8 @@ Description=Apply screen filter on schedule
 {on_calendar}
 
 [Install]
-WantedBy=timers.target"""
+WantedBy=timers.target
+"""
         )
 
 
