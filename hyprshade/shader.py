@@ -29,7 +29,7 @@ class Shader:
         return f"Shader({self._name!r})"
 
     @property
-    def shader_name(self) -> str:
+    def name(self) -> str:
         return self._name
 
     def on(self) -> None:
