@@ -37,8 +37,8 @@ class Shader:
         return self._name
 
     def on(self) -> None:
-        shader_path = self._resolve_path()
-        hyprctl.set_screen_shader(shader_path)
+        path_ = self._resolve_path()
+        hyprctl.set_screen_shader(path_)
 
     @staticmethod
     def off() -> None:
@@ -46,16 +46,16 @@ class Shader:
 
     @staticmethod
     def current() -> Shader | None:
-        shader_name = hyprctl.get_screen_shader()
-        return None if shader_name is None else Shader(shader_name)
+        name = hyprctl.get_screen_shader()
+        return None if name is None else Shader(name)
 
     def _resolve_path(self) -> str:
         if self._given_path:
             return self._given_path
 
         for dir in SHADER_DIRS:
-            shader_path = first(iglob(f"{self._name}*", root_dir=dir), None)
-            if shader_path is not None:
-                return path.join(dir, shader_path)
+            path_ = first(iglob(f"{self._name}*", root_dir=dir), None)
+            if path_ is not None:
+                return path.join(dir, path_)
 
         raise FileNotFoundError(f"Shader {self._name} does not exist")
