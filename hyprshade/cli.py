@@ -1,6 +1,6 @@
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, time
 
 import click
 from more_itertools import quantify
@@ -46,6 +46,40 @@ def off():
     Shader.off()
 
 
+def get_shader_to_toggle(
+    shader: Shader | None, fallback: Shader | None
+) -> Shader | None:
+    current = Shader.current()
+    if shader == current:
+        return fallback
+    return shader
+
+
+def get_fallback(
+    *,
+    shader: Shader | None,
+    default: Shader | None,
+    auto: Shader | None,
+    fallback_default: bool,
+    fallback_auto: bool,
+) -> Shader | None:
+    if fallback_default or (fallback_auto and shader == auto):
+        return default
+    elif fallback_auto:
+        return auto
+    return None
+
+
+def try_from_config(t: time, panic: bool) -> tuple[Shader | None, Shader | None]:
+    try:
+        schedule = Config().to_schedule()
+    except FileNotFoundError:
+        if panic:
+            raise
+        return None, None
+    return schedule.scheduled_shader(t), schedule.default_shader
+
+
 @cli.command()
 @click.argument("shader", **optional_param("SHADER", convert_to_shader))
 @click.option(
@@ -89,36 +123,21 @@ def toggle(
             "--fallback", "Cannot specify more than 1 --fallback* option"
         )
 
-    current = Shader.current()
-    try:
-        schedule = Config().to_schedule()
-        scheduled_shader = schedule.scheduled_shader(t)
-    except FileNotFoundError:
-        schedule = None
-        scheduled_shader = None
-    shader = shader or scheduled_shader
+    scheduled, default = try_from_config(t, fallback_default or fallback_auto)
+    shader = shader or scheduled
 
-    def get_fallback() -> Shader | None:
-        if not schedule:
-            return fallback
-        if fallback_default or (
-            fallback_auto
-            and shader
-            and scheduled_shader
-            and shader.samefile(scheduled_shader)
-        ):
-            return schedule.default_shader
-        elif fallback_auto:
-            return scheduled_shader
-        return fallback
-
-    fallback = get_fallback()
-    toggle_off = Shader.off if fallback is None else fallback.on
-
-    if current is not None and shader is not None and shader.samefile(current):
-        toggle_off()
-    elif shader is not None:
-        shader.on()
+    fallback = fallback or get_fallback(
+        shader=shader,
+        default=default,
+        auto=scheduled,
+        fallback_default=fallback_default,
+        fallback_auto=fallback_auto,
+    )
+    shader_to_toggle = get_shader_to_toggle(shader, fallback)
+    if shader_to_toggle:
+        shader_to_toggle.on()
+    else:
+        Shader.off()
 
 
 @cli.command()
@@ -129,10 +148,10 @@ def auto(ctx: click.Context):
     t = datetime.now().time()
     shader = Config().to_schedule().scheduled_shader(t)
 
-    if shader is None:
-        Shader.off()
-    else:
+    if shader:
         shader.on()
+    else:
+        Shader.off()
 
 
 @cli.command()

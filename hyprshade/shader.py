@@ -51,10 +51,6 @@ class Shader:
         name = hyprctl.get_screen_shader()
         return None if name is None else Shader(name)
 
-    def samefile(self, __value: Shader) -> bool:
-        s, s2 = self._resolve_path(), __value._resolve_path()
-        return path.samefile(s, s2)
-
     def _resolve_path(self) -> str:
         if self._given_path:
             return self._given_path
