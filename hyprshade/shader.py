@@ -16,7 +16,9 @@ def _stripped_basename(s: str) -> str:
 class Shader:
     def __init__(self, shader_name_or_path: str):
         self._given_path = (
-            shader_name_or_path if path.isfile(shader_name_or_path) else None
+            shader_name_or_path
+            if path.dirname(shader_name_or_path) and path.isfile(shader_name_or_path)
+            else None
         )
         self._name = _stripped_basename(shader_name_or_path)
 
