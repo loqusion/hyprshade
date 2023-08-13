@@ -87,11 +87,14 @@ class Shader:
         if self._given_path:
             return self._given_path
 
-        for dir in Shader.dirs.all():
+        dirs = Shader.dirs.all()
+        for dir in dirs:
             path_ = first(iglob(f"{self._name}*", root_dir=dir), None)
             if path_ is not None:
                 return path.join(dir, path_)
 
         raise FileNotFoundError(
-            f"Shader '{self._name}' could not be resolved to an existing file"
+            f"Shader '{self._name}' could not be found in any of the following"
+            " directories:\n\t"
+            "{}".format("\n\t".join(dirs))
         )
