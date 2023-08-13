@@ -47,6 +47,7 @@ extend-select = [
   "TCH", # flake8-type-checking
   "TID", # flake8-tidy-imports
   "UP",  # pyupgrade
+  "YTT", # flake8-2020
 ]
 
 [tool.mypy]
