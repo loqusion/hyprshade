@@ -37,6 +37,6 @@ jobs:
     - name: Check types with mypy
       run: |
         poetry run mypy hyprshade
-    - name: Test with pytest
+    - name: Test with pytest 
       run: |
-        poetry run pytest
+        poetry run pytest -m "not hyprland"
