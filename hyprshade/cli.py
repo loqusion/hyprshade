@@ -110,9 +110,9 @@ def toggle(
 ):
     """Toggle screen shader.
 
-    If run with no arguments, SHADER_NAME_OR_PATH is inferred based on schedule.
+    If run with no arguments, SHADER is inferred based on schedule.
 
-    When a fallback shader is specified, will instead toggle between SHADER_NAME_OR_PATH
+    When a fallback shader is specified, will instead toggle between SHADER
     and the fallback shader.
     """
 
