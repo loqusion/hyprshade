@@ -54,5 +54,5 @@ extend-select = [
 check_untyped_defs = true
 
 [tool.pytest.ini_options]
-addopts = ["--import-mode=importlib", "-m", "not hyprland"]
+addopts = ["-r", "a", "--import-mode=importlib", "-m", "not hyprland"]
 markers = ["hyprland: Tests that require hyprland to be running"]
