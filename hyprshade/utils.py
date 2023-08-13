@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 import os
-from collections.abc import Iterable, Iterator
-from datetime import time
 from os import PathLike, path
+from typing import TYPE_CHECKING
 
 from more_itertools import flatten, unique_justseen
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator
+    from datetime import time
 
 
 def xdg_config_home():

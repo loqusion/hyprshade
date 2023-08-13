@@ -1,9 +1,13 @@
-from collections.abc import Callable
-from typing import TypeVar
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, TypeVar
 
 import click
 
 from .shader import Shader
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def convert_to_shader(
