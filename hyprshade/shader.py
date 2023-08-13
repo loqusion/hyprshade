@@ -2,18 +2,50 @@ from __future__ import annotations
 
 from glob import iglob
 from os import path
+from typing import Final
 
 from more_itertools import first
 
+from hyprshade.utils import hypr_config_home
+
 from . import hyprctl
-from .constants import SHADER_DIRS
 
 
 def _stripped_basename(s: str) -> str:
     return path.splitext(path.basename(s))[0]
 
 
+class _ShaderDirs:
+    ENV_VAR_NAME: Final = "HYPRSHADE_SHADERS_DIR"
+
+    @staticmethod
+    def env() -> str:
+        return path.expanduser(
+            path.expandvars(path.expandvars("$" + _ShaderDirs.ENV_VAR_NAME))
+        )
+
+    SYSTEM_DIR: Final = "/usr/share/hyprshade/shaders"
+
+    @staticmethod
+    def system() -> str:
+        return _ShaderDirs.SYSTEM_DIR
+
+    @staticmethod
+    def user() -> str:
+        return path.join(hypr_config_home(), "shaders")
+
+    @staticmethod
+    def all() -> list[str]:
+        return [
+            x
+            for x in [_ShaderDirs.env(), _ShaderDirs.system(), _ShaderDirs.user()]
+            if path.exists(x)
+        ]
+
+
 class Shader:
+    dirs: Final = _ShaderDirs
+
     def __init__(self, shader_name_or_path: str):
         self._given_path = (
             shader_name_or_path
@@ -55,9 +87,11 @@ class Shader:
         if self._given_path:
             return self._given_path
 
-        for dir in SHADER_DIRS:
+        for dir in Shader.dirs.all():
             path_ = first(iglob(f"{self._name}*", root_dir=dir), None)
             if path_ is not None:
                 return path.join(dir, path_)
 
-        raise FileNotFoundError(f"Shader {self._name} does not exist")
+        raise FileNotFoundError(
+            f"Shader '{self._name}' could not be resolved to an existing file"
+        )

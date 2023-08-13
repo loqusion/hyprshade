@@ -9,7 +9,6 @@ from more_itertools import quantify
 
 from .click_utils import convert_to_shader, optional_param
 from .config import Config
-from .constants import SHADER_DIRS
 from .helpers import write_systemd_user_unit
 from .shader import Shader
 from .utils import ls_dirs
@@ -196,6 +195,6 @@ def ls():
 
     current = Shader.current()
 
-    for shader in map(Shader, ls_dirs(SHADER_DIRS)):
+    for shader in map(Shader, ls_dirs(Shader.dirs.all())):
         c = "*" if shader == current else " "
         click.echo(f"{c} {shader}")
