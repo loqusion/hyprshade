@@ -10,11 +10,11 @@ def _save_screen_shader():
 
     if screen_shader is None:
         hyprctl.clear_screen_shader()
-    else:
-        try:
-            hyprctl.set_screen_shader(screen_shader)
-        except BaseException:
-            import os
+        return
+    try:
+        hyprctl.set_screen_shader(screen_shader)
+    except BaseException:
+        import os
 
-            hyprctl.clear_screen_shader()
-            os.system('notify-send "hyprshade" "Failed to restore screen shader"')
+        hyprctl.clear_screen_shader()
+        os.system('notify-send "hyprshade" "Failed to restore screen shader"')
