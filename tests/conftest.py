@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from hyprshade import hyprctl
@@ -18,3 +20,10 @@ def _save_screen_shader():
 
         hyprctl.clear_screen_shader()
         os.system('notify-send "hyprshade" "Failed to restore screen shader"')
+
+
+@pytest.fixture()
+def shader_path(tmp_path: Path):
+    shader_path = tmp_path / "shader.frag"
+    shader_path.write_text("void main() {}")
+    return shader_path

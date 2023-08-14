@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from hyprshade.shader import Shader
+from hyprshade.shader import Shader, _stripped_basename
 
 
 class TestDirs:
@@ -96,10 +96,17 @@ class TestDisplay:
 
 
 @pytest.mark.hyprland()
+@pytest.mark.usefixtures("_save_screen_shader")
 class TestOnOff:
-    def test_on(self):
-        Shader("foo").on()
-        assert Shader.current() == Shader("foo")
+    def test_on(self, monkeypatch: pytest.MonkeyPatch, shader_path: Path):
+        monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(shader_path.parent))
+        name = _stripped_basename(str(shader_path))
+        Shader(name).on()
+        assert Shader.current() == Shader(name)
+
+    def test_on_path(self, shader_path: Path):
+        Shader(str(shader_path)).on()
+        assert Shader.current() == Shader(str(shader_path))
 
     def test_on_doesnotexist(self):
         with pytest.raises(FileNotFoundError):
