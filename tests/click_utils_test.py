@@ -3,7 +3,7 @@
 import click
 import pytest
 
-from . import click_utils
+from hyprshade import click_utils
 
 
 class TestConvertToShader:

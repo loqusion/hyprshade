@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from . import utils
+from hyprshade import utils
 
 
 class TestXDG:

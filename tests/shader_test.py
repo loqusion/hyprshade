@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from .shader import Shader
+from hyprshade.shader import Shader
 
 
 class TestDirs:
