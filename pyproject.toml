@@ -1,35 +1,27 @@
-[tool.poetry]
+[project]
 name = "hyprshade"
 version = "0.9.2"
 description = "Hyprland shade configuration tool"
-authors = ["John Bernard <loqusion@gmail.com>"]
-license = "MIT"
+authors = [{ name = "John Bernard", email = "loqusion@gmail.com" }]
+dependencies = ["more-itertools<10.0.0,>=9.1.0", "click<9.0.0,>=8.1.6"]
+requires-python = ">=3.11,<4.0"
 readme = "README.md"
-packages = [{ include = "hyprshade" }]
-include = ["examples", "shaders"]
+license = { text = "MIT" }
 
-[tool.poetry.dependencies]
-python = "^3.11"
-more-itertools = "^9.1.0"
-click = "^8.1.6"
+[project.scripts]
+hyprshade = "hyprshade.cli:main"
 
-[tool.poetry.group.dev.dependencies]
-black = "^23.3.0"
-twine = "^4.0.2"
-mypy = "^1.4.1"
-ruff = "^0.0.277"
-
-[tool.poetry.group.test.dependencies]
-pytest = "^7.4.0"
-coverage = "^7.2.7"
-
-[tool.poetry.scripts]
-hyprshade = 'hyprshade.cli:main'
+[project.optional-dependencies]
+dev = ["black>=23.7.0", "mypy>=1.5.1", "ruff>=0.0.285"]
+test = ["pytest>=7.4.0", "coverage>=7.3.0"]
 
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.build]
+includes = ["hyprshade", "examples", "shaders"]
 
 
 [tool.ruff]

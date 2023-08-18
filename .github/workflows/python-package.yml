@@ -5,13 +5,12 @@ name: Python package
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -19,24 +18,21 @@ jobs:
         python-version: ["3.11"]
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install poetry
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install poetry
-    - name: Install dependencies with poetry
-      run: |
-        poetry install --sync
-    - name: Lint with ruff
-      run: |
-        poetry run ruff check hyprshade
-    - name: Check types with mypy
-      run: |
-        poetry run mypy hyprshade
-    - name: Test with pytest 
-      run: |
-        poetry run pytest -m "not hyprland"
+      - uses: actions/checkout@v3
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          pdm sync -d -G test
+      - name: Lint with ruff
+        run: |
+          pdm run -v ruff check src
+      - name: Check types with mypy
+        run: |
+          pdm run -v mypy src
+      - name: Test with pytest
+        run: |
+          pdm run -v pytest -m "not hyprland"

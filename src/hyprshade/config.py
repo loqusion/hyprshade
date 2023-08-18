@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import os
+import tomllib
 from datetime import time
 from itertools import chain, pairwise
 from os import path
 from typing import TYPE_CHECKING, Literal, NotRequired, TypedDict, cast
 
-import tomllib
 from more_itertools import first_true, nth, partition
 
 from .shader import Shader
