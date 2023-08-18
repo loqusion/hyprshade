@@ -35,4 +35,4 @@ jobs:
           pdm run -v mypy src
       - name: Test with pytest
         run: |
-          pdm run -v pytest -m "not hyprland"
+          pdm run -v pytest -m "not hyprland" tests
