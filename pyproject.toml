@@ -12,9 +12,7 @@ license = { text = "MIT" }
 hyprshade = "hyprshade.cli:main"
 
 [project.optional-dependencies]
-dev = ["black>=23.7.0", "mypy>=1.5.1", "ruff>=0.0.285"]
 test = ["pytest>=7.4.0", "coverage>=7.3.0"]
-
 
 [build-system]
 requires = ["pdm-backend"]
@@ -22,6 +20,9 @@ build-backend = "pdm.backend"
 
 [tool.pdm.build]
 includes = ["hyprshade", "examples", "shaders"]
+
+[tool.pdm.dev-dependencies]
+dev = ["black>=23.7.0", "mypy>=1.5.1", "ruff>=0.0.285"]
 
 
 [tool.ruff]
