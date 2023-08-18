@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pdm sync -dGtest
+          pdm sync -v -dGdev -dGtest
       - name: Lint with ruff
         run: |
           pdm run -v ruff check src
