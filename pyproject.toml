@@ -17,7 +17,7 @@ requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
 [tool.pdm.build]
-includes = ["hyprshade", "examples", "shaders"]
+includes = ["src/hyprshade", "examples", "shaders"]
 
 [tool.pdm.dev-dependencies]
 dev = ["black>=23.7.0", "mypy>=1.5.1", "ruff>=0.0.285"]
