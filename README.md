@@ -2,6 +2,8 @@
 
 Frontend to Hyprland's screen shader feature
 
+[Screenshots](SCREENSHOTS.md)
+
 ## Description
 
 Hyprshade takes full advantage of Hyprland's `decoration:screen_shader` feature
