@@ -39,12 +39,9 @@ class TestConstructor:
     def test_name(self):
         assert Shader("foo")._name == "foo"
 
-    def test_path(self, tmp_path: Path):
-        shader_path = tmp_path / "foo.glsl"
-        shader_path.touch()
-
+    def test_path(self, shader_path: Path):
         shader = Shader(str(shader_path))
-        assert shader._name == "foo"
+        assert shader._name == "shader"
         assert shader._given_path == str(shader_path)
 
     def test_nonexistent_path(self, tmp_path: Path):
@@ -118,15 +115,24 @@ class TestOnOff:
 
 
 class TestResolvePath:
-    def test_one_path(self, tmp_path: Path):
-        pass
+    def test_one_path(self, monkeypatch: pytest.MonkeyPatch, shader_path: Path):
+        monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(shader_path.parent))
+        assert Shader("shader")._resolve_path() == str(shader_path)
 
-    def test_multiple_paths(self, tmp_path: Path):
-        pass
+    def test_env_priority(
+        self, monkeypatch: pytest.MonkeyPatch, shader_path: Path, tmp_path: Path
+    ):
+        system_path = tmp_path / "hypr/system/shaders"
+        system_path.mkdir(parents=True)
+        (system_path / "shader.glsl").touch()
+        assert (system_path / "shader.glsl").exists(), "test assumption failed"
 
-    def test_given_path(self, tmp_path: Path):
-        shader_path = tmp_path / "foo.glsl"
-        shader_path.touch()
+        Shader.dirs.SYSTEM_DIR = str(tmp_path)  # type: ignore[misc]
+        monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(shader_path.parent))
+
+        assert Shader("shader")._resolve_path() == str(shader_path)
+
+    def test_given_path(self, shader_path: Path):
         assert Shader(str(shader_path))._resolve_path() == str(shader_path)
 
     def test_notfound(self, tmp_path: Path):
@@ -137,3 +143,10 @@ class TestResolvePath:
         assert not path_not_exist.exists(), "test assumption failed"
         with pytest.raises(FileNotFoundError):
             Shader(str(path_not_exist))._resolve_path()
+
+    def test_ignores_cwd(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+        shader_path = tmp_path / "foo.glsl"
+        shader_path.touch()
+        monkeypatch.chdir(tmp_path)
+        with pytest.raises(FileNotFoundError):
+            Shader("foo")._resolve_path()
