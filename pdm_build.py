@@ -16,13 +16,9 @@ FILE_NAMES: Final = {
 }
 
 
-def generate_completions(shell: str, target_dir: Path, root_dir: Path):
-    completion_script = root_dir / "completion.sh"
+def generate_completions(shell: str, target_dir: Path):
     pipe = subprocess.run(
-        ["bash", str(completion_script), shell],
-        capture_output=True,
-        text=True,
-        check=True,
+        ["bash", "completion.sh", shell], capture_output=True, text=True, check=True
     )
 
     file_name = FILE_NAMES.get(shell, None)
@@ -39,4 +35,4 @@ def pdm_build_initialize(context: Context):
     completions_dir.mkdir(parents=True, exist_ok=True)
 
     for shell in ["bash", "zsh", "fish"]:
-        generate_completions(shell, completions_dir, context.root)
+        generate_completions(shell, completions_dir)
