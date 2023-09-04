@@ -1,28 +1,65 @@
 [project]
 name = "hyprshade"
-version = "0.9.3"
+dynamic = ["version"]
 description = "Hyprland shade configuration tool"
 authors = [{ name = "John Bernard", email = "loqusion@gmail.com" }]
-dependencies = ["more-itertools<10.0.0,>=9.1.0", "click<9.0.0,>=8.1.6"]
-requires-python = ">=3.11,<4.0"
 readme = "README.md"
+requires-python = ">=3.11,<4.0"
 license = { text = "MIT" }
+dependencies = ["click>=8.1.7", "more_itertools>=10.1.0"]
+
+[project.urls]
+Issues = "https://github.com/loqusion/hyprshade/issues"
+Source = "https://github.com/loqusion/hyprshade"
 
 [project.scripts]
 hyprshade = "hyprshade.cli:main"
 
-
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.pdm.build]
-includes = ["src/hyprshade/", "examples/", "shaders/"]
-source-includes = ["tests/"]
 
-[tool.pdm.dev-dependencies]
-dev = ["black>=23.7.0", "mypy>=1.5.1", "ruff>=0.0.285"]
-test = ["pytest>=7.4.0", "coverage>=7.3.0"]
+[tool.rye]
+managed = true
+dev-dependencies = [
+  "black>=23.7.0",
+  "coverage>=7.3.0",
+  "hatchling>=1.18.0",
+  "mypy>=1.5.1",
+  "pytest>=7.4.1",
+  "ruff>=0.0.287",
+]
+
+[tool.rye.scripts]
+test = { chain = ["test:coverage-report"] }
+lint = { chain = ["lint:style", "lint:typing"] }
+fmt = { chain = ["lint:fmt:black", "lint:fmt:ruff"] }
+
+"test:pytest" = "pytest tests/"
+"test:coverage" = "coverage run -m pytest tests/"
+"test:_coverage-report" = "coverage report"
+"test:coverage-report" = { chain = ["test:coverage", "test:_coverage-report"] }
+
+"lint:typing" = "mypy --install-types --non-interactive src/hyprshade tests"
+"lint:style" = { chain = ["lint:ruff", "lint:formatting"] }
+"lint:ruff" = "ruff check ."
+"lint:formatting" = "black --check --diff ."
+"lint:fmt:black" = "black ."
+"lint:fmt:ruff" = "ruff --fix ."
+
+
+[tool.hatch.version]
+path = "src/hyprshade/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/hyprshade", "tests"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hyprshade"]
+[tool.hatch.build.targets.wheel.shared-data]
+"examples" = "share/hyprshade/examples"
+"shaders" = "share/hyprshade/shaders"
 
 
 [tool.ruff]
@@ -42,6 +79,9 @@ extend-select = [
   "UP",  # pyupgrade
   "YTT", # flake8-2020
 ]
+
+[tool.ruff.isort]
+known-first-party = ["hyprshade"]
 
 [tool.mypy]
 check_untyped_defs = true
