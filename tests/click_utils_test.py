@@ -2,6 +2,7 @@
 
 import click
 import pytest
+
 from hyprshade import click_utils
 
 
