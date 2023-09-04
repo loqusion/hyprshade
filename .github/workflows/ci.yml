@@ -16,20 +16,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up PDM
-        uses: pdm-project/setup-pdm@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
+      - name: setup rye
+        uses: sksat/setup-rye@v0.7.0
+        with:
+          version: 0.13.0
+      - name: Install dependencies with rye
         run: |
-          pdm sync -v -dGdev -dGtest
-      - name: Lint with ruff
+          rye sync
+      - name: Lint
         run: |
-          pdm run -v ruff check src
-      - name: Check types with mypy
+          rye run lint:style
+          rye run lint:typing
+      - name: Test
         run: |
-          pdm run -v mypy src
-      - name: Test with pytest
-        run: |
-          pdm run -v pytest -m "not hyprland" tests
+          rye run test:pytest
