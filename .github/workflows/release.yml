@@ -26,10 +26,8 @@ jobs:
         run: |
           rye sync
       - name: Build
-        # NOTE: `rye build --wheel` must be run in order to include the .data files (for some reason)
         run: |
-          rye build --wheel
-          rye build --sdist
+          rye build --sdist --wheel
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@v1.8.10
         with:
