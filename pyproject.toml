@@ -27,6 +27,7 @@ dev-dependencies = [
   "coverage>=7.3.0",
   "hatchling>=1.18.0",
   "mypy>=1.5.1",
+  "pip>=23.2.1",
   "pytest>=7.4.1",
   "ruff>=0.0.287",
 ]
