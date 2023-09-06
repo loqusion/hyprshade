@@ -54,12 +54,11 @@ fmt = { chain = ["lint:fmt:black", "lint:fmt:ruff"] }
 path = "src/hyprshade/__init__.py"
 
 [tool.hatch.build.targets.sdist]
-include = ["src/hyprshade", "tests"]
+include = ["src/hyprshade", "tests", "shaders"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/hyprshade"]
 [tool.hatch.build.targets.wheel.shared-data]
-"examples" = "share/hyprshade/examples"
 "shaders" = "share/hyprshade/shaders"
 
 
