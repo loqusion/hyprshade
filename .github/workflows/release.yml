@@ -27,7 +27,7 @@ jobs:
           rye sync
       - name: Build
         run: |
-          rye build --sdist --wheel
+          rye build
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@v1.8.10
         with:
