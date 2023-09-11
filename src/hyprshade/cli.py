@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import sys
+from os import path
 from datetime import datetime, time
 
 import click
@@ -190,11 +191,18 @@ WantedBy=timers.target
 
 
 @cli.command()
-def ls():
+@click.option("-l", "--long", is_flag=True, help="Also show path to each shader.")
+def ls(long: bool):
     """List available screen shaders."""
 
     current = Shader.current()
+    shaders = list(map(Shader, ls_dirs(Shader.dirs.all())))
+    width = max(map(len, map(str, shaders))) + 1
 
-    for shader in map(Shader, ls_dirs(Shader.dirs.all())):
+    for shader in shaders:
         c = "*" if shader == current else " "
-        click.echo(f"{c} {shader}")
+        if long:
+            dir = shader.dirname()
+            click.echo(f"{c} {shader!s:{width}} {dir}")
+            continue
+        click.echo(f"{c} {shader!s}")

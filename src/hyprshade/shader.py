@@ -76,6 +76,9 @@ class Shader:
     def name(self) -> str:
         return self._name
 
+    def dirname(self) -> str:
+        return path.dirname(self._resolve_path())
+
     def on(self) -> None:
         path_ = self._resolve_path()
         hyprctl.set_screen_shader(path_)
