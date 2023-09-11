@@ -4,7 +4,7 @@ from glob import iglob
 from os import path
 from typing import Final
 
-from more_itertools import first
+from more_itertools import first, first_true
 
 from hyprshade.utils import hypr_config_home
 
@@ -28,7 +28,13 @@ class _ShaderDirs:
 
     @staticmethod
     def system() -> str:
-        return _ShaderDirs.SYSTEM_DIR
+        import sysconfig
+
+        return first_true(
+            [path.join(sysconfig.get_path("data"), "share", "hyprshade", "shaders")],
+            pred=path.exists,
+            default=_ShaderDirs.SYSTEM_DIR,
+        )
 
     @staticmethod
     def user() -> str:
