@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import subprocess
 from json import JSONDecodeError
-from os import path
 from typing import Final
 
 EMPTY_STR: Final = "[[EMPTY]]"
@@ -45,7 +44,5 @@ def get_screen_shader() -> str | None:
     shader = str(shader_json["str"]).strip()
     if shader == EMPTY_STR:
         return None
-    if not path.isfile(shader):
-        raise RuntimeError(f"Got shader {shader} from hyprctl, which does not exist")
 
     return shader

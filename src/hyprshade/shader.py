@@ -54,16 +54,18 @@ class Shader:
 
     def __init__(self, shader_name_or_path: str):
         self._given_path = (
-            shader_name_or_path
-            if path.dirname(shader_name_or_path) and path.isfile(shader_name_or_path)
-            else None
+            shader_name_or_path if shader_name_or_path.find(path.sep) != -1 else None
         )
         self._name = _stripped_basename(shader_name_or_path)
+        self._stale = self._given_path is not None and not path.exists(self._given_path)
 
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Shader):
             return False
-        s, s2 = self._resolve_path(), __value._resolve_path()
+        try:
+            s, s2 = self._resolve_path(), __value._resolve_path()
+        except FileNotFoundError:
+            return False
         return path.samefile(s, s2)
 
     def __str__(self) -> str:
@@ -75,6 +77,10 @@ class Shader:
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def stale(self) -> bool:
+        return self._stale
 
     def dirname(self) -> str:
         return path.dirname(self._resolve_path())
@@ -89,10 +95,14 @@ class Shader:
 
     @staticmethod
     def current() -> Shader | None:
-        name = hyprctl.get_screen_shader()
-        return None if name is None else Shader(name)
+        path_ = hyprctl.get_screen_shader()
+        return None if path_ is None else Shader(path_)
 
     def _resolve_path(self) -> str:
+        if self._stale:
+            raise FileNotFoundError(
+                f"Shader '{self._name}' does not exist at '{self._given_path}'"
+            )
         if self._given_path:
             return self._given_path
 
