@@ -51,9 +51,9 @@ def get_shader_to_toggle(
     shader: Shader | None, fallback: Shader | None
 ) -> Shader | None:
     current = Shader.current()
-    if shader == current:
-        return fallback
-    return shader
+    if shader != current:
+        return shader
+    return fallback
 
 
 def get_fallback(
