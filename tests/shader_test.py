@@ -1,3 +1,4 @@
+import sysconfig
 from pathlib import Path
 
 import pytest
@@ -13,7 +14,10 @@ class TestDirs:
         assert Shader.dirs.env() == "$" + Shader.dirs.ENV_VAR_NAME
 
     def test_system(self):
-        assert Shader.dirs.system() == Shader.dirs.SYSTEM_DIR
+        expected = Path(
+            sysconfig.get_path("data"), "share", "hyprshade", "shaders"
+        ).resolve()
+        assert str(expected) == Shader.dirs.system()
 
     def test_user(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
         monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
@@ -24,9 +28,7 @@ class TestDirs:
         env_path.mkdir(parents=True)
         monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(env_path))
 
-        system_path = tmp_path / "hypr/system/shaders"
-        system_path.mkdir(parents=True)
-        Shader.dirs.SYSTEM_DIR = str(system_path)  # type: ignore[misc]
+        system_path = Path(sysconfig.get_path("data"), "share", "hyprshade", "shaders")
 
         user_path = tmp_path / "hypr/shaders"
         user_path.mkdir(parents=True)
