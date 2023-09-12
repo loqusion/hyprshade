@@ -71,7 +71,7 @@ def get_fallback(
     return None
 
 
-def try_from_config(t: time, panic: bool) -> tuple[Shader | None, Shader | None]:
+def try_from_config(t: time, *, panic: bool) -> tuple[Shader | None, Shader | None]:
     try:
         schedule = Config().to_schedule()
     except FileNotFoundError:
