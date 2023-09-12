@@ -52,7 +52,8 @@ class TestConstructor:
 
         shader = Shader(str(shader_path))
         assert shader._name == "foo"
-        assert shader._given_path is None
+        assert shader._given_path == str(shader_path)
+        assert shader._stale
 
 
 class TestEquality:
