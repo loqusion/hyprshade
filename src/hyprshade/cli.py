@@ -161,7 +161,7 @@ def auto(ctx: click.Context):
 
 @cli.command()
 def install():
-    """Install systemd user units for scheduled shader activation."""
+    """Install systemd user units."""
 
     schedule = Config().to_schedule()
     timer_config = "\n".join(
