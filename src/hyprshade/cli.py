@@ -16,7 +16,7 @@ from .utils import ls_dirs
 
 @click.group()
 @click.version_option()
-@click.option("-v", "--verbose", is_flag=True, help="Enable verbose output.")
+@click.option("-v", "--verbose", is_flag=True, help="Enable verbose output")
 def cli(verbose: bool):
     level = logging.DEBUG if verbose else logging.WARNING
     logging.basicConfig(level=level)
@@ -87,20 +87,19 @@ def try_from_config(t: time, panic: bool) -> tuple[Shader | None, Shader | None]
     "--fallback",
     metavar="SHADER",
     callback=convert_to_shader,
-    help="Shader to switch to instead of toggling off.",
+    help="Select fallback shader",
 )
 @click.option(
     "--fallback-default",
     is_flag=True,
     default=False,
-    help="Use default shader as fallback.",
+    help="Use default shader as fallback",
 )
 @click.option(
     "--fallback-auto",
     is_flag=True,
     default=False,
-    help="Use currently scheduled shader as fallback. Equivalent to --fallback-default"
-    " when the currently scheduled shader is SHADER.",
+    help="Automatically infer fallback",
 )
 def toggle(
     shader: Shader | None,
@@ -110,10 +109,15 @@ def toggle(
 ):
     """Toggle screen shader.
 
-    If run with no arguments, SHADER is inferred based on schedule.
+    The default behavior is to toggle between SHADER and off. If SHADER is
+    not provided, it is inferred from schedule configuration.
 
-    When a fallback shader is specified, will instead toggle between SHADER
-    and the fallback shader.
+    When a fallback shader is provided with one of the --fallback* options, the
+    toggle will be between SHADER and the fallback shader.
+
+    --fallback-auto will determine the fallback from the schedule configuration.
+    If the currently scheduled shader and SHADER are identical, the fallback
+    will instead be the default shader.
     """
 
     t = datetime.now().time()
@@ -121,10 +125,10 @@ def toggle(
     fallback_opts = [fallback, fallback_default, fallback_auto]
     if quantify(fallback_opts) > 1:
         raise click.BadOptionUsage(
-            "--fallback", "Cannot specify more than 1 --fallback* option"
+            "--fallback", "Must not specify more than one --fallback* option"
         )
 
-    scheduled, default = try_from_config(t, fallback_default or fallback_auto)
+    scheduled, default = try_from_config(t, panic=(fallback_default or fallback_auto))
     shader = shader or scheduled
 
     fallback = fallback or get_fallback(
@@ -144,7 +148,7 @@ def toggle(
 @cli.command()
 @click.pass_context
 def auto(ctx: click.Context):
-    """Turn on/off screen shader based on schedule."""
+    """Set screen shader based on schedule."""
 
     t = datetime.now().time()
     shader = Config().to_schedule().scheduled_shader(t)
@@ -157,7 +161,7 @@ def auto(ctx: click.Context):
 
 @cli.command()
 def install():
-    """Install systemd user units."""
+    """Install systemd user units for scheduled shader activation."""
 
     schedule = Config().to_schedule()
     timer_config = "\n".join(
@@ -190,7 +194,7 @@ WantedBy=timers.target
 
 
 @cli.command()
-@click.option("-l", "--long", is_flag=True, help="Also show path to each shader.")
+@click.option("-l", "--long", is_flag=True, help="Long listing format")
 def ls(long: bool):
     """List available screen shaders."""
 
