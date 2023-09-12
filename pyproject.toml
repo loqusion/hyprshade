@@ -36,6 +36,7 @@ dev-dependencies = [
 test = { chain = ["test:coverage-report"] }
 lint = { chain = ["lint:style", "lint:typing"] }
 fmt = { chain = ["lint:fmt:black", "lint:fmt:ruff"] }
+release = "./scripts/release.sh"
 
 "test:pytest" = "pytest tests/"
 "test:coverage" = "coverage run -m pytest tests/"
