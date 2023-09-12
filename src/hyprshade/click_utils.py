@@ -13,7 +13,10 @@ if TYPE_CHECKING:
 def convert_to_shader(
     ctx: click.Context, param: click.Argument, shader_name_or_path: str | None
 ):
-    return Shader(shader_name_or_path) if shader_name_or_path is not None else None
+    shader = Shader(shader_name_or_path) if shader_name_or_path is not None else None
+    if shader is not None and shader.stale:
+        raise click.BadParameter(f"Shader {shader_name_or_path} does not exist")
+    return shader
 
 
 T = TypeVar("T", str, int, float, bool, click.ParamType)
