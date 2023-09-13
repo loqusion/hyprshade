@@ -6,7 +6,7 @@ from datetime import datetime, time
 import click
 from more_itertools import quantify
 
-from hyprshade.config import Config
+from hyprshade.config.schedule import Schedule
 from hyprshade.shader import Shader
 
 from .utils import (
@@ -76,7 +76,7 @@ def get_fallback(
 
 def try_from_config(t: time, *, panic: bool) -> tuple[Shader | None, Shader | None]:
     try:
-        schedule = Config().to_schedule()
+        schedule = Schedule.from_config()
     except FileNotFoundError:
         if panic:
             raise
@@ -154,7 +154,7 @@ def auto(ctx: click.Context):
     """Set screen shader based on schedule."""
 
     t = datetime.now().time()
-    shader = Config().to_schedule().scheduled_shader(t)
+    shader = Schedule.from_config().scheduled_shader(t)
 
     if shader:
         shader.on()
@@ -166,7 +166,7 @@ def auto(ctx: click.Context):
 def install():
     """Install systemd user units."""
 
-    schedule = Config().to_schedule()
+    schedule = Schedule.from_config()
     timer_config = "\n".join(
         sorted([f"OnCalendar=*-*-* {x}" for x in schedule.event_times()])
     )

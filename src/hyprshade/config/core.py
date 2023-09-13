@@ -7,7 +7,6 @@ from typing import cast
 
 from more_itertools import first_true, nth, partition
 
-from .schedule import Schedule
 from .types import ConfigDict, DefaultShadeConfig, ShaderConfig
 from .utils import hypr_config_home, hyprshade_config_home
 
@@ -46,6 +45,3 @@ class Config:
         assert nth(yes_default, 0) is None, "There should be only one default shade"
 
         return rest, default
-
-    def to_schedule(self) -> Schedule:
-        return Schedule(self)

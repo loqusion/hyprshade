@@ -65,3 +65,9 @@ class Schedule:
             start_time = entry.start_time
             end_time = entry.end_time or next_entry.start_time
             yield entry.shader, (start_time, end_time)
+
+    @staticmethod
+    def from_config(path_: str | None = None) -> Schedule:
+        from .core import Config
+
+        return Schedule(Config(path_))
