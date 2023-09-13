@@ -1,17 +1,20 @@
 from __future__ import annotations
 
 import logging
-import sys
 from datetime import datetime, time
 
 import click
 from more_itertools import quantify
 
-from .click_utils import convert_to_shader, optional_param
-from .config import Config
-from .helpers import write_systemd_user_unit
-from .shader import Shader
-from .utils import ls_dirs
+from hyprshade.config import Config
+from hyprshade.shader import Shader
+
+from .utils import (
+    convert_to_shader,
+    ls_dirs,
+    optional_param,
+    write_systemd_user_unit,
+)
 
 
 @click.group()
@@ -24,12 +27,12 @@ def cli(verbose: bool):
 
 def main():
     try:
-        cli()
+        return cli()
     except Exception as e:
         if logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
             raise e
         click.echo(f"Error: {e}", err=True)
-        sys.exit(1)
+        return 1
 
 
 @cli.command()

@@ -6,7 +6,7 @@ from typing import Final
 
 from more_itertools import first, first_true
 
-from hyprshade.utils import hypr_config_home
+from hyprshade.config.utils import hypr_config_home
 
 from . import hyprctl
 

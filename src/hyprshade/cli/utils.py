@@ -1,13 +1,20 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar
+import os
+from os import PathLike, path
+from typing import TYPE_CHECKING, Literal, TypeVar
 
 import click
+from more_itertools import flatten, unique_justseen
 
-from .shader import Shader
+from hyprshade.config.utils import systemd_user_config_home
+from hyprshade.shader import Shader
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable, Iterator
+
+T = TypeVar("T", str, int, float, bool, click.ParamType)
+SystemdUnitType = Literal["service", "timer"]
 
 
 def convert_to_shader(
@@ -17,9 +24,6 @@ def convert_to_shader(
     if shader is not None and shader.stale:
         raise click.BadParameter(f"Shader {shader_name_or_path} does not exist")
     return shader
-
-
-T = TypeVar("T", str, int, float, bool, click.ParamType)
 
 
 def validate_optional_param(
@@ -48,3 +52,14 @@ def optional_param(metavar: str | None = None, callback: Callable | None = None)
         "nargs": -1,
         "callback": merged_callback,
     }
+
+
+def ls_dirs(dirs: Iterable[str | PathLike[str]]) -> Iterator[str]:
+    return unique_justseen(sorted(flatten(map(os.listdir, dirs))))
+
+
+def write_systemd_user_unit(unit_type: SystemdUnitType, body: str):
+    dest_dir = systemd_user_config_home()
+    os.makedirs(dest_dir, exist_ok=True)
+    with open(path.join(dest_dir, f"hyprshade.{unit_type}"), "w") as f:
+        f.write(body)
