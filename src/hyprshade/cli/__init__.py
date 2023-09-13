@@ -1,20 +1,25 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, time
+from typing import Final
 
 import click
-from more_itertools import quantify
 
-from hyprshade.config.schedule import Schedule
-from hyprshade.shader import Shader
+from .auto import auto
+from .install import install
+from .ls import ls
+from .off import off
+from .on import on
+from .toggle import toggle
 
-from .utils import (
-    convert_to_shader,
-    ls_dirs,
-    optional_param,
-    write_systemd_user_unit,
-)
+COMMANDS: Final = [
+    auto,
+    install,
+    ls,
+    off,
+    on,
+    toggle,
+]
 
 
 @click.group()
@@ -25,6 +30,10 @@ def cli(verbose: bool):
     logging.basicConfig(level=level)
 
 
+for command in COMMANDS:
+    cli.add_command(command)
+
+
 def main():
     try:
         return cli()
@@ -33,182 +42,3 @@ def main():
             raise e
         click.echo(f"Error: {e}", err=True)
         return 1
-
-
-@cli.command()
-@click.argument("shader", callback=convert_to_shader)
-def on(shader: Shader):
-    """Turn on screen shader."""
-
-    shader.on()
-
-
-@cli.command()
-def off():
-    """Turn off screen shader."""
-
-    Shader.off()
-
-
-def get_shader_to_toggle(
-    shader: Shader | None, fallback: Shader | None
-) -> Shader | None:
-    current = Shader.current()
-    if shader != current:
-        return shader
-    return fallback
-
-
-def get_fallback(
-    *,
-    shader: Shader | None,
-    default: Shader | None,
-    auto: Shader | None,
-    fallback_default: bool,
-    fallback_auto: bool,
-) -> Shader | None:
-    if fallback_default or (fallback_auto and shader == auto):
-        return default
-    elif fallback_auto:
-        return auto
-    return None
-
-
-def try_from_config(t: time, *, panic: bool) -> tuple[Shader | None, Shader | None]:
-    try:
-        schedule = Schedule.from_config()
-    except FileNotFoundError:
-        if panic:
-            raise
-        return None, None
-    return schedule.scheduled_shader(t), schedule.default_shader
-
-
-@cli.command()
-@click.argument("shader", **optional_param("SHADER", convert_to_shader))
-@click.option(
-    "--fallback",
-    metavar="SHADER",
-    callback=convert_to_shader,
-    help="Select fallback shader",
-)
-@click.option(
-    "--fallback-default",
-    is_flag=True,
-    default=False,
-    help="Use default shader as fallback",
-)
-@click.option(
-    "--fallback-auto",
-    is_flag=True,
-    default=False,
-    help="Automatically infer fallback",
-)
-def toggle(
-    shader: Shader | None,
-    fallback: Shader | None,
-    fallback_default: bool,
-    fallback_auto: bool,
-):
-    """Toggle screen shader.
-
-    The default behavior is to toggle between SHADER and off. If SHADER is
-    not provided, it is inferred from schedule configuration.
-
-    When a fallback shader is provided with one of the --fallback* options, the
-    toggle will be between SHADER and the fallback shader.
-
-    --fallback-auto will determine the fallback from the schedule configuration.
-    If the currently scheduled shader and SHADER are identical, the fallback
-    will instead be the default shader.
-    """
-
-    t = datetime.now().time()
-
-    fallback_opts = [fallback, fallback_default, fallback_auto]
-    if quantify(fallback_opts) > 1:
-        raise click.BadOptionUsage(
-            "--fallback", "Must not specify more than one --fallback* option"
-        )
-
-    scheduled, default = try_from_config(t, panic=(fallback_default or fallback_auto))
-    shader = shader or scheduled
-
-    fallback = fallback or get_fallback(
-        shader=shader,
-        default=default,
-        auto=scheduled,
-        fallback_default=fallback_default,
-        fallback_auto=fallback_auto,
-    )
-    shader_to_toggle = get_shader_to_toggle(shader, fallback)
-    if shader_to_toggle:
-        shader_to_toggle.on()
-    else:
-        Shader.off()
-
-
-@cli.command()
-@click.pass_context
-def auto(ctx: click.Context):
-    """Set screen shader based on schedule."""
-
-    t = datetime.now().time()
-    shader = Schedule.from_config().scheduled_shader(t)
-
-    if shader:
-        shader.on()
-    else:
-        Shader.off()
-
-
-@cli.command()
-def install():
-    """Install systemd user units."""
-
-    schedule = Schedule.from_config()
-    timer_config = "\n".join(
-        sorted([f"OnCalendar=*-*-* {x}" for x in schedule.event_times()])
-    )
-
-    write_systemd_user_unit(
-        "service",
-        """[Unit]
-Description=Apply screen filter
-
-[Service]
-Type=oneshot
-ExecStart="/usr/bin/hyprshade" auto
-""",
-    )
-
-    write_systemd_user_unit(
-        "timer",
-        f"""[Unit]
-Description=Apply screen filter on schedule
-
-[Timer]
-{timer_config}
-
-[Install]
-WantedBy=timers.target
-""",
-    )
-
-
-@cli.command()
-@click.option("-l", "--long", is_flag=True, help="Long listing format")
-def ls(long: bool):
-    """List available screen shaders."""
-
-    current = Shader.current()
-    shaders = list(map(Shader, ls_dirs(Shader.dirs.all())))
-    width = max(map(len, map(str, shaders))) + 1
-
-    for shader in shaders:
-        c = "*" if shader == current else " "
-        if long:
-            dir = shader.dirname()
-            click.echo(f"{c} {shader!s:{width}} {dir}")
-            continue
-        click.echo(f"{c} {shader!s}")
