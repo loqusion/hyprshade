@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from hyprshade.shader import Shader, _stripped_basename
+from hyprshade.shader.core import Shader, _stripped_basename
 
 
 class TestDirs:

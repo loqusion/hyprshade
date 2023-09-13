@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from hyprshade import hyprctl
+from hyprshade.shader import hyprctl
 
 
 @pytest.mark.hyprland()
