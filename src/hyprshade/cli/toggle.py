@@ -8,10 +8,7 @@ from more_itertools import quantify
 from hyprshade.config.schedule import Schedule
 from hyprshade.shader import Shader
 
-from .utils import (
-    convert_to_shader,
-    optional_param,
-)
+from .utils import convert_to_shader, optional_param
 
 
 def get_shader_to_toggle(

@@ -4,9 +4,7 @@ from typing import TYPE_CHECKING
 
 import click
 
-from .utils import (
-    convert_to_shader,
-)
+from .utils import convert_to_shader
 
 if TYPE_CHECKING:
     from hyprshade.shader import Shader

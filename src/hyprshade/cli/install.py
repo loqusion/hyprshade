@@ -4,9 +4,7 @@ import click
 
 from hyprshade.config.schedule import Schedule
 
-from .utils import (
-    write_systemd_user_unit,
-)
+from .utils import write_systemd_user_unit
 
 
 @click.command(short_help="Install systemd user units")
