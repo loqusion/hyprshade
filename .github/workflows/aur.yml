@@ -15,7 +15,7 @@ jobs:
     environment: AUR
     steps:
       - uses: actions/checkout@v3
-      - uses: loqusion/aur-publish-action@v1
+      - uses: loqusion/aur-publish-action@main
         with:
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           package_name: hyprshade
