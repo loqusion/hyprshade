@@ -19,3 +19,4 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           package-name: hyprshade
+          debug: true
