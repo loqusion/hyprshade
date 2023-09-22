@@ -2,7 +2,7 @@
 
 Frontend to Hyprland's screen shader feature
 
-[Screenshots](SCREENSHOTS.md)
+[Screenshots](https://github.com/loqusion/hyprshade/blob/main/SCREENSHOTS.md)
 
 ## Description
 

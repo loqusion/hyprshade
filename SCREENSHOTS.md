@@ -2,12 +2,12 @@
 
 ## Unfiltered
 
-![Unfiltered](./assets/unfiltered.png)
+![Unfiltered](./.github/assets/unfiltered.png)
 
 ## Vibrance
 
-![Vibrance](./assets/vibrance.png)
+![Vibrance](./.github/assets/vibrance.png)
 
 ## Blue Light Filter
 
-![Blue Light Filter](./assets/blue-light-filter.png)
+![Blue Light Filter](./.github/assets/blue-light-filter.png)
