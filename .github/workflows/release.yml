@@ -33,3 +33,18 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+
+  aur-update:
+    name: publish to AUR
+    needs: release-pypi
+    runs-on: ubuntu-latest
+    environment: AUR
+    concurrency:
+      group: "aur"
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v3
+      - uses: loqusion/aur-publish-action@main
+        with:
+          ssh-private-key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          package-name: hyprshade
