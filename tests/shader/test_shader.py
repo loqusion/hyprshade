@@ -1,40 +1,32 @@
-import sysconfig
+from collections.abc import Callable
 from pathlib import Path
 
 import pytest
 
-from hyprshade.shader.core import Shader, _stripped_basename
+from hyprshade.shader.core import Shader
 
 
 class TestDirs:
-    def test_env(self, monkeypatch: pytest.MonkeyPatch):
-        monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, "/foo/bar")
-        assert Shader.dirs.env() == "/foo/bar"
+    def test_env(self, shader_dir_env: Path, monkeypatch: pytest.MonkeyPatch):
+        assert str(shader_dir_env) == Shader.dirs.env()
         monkeypatch.delenv(Shader.dirs.ENV_VAR_NAME, raising=False)
-        assert Shader.dirs.env() == "$" + Shader.dirs.ENV_VAR_NAME
+        assert Shader.dirs.env() != str(shader_dir_env)
 
-    def test_system(self):
-        expected = Path(
-            sysconfig.get_path("data"), "share", "hyprshade", "shaders"
-        ).resolve()
-        assert str(expected) == Shader.dirs.system()
+    def test_user(self, shader_dir_user: Path):
+        assert Shader.dirs.user() == str(shader_dir_user)
 
-    def test_user(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
-        assert Shader.dirs.user() == str(tmp_path / "hypr/shaders")
+    def test_system(self, shader_dir_system: Path):
+        assert str(shader_dir_system) == Shader.dirs.system()
 
-    def test_all(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-        env_path = tmp_path / "hypr/env/shaders"
-        env_path.mkdir(parents=True)
-        monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(env_path))
-
-        system_path = Path(sysconfig.get_path("data"), "share", "hyprshade", "shaders")
-
-        user_path = tmp_path / "hypr/shaders"
-        user_path.mkdir(parents=True)
-        monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
-
-        assert Shader.dirs.all() == list(map(str, [env_path, system_path, user_path]))
+    def test_all(
+        self,
+        shader_dir_env: Path,
+        shader_dir_user: Path,
+        shader_dir_system: Path,
+    ):
+        assert Shader.dirs.all() == list(
+            map(str, [shader_dir_env, shader_dir_user, shader_dir_system])
+        )
 
 
 class TestConstructor:
@@ -45,10 +37,12 @@ class TestConstructor:
         shader = Shader(str(shader_path))
         assert shader._name == "shader"
         assert shader._given_path == str(shader_path)
+        assert shader._stale is False
 
     def test_nonexistent_path(self, tmp_path: Path):
         shader_path = tmp_path / "foo.glsl"
-        assert not shader_path.exists(), "test assumption failed"
+        if shader_path.exists():
+            pytest.fail(f"test assumption failed: {shader_path} exists")
 
         shader = Shader(str(shader_path))
         assert shader._name == "foo"
@@ -57,31 +51,28 @@ class TestConstructor:
 
 
 class TestEquality:
-    def test_same_path(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-        monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(tmp_path))
-        shader_path = tmp_path / "foo.glsl"
-        shader_path.touch()
+    def test_same_path(self, shader_path_env: Path):
+        assert Shader("shader") == Shader("shader")
+        assert Shader(str(shader_path_env)) == Shader(str(shader_path_env))
+        assert Shader("shader") == Shader(str(shader_path_env))
+        assert Shader(str(shader_path_env)) == Shader("shader")
 
-        assert Shader("foo") == Shader("foo")
-        assert Shader(str(shader_path)) == Shader(str(shader_path))
-        assert Shader("foo") == Shader(str(shader_path))
-        assert Shader(str(shader_path)) == Shader("foo")
+    def test_different_path(self, shader_path_factory: Callable[[str], Path]):
+        shader_path1 = shader_path_factory("foo")
+        shader_path2 = shader_path_factory("bar")
 
-    def test_different_path(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-        monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(tmp_path))
-        shader_path1 = tmp_path / "foo.glsl"
-        shader_path2 = tmp_path / "bar.glsl"
-        shader_path1.touch()
-        shader_path2.touch()
+        assert Shader(str(shader_path1)) == Shader("foo")
+        assert Shader(str(shader_path2)) == Shader("bar")
 
         assert Shader("foo") != Shader("bar")
         assert Shader(str(shader_path1)) != Shader(str(shader_path2))
         assert Shader("foo") != Shader(str(shader_path2))
         assert Shader(str(shader_path1)) != Shader("bar")
 
-    def test_other(self):
-        assert Shader("foo") != None  # noqa: E711
-        assert Shader("foo") != "foo"
+    def test_other(self, shader_path_env: Path):
+        assert Shader("shader") != None  # noqa: E711
+        assert Shader("shader") != "shader"
+        assert Shader("doesnotexist") != Shader("doesnotexist")
 
 
 class TestDisplay:
@@ -94,15 +85,16 @@ class TestDisplay:
     def test_name(self):
         assert Shader("foo").name == "foo"
 
+    def test_dirname(self, shader_dir_env: Path, shader_path_env: Path):
+        assert Shader(str(shader_path_env)).dirname() == str(shader_dir_env.resolve())
+
 
 @pytest.mark.requires_hyprland()
 @pytest.mark.usefixtures("_save_screen_shader")
 class TestOnOff:
-    def test_on(self, monkeypatch: pytest.MonkeyPatch, shader_path: Path):
-        monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(shader_path.parent))
-        name = _stripped_basename(str(shader_path))
-        Shader(name).on()
-        assert Shader.current() == Shader(name)
+    def test_on(self, shader_path_env: Path):
+        Shader("shader").on()
+        assert Shader.current() == Shader("shader")
 
     def test_on_path(self, shader_path: Path):
         Shader(str(shader_path)).on()
@@ -118,9 +110,8 @@ class TestOnOff:
 
 
 class TestResolvePath:
-    def test_one_path(self, monkeypatch: pytest.MonkeyPatch, shader_path: Path):
-        monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(shader_path.parent))
-        assert Shader("shader")._resolve_path() == str(shader_path)
+    def test_one_path(self, shader_path_env: Path):
+        assert Shader("shader")._resolve_path() == str(shader_path_env)
 
     def test_env_priority(
         self, monkeypatch: pytest.MonkeyPatch, shader_path: Path, tmp_path: Path
@@ -128,7 +119,6 @@ class TestResolvePath:
         system_path = tmp_path / "hypr/system/shaders"
         system_path.mkdir(parents=True)
         (system_path / "shader.glsl").touch()
-        assert (system_path / "shader.glsl").exists(), "test assumption failed"
 
         Shader.dirs.SYSTEM_DIR = str(tmp_path)  # type: ignore[misc]
         monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(shader_path.parent))
@@ -138,17 +128,18 @@ class TestResolvePath:
     def test_given_path(self, shader_path: Path):
         assert Shader(str(shader_path))._resolve_path() == str(shader_path)
 
-    def test_notfound(self, tmp_path: Path):
+    def test_notfound(self, tmp_path: Path, shader_dir_system: Path):
         with pytest.raises(FileNotFoundError):
             Shader("foo")._resolve_path()
 
         path_not_exist = tmp_path / "foo.glsl"
-        assert not path_not_exist.exists(), "test assumption failed"
+        if path_not_exist.exists():
+            pytest.fail(f"test assumption failed: {path_not_exist} exists")
         with pytest.raises(FileNotFoundError):
             Shader(str(path_not_exist))._resolve_path()
 
     def test_ignores_cwd(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-        shader_path = tmp_path / "foo.glsl"
+        shader_path = tmp_path / "foo"
         shader_path.touch()
         monkeypatch.chdir(tmp_path)
         with pytest.raises(FileNotFoundError):

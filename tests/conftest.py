@@ -1,10 +1,12 @@
 import os
+import sysconfig
+from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
 
 import pytest
 
-from hyprshade.shader import hyprctl
+from hyprshade.shader import Shader, hyprctl
 
 
 @pytest.fixture(scope="module")
@@ -25,10 +27,69 @@ def _save_screen_shader():
 
 
 @pytest.fixture()
-def shader_path(tmp_path: Path):
-    shader_path = tmp_path / "shader.frag"
-    shader_path.write_text("void main() {}")
-    return shader_path
+def shader_dir_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+    path_ = tmp_path / "env/shaders"
+    path_.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(path_))
+    return path_
+
+
+@pytest.fixture()
+def shader_dir_user(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+    config_path = tmp_path / "config"
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(config_path))
+
+    path_ = config_path / "hypr/shaders"
+    path_.mkdir(parents=True, exist_ok=True)
+    return path_
+
+
+@pytest.fixture()
+def shader_dir_system(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+    data_path = tmp_path / "data"
+    monkeypatch.setattr(
+        sysconfig, "get_path", lambda name: str(data_path) if name == "data" else ""
+    )
+
+    path_ = Path(sysconfig.get_path("data"), "share", "hyprshade", "shaders").resolve()
+    path_.mkdir(parents=True, exist_ok=True)
+    return path_
+
+
+def _shader_path_at(dir_: Path) -> Path:
+    path_ = dir_ / "shader.glsl"
+    path_.write_text("void main() {}")
+    return path_
+
+
+@pytest.fixture()
+def shader_path(tmp_path: Path) -> Path:
+    return _shader_path_at(tmp_path)
+
+
+@pytest.fixture()
+def shader_path_env(shader_dir_env: Path) -> Path:
+    return _shader_path_at(shader_dir_env)
+
+
+@pytest.fixture()
+def shader_path_user(shader_dir_user: Path) -> Path:
+    return _shader_path_at(shader_dir_user)
+
+
+@pytest.fixture()
+def shader_path_system(shader_dir_system: Path) -> Path:
+    return _shader_path_at(shader_dir_system)
+
+
+@pytest.fixture()
+def shader_path_factory(shader_dir_env: Path) -> Callable[[str], Path]:
+    def _shader_path(name: str) -> Path:
+        path_ = shader_dir_env / f"{name}.glsl"
+        path_.write_text("void main() {}")
+        return path_
+
+    return _shader_path
 
 
 def pytest_runtest_setup(item: pytest.Item) -> None:
