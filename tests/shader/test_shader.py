@@ -95,7 +95,7 @@ class TestDisplay:
         assert Shader("foo").name == "foo"
 
 
-@pytest.mark.hyprland()
+@pytest.mark.requires_hyprland()
 @pytest.mark.usefixtures("_save_screen_shader")
 class TestOnOff:
     def test_on(self, monkeypatch: pytest.MonkeyPatch, shader_path: Path):
