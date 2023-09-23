@@ -93,3 +93,6 @@ markers = ["requires_hyprland: Tests that require hyprland to be running"]
 
 [tool.coverage.run]
 source = ["src/"]
+
+[tool.coverage.report]
+exclude_also = ["if TYPE_CHECKING:"]
