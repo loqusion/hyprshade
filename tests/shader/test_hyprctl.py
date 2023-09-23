@@ -1,3 +1,4 @@
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -18,3 +19,18 @@ def test_hyprctl(shader_path: Path):
 def test_clear():
     hyprctl.clear_screen_shader()
     assert hyprctl.get_screen_shader() is None
+
+
+def mock_hyprctl_invalid_json(*args, **kwargs) -> subprocess.CompletedProcess:
+    return subprocess.CompletedProcess(
+        args=args,
+        returncode=0,
+        stdout='{"str": "test}',
+        stderr="",
+    )
+
+
+def test_json_error(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(hyprctl.subprocess, "run", mock_hyprctl_invalid_json)
+    with pytest.raises(RuntimeError):
+        hyprctl.get_screen_shader()
