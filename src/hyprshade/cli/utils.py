@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from os import PathLike, path
-from typing import TYPE_CHECKING, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
 import click
 from more_itertools import flatten, unique_justseen
@@ -19,7 +19,7 @@ SystemdUnitType = Literal["service", "timer"]
 
 def convert_to_shader(
     ctx: click.Context, param: click.Argument, shader_name_or_path: str | None
-):
+) -> Shader | None:
     shader = Shader(shader_name_or_path) if shader_name_or_path is not None else None
     if shader is not None and shader.stale:
         raise click.BadParameter(f"Shader {shader_name_or_path} does not exist")
@@ -38,7 +38,9 @@ def validate_optional_param(
     return None if len(value) == 0 else value[0]
 
 
-def optional_param(metavar: str | None = None, callback: Callable | None = None):
+def optional_param(
+    metavar: str | None = None, callback: Callable | None = None
+) -> dict[str, Any]:
     def merged_callback(
         ctx: click.Context, param: click.Argument, value: tuple[T, ...]
     ):
@@ -58,7 +60,7 @@ def ls_dirs(dirs: Iterable[str | PathLike[str]]) -> Iterator[str]:
     return unique_justseen(sorted(flatten(map(os.listdir, dirs))))
 
 
-def write_systemd_user_unit(unit_type: SystemdUnitType, body: str):
+def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:
     dest_dir = systemd_user_config_home()
     os.makedirs(dest_dir, exist_ok=True)
     with open(path.join(dest_dir, f"hyprshade.{unit_type}"), "w") as f:
