@@ -90,3 +90,6 @@ check_untyped_defs = true
 [tool.pytest.ini_options]
 addopts = ["-r", "a", "--import-mode=importlib", "-m", "not hyprland"]
 markers = ["hyprland: Tests that require hyprland to be running"]
+
+[tool.coverage.run]
+source = ["src/"]
