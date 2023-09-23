@@ -1,5 +1,7 @@
 # mypy: disable-error-code="arg-type"
 
+from pathlib import Path
+
 import click
 import pytest
 
@@ -14,6 +16,13 @@ class TestConvertToShader:
     def test_none(self):
         assert utils.convert_to_shader(None, None, None) is None
 
+    def test_stale(self):
+        if Path("./foo").exists():
+            pytest.fail("test assumption failed: ./foo exists")
+
+        with pytest.raises(click.BadParameter):
+            utils.convert_to_shader(None, None, "./foo")
+
 
 class TestValidateOptionalParam:
     def test_empty(self):
@@ -22,7 +31,7 @@ class TestValidateOptionalParam:
     def test_single(self):
         assert utils.validate_optional_param(None, None, ("foo",)) == "foo"
 
-    def test_multiple(self):
+    def test_rejects_multiple(self):
         with pytest.raises(click.UsageError):
             utils.validate_optional_param(None, None, ("foo", "bar"))
 
