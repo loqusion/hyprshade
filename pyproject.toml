@@ -93,6 +93,7 @@ markers = ["requires_hyprland: Tests that require hyprland to be running"]
 
 [tool.coverage.run]
 source = ["src/"]
+omit = ["src/hyprshade/__init__.py", "src/hyprshade/__main__.py"]
 
 [tool.coverage.report]
 exclude_also = ["if TYPE_CHECKING:"]
