@@ -11,6 +11,7 @@ from hyprshade.cli import utils
 class TestConvertToShader:
     def test_works(self):
         shader = utils.convert_to_shader(None, None, "foo")
+        assert shader is not None
         assert shader.name == "foo"
 
     def test_none(self):
