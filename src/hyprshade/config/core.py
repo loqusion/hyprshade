@@ -41,7 +41,6 @@ class Config:
         rest = cast(list[ShaderConfig], list(no_default))
         default = cast(DefaultShadeConfig, nth(yes_default, 0))
 
-        # TODO: Should raise an exception instead of asserting
         assert nth(yes_default, 0) is None, "There should be only one default shade"
 
         return rest, default
