@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if [ -z "$1" ]; then
+if [ -z "${1:-}" ]; then
 	echo "Please specify a version compatible with \`hatch version\`." >&2
 	exit 1
 elif ! git diff --quiet; then
