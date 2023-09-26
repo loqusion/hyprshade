@@ -14,6 +14,8 @@ def ls(long: bool):
 
     current = Shader.current()
     shaders = list(map(Shader, ls_dirs(Shader.dirs.all())))
+    if not shaders:
+        return
     width = max(map(len, map(str, shaders))) + 1
 
     for shader in shaders:
