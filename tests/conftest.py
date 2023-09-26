@@ -5,6 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import pytest
+from click.testing import CliRunner
 
 from hyprshade.shader import Shader, hyprctl
 
@@ -27,25 +28,46 @@ def _save_screen_shader():
 
 
 @pytest.fixture()
-def shader_dir_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
-    path_ = tmp_path / "env/shaders"
-    path_.mkdir(parents=True, exist_ok=True)
-    monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(path_))
-    return path_
+def _clear_shader_env(shader_dir_env, shader_dir_user, shader_dir_system):
+    pass
 
 
 @pytest.fixture()
-def shader_dir_user(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+def shader_dir_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    prev_env = os.environ.get(Shader.dirs.ENV_VAR_NAME)
+
+    path_ = tmp_path / "env/shaders"
+    path_.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(path_))
+    yield path_
+
+    if prev_env is None:
+        monkeypatch.delenv(Shader.dirs.ENV_VAR_NAME, raising=False)
+    else:
+        monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, prev_env)
+
+
+@pytest.fixture()
+def shader_dir_user(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    xdg_config_home = os.environ.get("XDG_CONFIG_HOME")
+
     config_path = tmp_path / "config"
     monkeypatch.setenv("XDG_CONFIG_HOME", str(config_path))
 
     path_ = config_path / "hypr/shaders"
     path_.mkdir(parents=True, exist_ok=True)
-    return path_
+    yield path_
+
+    if xdg_config_home is None:
+        monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
+    else:
+        monkeypatch.setenv("XDG_CONFIG_HOME", xdg_config_home)
 
 
 @pytest.fixture()
-def shader_dir_system(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+def shader_dir_system(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
+    prev_sysconfig_get_path = sysconfig.get_path
+
     data_path = tmp_path / "data"
     monkeypatch.setattr(
         sysconfig, "get_path", lambda name: str(data_path) if name == "data" else ""
@@ -53,7 +75,9 @@ def shader_dir_system(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
 
     path_ = Path(sysconfig.get_path("data"), "share", "hyprshade", "shaders").resolve()
     path_.mkdir(parents=True, exist_ok=True)
-    return path_
+    yield path_
+
+    monkeypatch.setattr(sysconfig, "get_path", prev_sysconfig_get_path)
 
 
 def _shader_path_at(dir_: Path) -> Path:
@@ -90,6 +114,11 @@ def shader_path_factory(shader_dir_env: Path) -> Callable[[str], Path]:
         return path_
 
     return _shader_path
+
+
+@pytest.fixture()
+def runner() -> CliRunner:
+    return CliRunner()
 
 
 def pytest_runtest_setup(item: pytest.Item) -> None:

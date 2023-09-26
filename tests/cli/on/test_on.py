@@ -12,25 +12,22 @@ pytestmark = [
 ]
 
 
-def test_path(shader_path_env: Path):
-    runner = CliRunner()
+def test_path(runner: CliRunner, shader_path_env: Path):
     result = runner.invoke(cli, ["on", shader_path_env.as_posix()])
 
     assert result.exit_code == 0
     assert hyprctl.get_screen_shader() == shader_path_env.as_posix()
 
 
-def test_name(shader_path_env: Path):
-    runner = CliRunner()
+def test_name(runner: CliRunner, shader_path_env: Path):
     result = runner.invoke(cli, ["on", "shader"])
 
     assert result.exit_code == 0
     assert hyprctl.get_screen_shader() == shader_path_env.as_posix()
 
 
-def test_no_args():
+def test_no_args(runner: CliRunner):
     initial_shader = hyprctl.get_screen_shader()
-    runner = CliRunner()
     result = runner.invoke(cli, ["on"])
 
     assert result.exit_code != 0
@@ -40,10 +37,12 @@ def test_no_args():
 
 
 def test_invalid_shader(
-    shader_dir_env: Path, shader_dir_user: Path, shader_dir_system: Path
+    runner: CliRunner,
+    shader_dir_env: Path,
+    shader_dir_user: Path,
+    shader_dir_system: Path,
 ):
     initial_shader = hyprctl.get_screen_shader()
-    runner = CliRunner()
     result = runner.invoke(cli, ["on", "invalid"])
 
     assert result.exit_code != 0
