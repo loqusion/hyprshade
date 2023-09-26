@@ -1,50 +1,14 @@
 from __future__ import annotations
 
-import logging
-import sys
 from datetime import datetime, time
 
 import click
 from more_itertools import quantify
 
-from .click_utils import convert_to_shader, optional_param
-from .config import Config
-from .helpers import write_systemd_user_unit
-from .shader import Shader
-from .utils import ls_dirs
+from hyprshade.config.schedule import Schedule
+from hyprshade.shader import Shader
 
-
-@click.group()
-@click.version_option()
-@click.option("-v", "--verbose", is_flag=True, help="Enable verbose output")
-def cli(verbose: bool):
-    level = logging.DEBUG if verbose else logging.WARNING
-    logging.basicConfig(level=level)
-
-
-def main():
-    try:
-        cli()
-    except Exception as e:
-        if logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
-            raise e
-        click.echo(f"Error: {e}", err=True)
-        sys.exit(1)
-
-
-@cli.command()
-@click.argument("shader", callback=convert_to_shader)
-def on(shader: Shader):
-    """Turn on screen shader."""
-
-    shader.on()
-
-
-@cli.command()
-def off():
-    """Turn off screen shader."""
-
-    Shader.off()
+from .utils import convert_to_shader, optional_param
 
 
 def get_shader_to_toggle(
@@ -73,7 +37,7 @@ def get_fallback(
 
 def try_from_config(t: time, *, panic: bool) -> tuple[Shader | None, Shader | None]:
     try:
-        schedule = Config().to_schedule()
+        schedule = Schedule.from_config()
     except FileNotFoundError:
         if panic:
             raise
@@ -81,7 +45,7 @@ def try_from_config(t: time, *, panic: bool) -> tuple[Shader | None, Shader | No
     return schedule.scheduled_shader(t), schedule.default_shader
 
 
-@cli.command()
+@click.command(short_help="Toggle screen shader")
 @click.argument("shader", **optional_param("SHADER", convert_to_shader))
 @click.option(
     "--fallback",
@@ -143,69 +107,3 @@ def toggle(
         shader_to_toggle.on()
     else:
         Shader.off()
-
-
-@cli.command()
-@click.pass_context
-def auto(ctx: click.Context):
-    """Set screen shader based on schedule."""
-
-    t = datetime.now().time()
-    shader = Config().to_schedule().scheduled_shader(t)
-
-    if shader:
-        shader.on()
-    else:
-        Shader.off()
-
-
-@cli.command()
-def install():
-    """Install systemd user units."""
-
-    schedule = Config().to_schedule()
-    timer_config = "\n".join(
-        sorted([f"OnCalendar=*-*-* {x}" for x in schedule.event_times()])
-    )
-
-    write_systemd_user_unit(
-        "service",
-        """[Unit]
-Description=Apply screen filter
-
-[Service]
-Type=oneshot
-ExecStart="/usr/bin/hyprshade" auto
-""",
-    )
-
-    write_systemd_user_unit(
-        "timer",
-        f"""[Unit]
-Description=Apply screen filter on schedule
-
-[Timer]
-{timer_config}
-
-[Install]
-WantedBy=timers.target
-""",
-    )
-
-
-@cli.command()
-@click.option("-l", "--long", is_flag=True, help="Long listing format")
-def ls(long: bool):
-    """List available screen shaders."""
-
-    current = Shader.current()
-    shaders = list(map(Shader, ls_dirs(Shader.dirs.all())))
-    width = max(map(len, map(str, shaders))) + 1
-
-    for shader in shaders:
-        c = "*" if shader == current else " "
-        if long:
-            dir = shader.dirname()
-            click.echo(f"{c} {shader!s:{width}} {dir}")
-            continue
-        click.echo(f"{c} {shader!s}")

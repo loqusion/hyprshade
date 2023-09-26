@@ -6,7 +6,7 @@ from typing import Final
 
 from more_itertools import first, first_true
 
-from hyprshade.utils import hypr_config_home
+from hyprshade.config.utils import hypr_config_home
 
 from . import hyprctl
 
@@ -17,6 +17,7 @@ def _stripped_basename(s: str) -> str:
 
 class _ShaderDirs:
     ENV_VAR_NAME: Final = "HYPRSHADE_SHADERS_DIR"
+    SYSTEM_DIR: Final = "/usr/share/hyprshade/shaders"
 
     @staticmethod
     def env() -> str:
@@ -24,7 +25,9 @@ class _ShaderDirs:
             path.expandvars(path.expandvars("$" + _ShaderDirs.ENV_VAR_NAME))
         )
 
-    SYSTEM_DIR: Final = "/usr/share/hyprshade/shaders"
+    @staticmethod
+    def user() -> str:
+        return path.join(hypr_config_home(), "shaders")
 
     @staticmethod
     def system() -> str:
@@ -37,14 +40,10 @@ class _ShaderDirs:
         )
 
     @staticmethod
-    def user() -> str:
-        return path.join(hypr_config_home(), "shaders")
-
-    @staticmethod
     def all() -> list[str]:
         return [
             x
-            for x in [_ShaderDirs.env(), _ShaderDirs.system(), _ShaderDirs.user()]
+            for x in [_ShaderDirs.env(), _ShaderDirs.user(), _ShaderDirs.system()]
             if path.exists(x)
         ]
 
