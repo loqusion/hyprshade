@@ -5,7 +5,6 @@ from functools import lru_cache
 from pathlib import Path
 
 import pytest
-from click.testing import CliRunner
 
 from hyprshade.shader import Shader, hyprctl
 
@@ -114,11 +113,6 @@ def shader_path_factory(shader_dir_env: Path) -> Callable[[str], Path]:
         return path_
 
     return _shader_path
-
-
-@pytest.fixture()
-def runner() -> CliRunner:
-    return CliRunner()
 
 
 def pytest_runtest_setup(item: pytest.Item) -> None:
