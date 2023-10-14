@@ -3,6 +3,13 @@ name: Release
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      pypi:
+        description: Publish to PyPI
+        default: true
+        type: boolean
+        required: false
 
 permissions:
   contents: read
@@ -10,6 +17,7 @@ permissions:
 jobs:
   release-pypi:
     name: upload release to PyPI
+    if: ${{ inputs.pypi }}
     runs-on: ubuntu-latest
     environment: PyPI
     steps:
