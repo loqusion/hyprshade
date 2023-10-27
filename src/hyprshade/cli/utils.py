@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from os import PathLike, path
 from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
@@ -65,3 +66,7 @@ def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:
     os.makedirs(dest_dir, exist_ok=True)
     with open(path.join(dest_dir, f"hyprshade.{unit_type}"), "w") as f:
         f.write(body)
+
+
+def get_script_path() -> str:
+    return path.realpath(sys.argv[0], strict=True)
