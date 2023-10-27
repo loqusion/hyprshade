@@ -12,8 +12,8 @@ class TestDirs:
         monkeypatch.delenv(Shader.dirs.ENV_VAR_NAME, raising=False)
         assert Shader.dirs.env() != str(shader_dir_env)
 
-    def test_user(self, shader_dir_user: Path):
-        assert Shader.dirs.user() == str(shader_dir_user)
+    def test_user_hypr(self, shader_dir_user: Path):
+        assert Shader.dirs.user_hypr() == str(shader_dir_user)
 
     def test_system(self, shader_dir_system: Path):
         assert str(shader_dir_system) == Shader.dirs.system()

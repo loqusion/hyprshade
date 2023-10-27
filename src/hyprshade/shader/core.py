@@ -6,7 +6,7 @@ from typing import Final
 
 from more_itertools import first, first_true
 
-from hyprshade.config.utils import hypr_config_home
+from hyprshade.config.utils import hypr_config_home, hyprshade_config_home
 
 from . import hyprctl
 
@@ -26,8 +26,12 @@ class _ShaderDirs:
         )
 
     @staticmethod
-    def user() -> str:
+    def user_hypr() -> str:
         return path.join(hypr_config_home(), "shaders")
+
+    @staticmethod
+    def user_hyprshade() -> str:
+        return path.join(hyprshade_config_home(), "shaders")
 
     @staticmethod
     def system() -> str:
@@ -43,7 +47,12 @@ class _ShaderDirs:
     def all() -> list[str]:
         return [
             x
-            for x in [_ShaderDirs.env(), _ShaderDirs.user(), _ShaderDirs.system()]
+            for x in [
+                _ShaderDirs.env(),
+                _ShaderDirs.user_hypr(),
+                _ShaderDirs.user_hyprshade(),
+                _ShaderDirs.system(),
+            ]
             if path.exists(x)
         ]
 
