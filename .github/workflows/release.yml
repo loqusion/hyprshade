@@ -44,6 +44,8 @@ jobs:
       group: "aur"
       cancel-in-progress: true
     steps:
+      - name: Sleep to account for delay in PyPI package availability
+        run: sleep 120
       - uses: actions/checkout@v3
       - uses: loqusion/aur-publish-action@main
         with:
