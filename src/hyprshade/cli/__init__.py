@@ -6,6 +6,7 @@ from typing import Final
 import click
 
 from .auto import auto
+from .current import current
 from .install import install
 from .ls import ls
 from .off import off
@@ -14,6 +15,7 @@ from .toggle import toggle
 
 COMMANDS: Final = [
     auto,
+    current,
     install,
     ls,
     off,
