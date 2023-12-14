@@ -1,0 +1,3 @@
+# GLSL Shader formatting config
+IndentWidth: 4
+ColumnLimit: 120
