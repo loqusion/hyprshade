@@ -20,7 +20,7 @@ def ls(long: bool):
     if current:
         current_in_shader_paths = True
         b = bisect(shaders, current.name, key=lambda s: s.name)
-        if shaders[b - 1] != current:
+        if b == 0 or shaders[b - 1] != current:
             current_in_shader_paths = False
             shaders.insert(b, current)
     if not shaders:
