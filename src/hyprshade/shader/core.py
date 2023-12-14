@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from glob import iglob
 from os import path
 from typing import Final
@@ -95,6 +96,7 @@ class Shader:
 
     def on(self) -> None:
         path_ = self._resolve_path()
+        logging.debug(f"Turning on shader '{self._name}' at '{path_}'")
         hyprctl.set_screen_shader(path_)
 
     @staticmethod
