@@ -31,8 +31,7 @@ def ls(long: bool):
         is_shader_current = shader == current
         c = "*" if is_shader_current else " "
         if long:
-            dir = shader.dirname()
-            click.echo(f"{c} {shader!s:{width}} {dir}")
+            click.echo(f"{c} {shader!s:{width}} {shader.dirname()}")
             continue
         if is_shader_current and not current_in_shader_paths:
             click.echo(f"{c} {shader!s}  ({shader.dirname()})")
