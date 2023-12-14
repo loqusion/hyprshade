@@ -11,6 +11,8 @@ from hyprshade.shader import Shader, hyprctl
 
 @pytest.fixture(scope="module")
 def _save_screen_shader():
+    """Save the current screen shader and restore it after testing"""
+
     screen_shader = hyprctl.get_screen_shader()
     yield
 
@@ -29,6 +31,15 @@ def _save_screen_shader():
 @pytest.fixture()
 def _clear_shader_env(shader_dir_env, shader_dir_user, shader_dir_system):
     pass
+
+
+@pytest.fixture()
+def _clear_screen_shader():
+    """Clear the current screen shader before and after each test"""
+
+    hyprctl.clear_screen_shader()
+    yield
+    hyprctl.clear_screen_shader()
 
 
 @pytest.fixture()

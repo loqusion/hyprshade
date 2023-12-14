@@ -12,6 +12,7 @@ pytestmark = [
     pytest.mark.requires_hyprland(),
     pytest.mark.usefixtures("_save_screen_shader"),
     pytest.mark.usefixtures("_clear_shader_env"),
+    pytest.mark.usefixtures("_clear_screen_shader"),
 ]
 
 
