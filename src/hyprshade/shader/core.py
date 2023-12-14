@@ -63,7 +63,9 @@ class Shader:
 
     def __init__(self, shader_name_or_path: str):
         self._given_path = (
-            shader_name_or_path if shader_name_or_path.find(path.sep) != -1 else None
+            path.abspath(shader_name_or_path)
+            if shader_name_or_path.find(path.sep) != -1
+            else None
         )
         self._name = _stripped_basename(shader_name_or_path)
         self._stale = self._given_path is not None and not path.exists(self._given_path)
