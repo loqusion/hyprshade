@@ -1,6 +1,6 @@
 # Hyprshade
 
-Frontend to Hyprland's screen shader feature
+Front-end to Hyprland's screen shader feature
 
 [Screenshots](https://github.com/loqusion/hyprshade/blob/main/SCREENSHOTS.md)
 
@@ -70,7 +70,7 @@ Commands which take a shader name accept either the basename:
 hyprshade on blue-light-filter
 ```
 
-or a full path name:
+...or a full path name:
 
 ```sh
 hyprshade on ~/.config/hypr/shaders/blue-light-filter.glsl
