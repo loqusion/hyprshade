@@ -30,7 +30,14 @@ def get_screen_shader() -> str | None:
         )
         shader_json = json.loads(hyprctl_pipe.stdout)
     except JSONDecodeError as e:
-        raise RuntimeError("Failed to parse JSON returned by hyprctl") from e
+        message = f"""hyprctl returned invalid JSON.
+This is likely a bug in Hyprland; go bug Vaxry about it (nicely :)).
+
+stdout:
+{hyprctl_pipe.stdout}
+stderr:
+{hyprctl_pipe.stderr}"""
+        raise RuntimeError(message) from e
 
     shader = str(shader_json["str"]).strip()
     if shader == EMPTY_STR:
