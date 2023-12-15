@@ -42,5 +42,5 @@ def main():
     except Exception as e:
         if logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
             raise e
-        click.echo(f"Error: {e}", err=True)
+        click.echo(f"{click.style('Error', fg='red')}: {e!s}", err=True)
         return 1
