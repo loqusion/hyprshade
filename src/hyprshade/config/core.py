@@ -17,7 +17,9 @@ class Config:
     def __init__(self, path_: str | None = None):
         path_ = path_ or Config.get_path()
         if path_ is None:
-            raise FileNotFoundError("Config file not found")
+            raise FileNotFoundError(
+                "Could not find a config file; see https://github.com/loqusion/hyprshade#scheduling"
+            )
         self._dict = Config._load(path_)
 
     @staticmethod
