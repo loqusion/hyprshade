@@ -55,7 +55,8 @@ pipx install hyprshade
 Usage: hyprshade [OPTIONS] COMMAND [ARGS]...
 
 Commands:
-  auto     Turn on/off screen shader based on schedule
+  auto     Set screen shader on schedule
+  current  Print current screen shader
   install  Install systemd user units
   ls       List available screen shaders
   off      Turn off screen shader
