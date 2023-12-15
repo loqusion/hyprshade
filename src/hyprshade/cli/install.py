@@ -11,7 +11,10 @@ from .utils import get_script_path, write_systemd_user_unit
 
 @click.command(short_help="Install systemd user units")
 def install():
-    """Install systemd user units."""
+    """Install systemd user units.
+
+    Requires a schedule to be specified in hyprshade.toml.
+    """
 
     script_path = get_script_path()
     schedule = Schedule.from_config()
