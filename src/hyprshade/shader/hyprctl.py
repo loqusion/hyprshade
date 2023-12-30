@@ -2,18 +2,45 @@ from __future__ import annotations
 
 import json
 import subprocess
+import textwrap
 from json import JSONDecodeError
 from typing import Final
+
+import click
 
 EMPTY_STR: Final = "[[EMPTY]]"
 
 
+class HyprctlError(Exception):
+    def __init__(self, error: subprocess.CalledProcessError, *args, **kwargs):
+        command = " ".join(error.cmd)
+        stdout = error.stdout or "<empty>"
+        stderr = error.stderr or "<empty>"
+        message = f"""hyprctl returned a non-zero exit code.
+
+{click.style("command", fg="red")}:
+{textwrap.indent(command, " " * 4)}
+
+{click.style("stdout", fg="red")}:
+{textwrap.indent(stdout, " " * 4)}
+
+{click.style("stderr", fg="red")}:
+{textwrap.indent(stderr, " " * 4)}
+        """
+
+        super().__init__(message, *args, **kwargs)
+
+
 def set_screen_shader(shader_path: str) -> None:
-    subprocess.run(
-        ["hyprctl", "keyword", "decoration:screen_shader", shader_path],
-        capture_output=True,
-        check=True,
-    )
+    try:
+        subprocess.run(
+            ["hyprctl", "keyword", "decoration:screen_shader", shader_path],
+            capture_output=True,
+            check=True,
+            encoding="utf-8",
+        )
+    except subprocess.CalledProcessError as e:
+        raise HyprctlError(e) from e
 
 
 def clear_screen_shader() -> None:
@@ -29,14 +56,16 @@ def get_screen_shader() -> str | None:
             encoding="utf-8",
         )
         shader_json = json.loads(hyprctl_pipe.stdout)
+    except subprocess.CalledProcessError as e:
+        raise HyprctlError(e) from e
     except JSONDecodeError as e:
         message = f"""hyprctl returned invalid JSON.
 This is likely a bug in Hyprland; go bug Vaxry about it (nicely :)).
 
 stdout:
-{hyprctl_pipe.stdout}
+{hyprctl_pipe.stdout or "<empty>"}
 stderr:
-{hyprctl_pipe.stderr}"""
+{hyprctl_pipe.stderr or "<empty>"}"""
         raise RuntimeError(message) from e
 
     shader = str(shader_json["str"]).strip()
