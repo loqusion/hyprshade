@@ -14,8 +14,8 @@ EMPTY_STR: Final = "[[EMPTY]]"
 class HyprctlError(Exception):
     def __init__(self, error: subprocess.CalledProcessError, *args, **kwargs):
         command = " ".join(error.cmd)
-        stdout = error.stdout or "<empty>"
-        stderr = error.stderr or "<empty>"
+        stdout = str(error.stdout).strip() or "<empty>"
+        stderr = str(error.stderr).strip() or "<empty>"
         message = f"""hyprctl returned a non-zero exit code.
 
 {click.style("command", fg="red")}:
@@ -59,13 +59,17 @@ def get_screen_shader() -> str | None:
     except subprocess.CalledProcessError as e:
         raise HyprctlError(e) from e
     except JSONDecodeError as e:
+        stdout = str(hyprctl_pipe.stdout).strip() or "<empty>"
+        stderr = str(hyprctl_pipe.stderr).strip() or "<empty>"
         message = f"""hyprctl returned invalid JSON.
 This is likely a bug in Hyprland; go bug Vaxry about it (nicely :)).
 
-stdout:
-{hyprctl_pipe.stdout or "<empty>"}
-stderr:
-{hyprctl_pipe.stderr or "<empty>"}"""
+{click.style("stdout", fg="red")}:
+{textwrap.indent(stdout, " " * 4)}
+
+{click.style("stderr", fg="red")}:
+{textwrap.indent(stderr, " " * 4)}"""
+
         raise RuntimeError(message) from e
 
     shader = str(shader_json["str"]).strip()
