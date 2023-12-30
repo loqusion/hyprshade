@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from bisect import bisect
+from typing import final
 
 import click
 
@@ -9,6 +10,7 @@ from hyprshade.shader import Shader
 from .utils import ls_dirs
 
 
+@final
 class ShaderWithMeta(Shader):
     _is_current: bool
     _is_in_shader_paths: bool | None
