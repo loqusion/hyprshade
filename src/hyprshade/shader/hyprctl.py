@@ -25,8 +25,7 @@ class HyprctlError(Exception):
 {textwrap.indent(stdout, " " * 4)}
 
 {click.style("stderr", fg="red")}:
-{textwrap.indent(stderr, " " * 4)}
-        """
+{textwrap.indent(stderr, " " * 4)}"""
 
         super().__init__(message, *args, **kwargs)
 
