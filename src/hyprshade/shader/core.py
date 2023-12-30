@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import logging
-from glob import iglob
 from os import path
 from typing import Final
 
-from more_itertools import first, first_true
+from more_itertools import first_true, flatten
 
 from hyprshade.config.utils import hypr_config_home, hyprshade_config_home
+from hyprshade.utils import scandir_recursive
 
 from . import hyprctl
 
@@ -119,10 +119,10 @@ class Shader:
             return self._given_path
 
         dirs = Shader.dirs.all()
-        for dir in dirs:
-            path_ = first(iglob(f"{self._name}*", root_dir=dir), None)
-            if path_ is not None:
-                return path.join(dir, path_)
+        all_files = flatten(scandir_recursive(d) for d in dirs)
+        for file_ in all_files:
+            if file_.name.split(".")[0] == self._name:
+                return file_.path
 
         raise FileNotFoundError(
             f"Shader '{self._name}' could not be found in any of the following"
