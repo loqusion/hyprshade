@@ -19,11 +19,12 @@ def is_time_between(time_: time, start_time: time, end_time: time) -> bool:
 def scandir_recursive(path: GenericPath[AnyStr]) -> Iterator[os.DirEntry[AnyStr]]:
     dir_queue = []
 
-    for direntry in os.scandir(path):
-        if direntry.is_dir():
-            dir_queue.append(direntry)
-        else:
-            yield direntry
+    with os.scandir(path) as it:
+        for direntry in it:
+            if direntry.is_dir():
+                dir_queue.append(direntry)
+            else:
+                yield direntry
 
     while dir_queue:
         yield from scandir_recursive(dir_queue.pop())
