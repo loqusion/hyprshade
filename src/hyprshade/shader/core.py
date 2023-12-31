@@ -120,9 +120,9 @@ class Shader:
 
         dirs = Shader.dirs.all()
         all_files = flatten(scandir_recursive(d) for d in dirs)
-        for file_ in all_files:
-            if file_.name.split(".")[0] == self._name:
-                return file_.path
+        for file in all_files:
+            if path.splitext(file.name)[0] == self._name:
+                return file.path
 
         raise FileNotFoundError(
             f"Shader '{self._name}' could not be found in any of the following"
