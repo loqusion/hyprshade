@@ -16,15 +16,19 @@ def is_time_between(time_: time, start_time: time, end_time: time) -> bool:
     return start_time <= time_ <= end_time
 
 
-def scandir_recursive(path: GenericPath[AnyStr]) -> Iterator[os.DirEntry[AnyStr]]:
+def scandir_recursive(
+    path: GenericPath[AnyStr], *, max_depth: int
+) -> Iterator[os.DirEntry[AnyStr]]:
+    assert max_depth >= 0
+
     dir_queue = []
 
     with os.scandir(path) as it:
         for direntry in it:
-            if direntry.is_dir():
-                dir_queue.append(direntry)
-            else:
+            if not direntry.is_dir():
                 yield direntry
+            elif max_depth > 0:
+                dir_queue.append(direntry)
 
     while dir_queue:
-        yield from scandir_recursive(dir_queue.pop())
+        yield from scandir_recursive(dir_queue.pop(), max_depth=max_depth - 1)

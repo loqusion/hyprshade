@@ -119,7 +119,7 @@ class Shader:
             return self._given_path
 
         dirs = Shader.dirs.all()
-        all_files = flatten(scandir_recursive(d) for d in dirs)
+        all_files = flatten(scandir_recursive(d, max_depth=5) for d in dirs)
         for file in all_files:
             if path.splitext(file.name)[0] == self._name:
                 return file.path
