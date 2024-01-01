@@ -130,4 +130,4 @@ exec = hyprshade auto
 
 This ensures that the correct shader is enabled when you log in.
 
-[hyprland-faq-import-env]: https://wiki.hyprland.org/0.19.1beta/FAQ/#some-of-my-apps-take-a-really-long-time-to-open
+[hyprland-faq-import-env]: https://web.archive.org/web/20240101061321/https://wiki.hyprland.org/0.19.1beta/FAQ/#some-of-my-apps-take-a-really-long-time-to-open
