@@ -80,6 +80,16 @@ If you provide the basename, Hyprshade searches in `~/.config/hypr/shaders` and 
 
 ### Scheduling
 
+> [!WARNING]
+> In order for for this to work, you must have the following lines in your `hyprland.conf`:
+>
+> ```hypr
+> exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
+> exec-once = systemctl --user import-environment
+> ```
+>
+> Also see the [Hyprland FAQ][hyprland-faq-import-env].
+
 To have specific shaders enabled during certain periods of the day, you can
 create a config file in either `~/.config/hypr/hyprshade.toml` or `~/.config/hyprshade/config.toml`.
 
@@ -119,3 +129,5 @@ exec = hyprshade auto
 ```
 
 This ensures that the correct shader is enabled when you log in.
+
+[hyprland-faq-import-env]: https://wiki.hyprland.org/0.19.1beta/FAQ/#some-of-my-apps-take-a-really-long-time-to-open
