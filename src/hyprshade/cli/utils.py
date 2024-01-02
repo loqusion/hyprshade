@@ -2,17 +2,16 @@ from __future__ import annotations
 
 import os
 import sys
-from os import PathLike, path
+from os import path
 from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
 import click
-from more_itertools import flatten, unique_justseen
 
 from hyprshade.config.utils import systemd_user_config_home
 from hyprshade.shader import Shader
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
+    from collections.abc import Callable
 
 T = TypeVar("T", str, int, float, bool, click.ParamType)
 SystemdUnitType = Literal["service", "timer"]
@@ -55,10 +54,6 @@ def optional_param(
         "nargs": -1,
         "callback": merged_callback,
     }
-
-
-def ls_dirs(dirs: Iterable[str | PathLike[str]]) -> Iterator[str]:
-    return unique_justseen(sorted(flatten(map(os.listdir, dirs))))
 
 
 def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:
