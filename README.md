@@ -90,6 +90,8 @@ If you provide the basename, Hyprshade searches in `~/.config/hypr/shaders` and 
 >
 > Also see the [Hyprland FAQ][hyprland-faq-import-env].
 
+[hyprland-faq-import-env]: https://webcache.googleusercontent.com/search?q=cache:Q0G2-L4_OVgJ:https://wiki.hyprland.org/FAQ/&hl=en&gl=us&client=firefox-b-1-d#some-of-my-apps-take-a-really-long-time-to-open
+
 To have specific shaders enabled during certain periods of the day, you can
 create a config file in either `~/.config/hypr/hyprshade.toml` or `~/.config/hyprshade/config.toml`.
 
@@ -129,5 +131,3 @@ exec = hyprshade auto
 ```
 
 This ensures that the correct shader is enabled when you log in.
-
-[hyprland-faq-import-env]: https://web.archive.org/web/20240101061321/https://wiki.hyprland.org/0.19.1beta/FAQ/#some-of-my-apps-take-a-really-long-time-to-open
