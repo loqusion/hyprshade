@@ -2,7 +2,22 @@
 
 Front-end to Hyprland's screen shader feature
 
-[Screenshots](https://github.com/loqusion/hyprshade/blob/main/SCREENSHOTS.md)
+<details>
+  <summary>Screenshots</summary>
+
+### Unfiltered
+
+![Unfiltered](./.github/assets/unfiltered.png)
+
+### Vibrance
+
+![Vibrance](./.github/assets/vibrance.png)
+
+### Blue Light Filter
+
+![Blue Light Filter](./.github/assets/blue-light-filter.png)
+
+</details>
 
 ## Description
 
