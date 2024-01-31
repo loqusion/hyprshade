@@ -87,8 +87,6 @@ If you provide the basename, Hyprshade searches in `~/.config/hypr/shaders` and 
 > exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 > exec-once = systemctl --user import-environment
 > ```
->
-> Also see the [Hyprland FAQ][hyprland-faq-import-env].
 
 [hyprland-faq-import-env]: https://webcache.googleusercontent.com/search?q=cache:Q0G2-L4_OVgJ:https://wiki.hyprland.org/FAQ/&hl=en&gl=us&client=firefox-b-1-d#some-of-my-apps-take-a-really-long-time-to-open
 
@@ -112,21 +110,24 @@ For starters, you can copy the example config:
 cp /usr/share/hyprshade/examples/config.toml ~/.config/hypr/hyprshade.toml
 ```
 
-After writing your config, install the systemd timer/service files and enable
-the timer:
+After writing your config, install the systemd timer/service [user units][systemd-user-units] and enable
+the timer unit:
+
+[systemd-user-units]: https://wiki.archlinux.org/title/Systemd/User
 
 ```sh
 hyprshade install
 systemctl --user enable --now hyprshade.timer
 ```
 
-> `hyprshade install` must be run after updating `hyprshade.toml`.
+> [!NOTE]
+> Don't forget to run `hyprshade install` every time you make changes to `hyprshade.toml` to keep the user units in sync.
 
-By default, they are installed to `~/.config/systemd/user` as [user units](https://wiki.archlinux.org/title/Systemd/User).
+### Tips
 
-You also probably want the following line in your `hyprland.conf`:
+You probably want the following line in your `hyprland.conf`:
 
-```sh
+```hypr
 exec = hyprshade auto
 ```
 
