@@ -135,8 +135,8 @@ hyprshade install
 systemctl --user enable --now hyprshade.timer
 ```
 
-> [!NOTE]
-> Don't forget to run `hyprshade install` every time you make changes to `hyprshade.toml` to keep the user units in sync.
+> [!TIP]
+> Run `hyprshade install` every time you make changes to `hyprshade.toml` to keep the user units in sync.
 
 ### Tips
 
