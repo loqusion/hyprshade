@@ -16,103 +16,71 @@ pytestmark = [
 ]
 
 
-class TestLs:
-    def test_empty(self, runner: CliRunner):
-        result = runner.invoke(cli, ["ls"])
+@pytest.mark.parametrize("is_long", [False, True])
+def test_empty(is_long: bool, runner: CliRunner):
+    cmd_args = ["--long"] if is_long else []
+    result = runner.invoke(cli, ["ls", *cmd_args])
 
-        assert result.exit_code == 0
-        assert result.output == ""
-
-    def test_single(self, runner: CliRunner, shader_path_env: Path):
-        result = runner.invoke(cli, ["ls"])
-
-        assert result.exit_code == 0
-        assert result.output.strip() == "shader"
-
-    def test_multiple(self, runner: CliRunner, shader_path_factory: ShaderPathFactory):
-        shader_path_factory("shader1")
-        shader_path_factory("shader2")
-        shader_path_factory("shader3")
-
-        result = runner.invoke(cli, ["ls"])
-
-        assert result.exit_code == 0
-        line = iter(result.output.strip().splitlines())
-        assert next(line).strip() == "shader1"
-        assert next(line).strip() == "shader2"
-        assert next(line).strip() == "shader3"
-        assert next(line, None) is None
-
-    def test_active(self, runner: CliRunner, shader_path_factory: ShaderPathFactory):
-        shader_path_factory("shader1")
-        shader2_path = shader_path_factory("shader2")
-        shader_path_factory("shader3")
-
-        hyprctl.set_screen_shader(shader2_path.as_posix())
-        result = runner.invoke(cli, ["ls"])
-
-        assert result.exit_code == 0
-        line = iter(result.output.strip().splitlines())
-        assert next(line).strip() == "shader1"
-        assert next(line).strip() == "* shader2"
-        assert next(line).strip() == "shader3"
-        assert next(line, None) is None
+    assert result.exit_code == 0
+    assert result.output == ""
 
 
-class TestLsLong:
-    def test_empty(self, runner: CliRunner):
-        result = runner.invoke(cli, ["ls", "--long"])
+@pytest.mark.parametrize("is_long", [False, True])
+def test_single(is_long: bool, runner: CliRunner, shader_path_env: Path):
+    cmd_args = ["--long"] if is_long else []
+    result = runner.invoke(cli, ["ls", *cmd_args])
 
-        assert result.exit_code == 0
-        assert result.output == ""
+    assert result.exit_code == 0
 
-    def test_single(self, runner: CliRunner, shader_path_env: Path):
-        result = runner.invoke(cli, ["ls", "--long"])
+    pattern = "shader" + (
+        rf" +{re.escape(shader_path_env.parent.as_posix())}" if is_long else ""
+    )
+    assert re.match(pattern, result.output.strip()) is not None
 
-        assert result.exit_code == 0
 
-        pattern = rf"shader +{re.escape(shader_path_env.parent.as_posix())}"
-        assert re.match(pattern, result.output.strip()) is not None
+@pytest.mark.parametrize("is_long", [False, True])
+def test_multiple(
+    is_long: bool, runner: CliRunner, shader_path_factory: ShaderPathFactory
+):
+    shader_names = ["shader1", "shader2", "shader3"]
+    shader_paths = list(map(shader_path_factory, shader_names))
 
-    def test_multiple(self, runner: CliRunner, shader_path_factory: ShaderPathFactory):
-        shader1_path = shader_path_factory("shader1")
-        shader2_path = shader_path_factory("shader2")
-        shader3_path = shader_path_factory("shader3")
+    cmd_args = ["--long"] if is_long else []
+    result = runner.invoke(cli, ["ls", *cmd_args])
 
-        result = runner.invoke(cli, ["ls", "--long"])
+    assert result.exit_code == 0
 
-        assert result.exit_code == 0
-        line = iter(result.output.strip().splitlines())
+    for name, path, line in zip(
+        shader_names, shader_paths, result.output.strip().splitlines(), strict=True
+    ):
+        pattern = re.escape(name) + (
+            rf" +{re.escape(path.parent.as_posix())}" if is_long else ""
+        )
+        assert re.match(pattern, line.strip()) is not None
 
-        pattern = rf"shader1 +{re.escape(shader1_path.parent.as_posix())}"
-        assert re.match(pattern, next(line).strip()) is not None
 
-        pattern = rf"shader2 +{re.escape(shader2_path.parent.as_posix())}"
-        assert re.match(pattern, next(line).strip()) is not None
+@pytest.mark.parametrize("is_long", [False, True])
+def test_active(
+    is_long: bool,
+    runner: CliRunner,
+    shader_path_factory: ShaderPathFactory,
+):
+    shader_names = ["shader1", "shader2", "shader3"]
+    shader_paths = list(map(shader_path_factory, shader_names))
+    current_index = 1
 
-        pattern = rf"shader3 +{re.escape(shader3_path.parent.as_posix())}"
-        assert re.match(pattern, next(line).strip()) is not None
+    hyprctl.set_screen_shader(shader_paths[current_index].as_posix())
+    cmd_args = ["--long"] if is_long else []
+    result = runner.invoke(cli, ["ls", *cmd_args])
 
-        assert next(line, None) is None
+    assert result.exit_code == 0
 
-    def test_active(self, runner: CliRunner, shader_path_factory: ShaderPathFactory):
-        shader1_path = shader_path_factory("shader1")
-        shader2_path = shader_path_factory("shader2")
-        shader3_path = shader_path_factory("shader3")
-
-        hyprctl.set_screen_shader(shader2_path.as_posix())
-        result = runner.invoke(cli, ["ls", "--long"])
-
-        assert result.exit_code == 0
-        line = iter(result.output.strip().splitlines())
-
-        pattern = rf"shader1 +{re.escape(shader1_path.parent.as_posix())}"
-        assert re.match(pattern, next(line).strip()) is not None
-
-        pattern = rf"\* shader2 +{re.escape(shader2_path.parent.as_posix())}"
-        assert re.match(pattern, next(line).strip()) is not None
-
-        pattern = rf"shader3 +{re.escape(shader3_path.parent.as_posix())}"
-        assert re.match(pattern, next(line).strip()) is not None
-
-        assert next(line, None) is None
+    for i, (name, path, line) in enumerate(
+        zip(shader_names, shader_paths, result.output.strip().splitlines(), strict=True)
+    ):
+        pattern = (
+            (re.escape("* ") if i == current_index else "")
+            + re.escape(name)
+            + (rf" +{re.escape(path.parent.as_posix())}" if is_long else "")
+        )
+        assert re.match(pattern, line.strip()) is not None
