@@ -60,14 +60,15 @@ def test_multiple(
 
 
 @pytest.mark.parametrize("is_long", [False, True])
+@pytest.mark.parametrize("current_index", [0, 1, 2])
 def test_active(
     is_long: bool,
+    current_index: int,
     runner: CliRunner,
     shader_path_factory: ShaderPathFactory,
 ):
     shader_names = ["shader1", "shader2", "shader3"]
     shader_paths = list(map(shader_path_factory, shader_names))
-    current_index = 1
 
     hyprctl.set_screen_shader(shader_paths[current_index].as_posix())
     cmd_args = ["--long"] if is_long else []
