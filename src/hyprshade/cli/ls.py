@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from bisect import bisect
+from bisect import bisect_left
+from itertools import islice
 from typing import TYPE_CHECKING, final
 
 import click
@@ -50,15 +51,25 @@ class ShaderWithMeta(Shader):
         return shader
 
     @staticmethod
+    def _bisect(a: list[ShaderWithMeta], x: ShaderWithMeta) -> int:
+        first_index = bisect_left(a, x.name, key=lambda s: s.name)
+        a_prime = islice(a, first_index, None)
+        for i, y in enumerate(a_prime, first_index):
+            if y.name != x.name:
+                break
+            if y == x:
+                return i
+        return first_index
+
+    @staticmethod
     def get_shaders_list() -> list[ShaderWithMeta]:
         current = ShaderWithMeta._current()
         shaders = list(map(ShaderWithMeta, ls_dirs(Shader.dirs.all())))
         if current:
-            i = bisect(shaders, current.name, key=lambda s: s.name)
-            is_current_in_shaders = i != 0 and shaders[i - 1] == current
-            if is_current_in_shaders:
-                shaders[i - 1]._is_current = True
-                shaders[i - 1]._is_in_shader_paths = True
+            i = ShaderWithMeta._bisect(shaders, current)
+            if shaders[i] == current:
+                shaders[i]._is_current = True
+                shaders[i]._is_in_shader_paths = True
             else:
                 current._is_in_shader_paths = False
                 shaders.insert(i, current)
