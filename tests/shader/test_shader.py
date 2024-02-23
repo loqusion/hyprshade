@@ -1,9 +1,9 @@
-from collections.abc import Callable
 from pathlib import Path
 
 import pytest
 
 from hyprshade.shader.core import Shader
+from tests.types import ShaderPathFactory
 
 
 class TestDirs:
@@ -57,7 +57,7 @@ class TestEquality:
         assert Shader("shader") == Shader(str(shader_path_env))
         assert Shader(str(shader_path_env)) == Shader("shader")
 
-    def test_different_path(self, shader_path_factory: Callable[[str], Path]):
+    def test_different_path(self, shader_path_factory: ShaderPathFactory):
         shader_path1 = shader_path_factory("foo")
         shader_path2 = shader_path_factory("bar")
 

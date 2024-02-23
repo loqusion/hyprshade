@@ -1,4 +1,3 @@
-from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -6,6 +5,7 @@ from click.testing import CliRunner
 
 from hyprshade.cli import cli
 from hyprshade.shader import hyprctl
+from tests.types import ShaderPathFactory
 
 pytestmark = [
     pytest.mark.requires_hyprland(),
@@ -23,7 +23,7 @@ class TestCurrent:
         assert result.exit_code == 0
         assert result.output == ""
 
-    def test_it(self, runner: CliRunner, shader_path_factory: Callable[[str], Path]):
+    def test_it(self, runner: CliRunner, shader_path_factory: ShaderPathFactory):
         shader_path_factory("shader1")
 
         hyprctl.set_screen_shader("shader1")

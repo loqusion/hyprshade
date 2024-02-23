@@ -1,12 +1,12 @@
 import os
 import sysconfig
-from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
 
 import pytest
 
 from hyprshade.shader import Shader, hyprctl
+from tests.types import ShaderPathFactory
 
 
 @pytest.fixture(scope="module")
@@ -117,7 +117,7 @@ def shader_path_system(shader_dir_system: Path) -> Path:
 
 
 @pytest.fixture()
-def shader_path_factory(shader_dir_env: Path) -> Callable[[str], Path]:
+def shader_path_factory(shader_dir_env: Path) -> ShaderPathFactory:
     def _shader_path(name: str) -> Path:
         path_ = shader_dir_env / f"{name}.glsl"
         path_.write_text("void main() {}")

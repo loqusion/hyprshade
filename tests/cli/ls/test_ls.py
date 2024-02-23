@@ -1,5 +1,4 @@
 import re
-from collections.abc import Callable
 from pathlib import Path
 
 import pytest
@@ -7,6 +6,7 @@ from click.testing import CliRunner
 
 from hyprshade.cli import cli
 from hyprshade.shader import hyprctl
+from tests.types import ShaderPathFactory
 
 pytestmark = [
     pytest.mark.requires_hyprland(),
@@ -29,9 +29,7 @@ class TestLs:
         assert result.exit_code == 0
         assert result.output.strip() == "shader"
 
-    def test_multiple(
-        self, runner: CliRunner, shader_path_factory: Callable[[str], Path]
-    ):
+    def test_multiple(self, runner: CliRunner, shader_path_factory: ShaderPathFactory):
         shader_path_factory("shader1")
         shader_path_factory("shader2")
         shader_path_factory("shader3")
@@ -45,9 +43,7 @@ class TestLs:
         assert next(line).strip() == "shader3"
         assert next(line, None) is None
 
-    def test_active(
-        self, runner: CliRunner, shader_path_factory: Callable[[str], Path]
-    ):
+    def test_active(self, runner: CliRunner, shader_path_factory: ShaderPathFactory):
         shader_path_factory("shader1")
         shader2_path = shader_path_factory("shader2")
         shader_path_factory("shader3")
@@ -78,9 +74,7 @@ class TestLsLong:
         pattern = rf"shader +{re.escape(shader_path_env.parent.as_posix())}"
         assert re.match(pattern, result.output.strip()) is not None
 
-    def test_multiple(
-        self, runner: CliRunner, shader_path_factory: Callable[[str], Path]
-    ):
+    def test_multiple(self, runner: CliRunner, shader_path_factory: ShaderPathFactory):
         shader1_path = shader_path_factory("shader1")
         shader2_path = shader_path_factory("shader2")
         shader3_path = shader_path_factory("shader3")
@@ -101,9 +95,7 @@ class TestLsLong:
 
         assert next(line, None) is None
 
-    def test_active(
-        self, runner: CliRunner, shader_path_factory: Callable[[str], Path]
-    ):
+    def test_active(self, runner: CliRunner, shader_path_factory: ShaderPathFactory):
         shader1_path = shader_path_factory("shader1")
         shader2_path = shader_path_factory("shader2")
         shader3_path = shader_path_factory("shader3")
