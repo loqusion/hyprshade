@@ -20,5 +20,5 @@ The following are also recommended:
 - Completions (see [Click documentation](https://click.palletsprojects.com/en/8.1.x/shell-completion/)
   for how to generate them)
 
-See [the Arch Linux PKGBUILD](https://github.com/loqusion/aur-packages/blob/master/hyprshade/PKGBUILD)
+See [the Arch Linux PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=hyprshade)
 for reference.
