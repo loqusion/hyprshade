@@ -4,14 +4,14 @@ from typing import TYPE_CHECKING
 
 import click
 
-from .utils import convert_to_shader
+from .utils import ShaderParamType
 
 if TYPE_CHECKING:
     from hyprshade.shader import Shader
 
 
 @click.command(short_help="Turn on screen shader")
-@click.argument("shader", callback=convert_to_shader)
+@click.argument("shader", type=ShaderParamType())
 def on(shader: Shader):
     """Turn on screen shader."""
 

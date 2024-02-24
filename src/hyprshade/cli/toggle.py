@@ -8,7 +8,7 @@ from more_itertools import quantify
 from hyprshade.config.schedule import Schedule
 from hyprshade.shader import Shader
 
-from .utils import convert_to_shader, optional_param
+from .utils import ShaderParamType, optional_param
 
 
 def get_shader_to_toggle(
@@ -46,11 +46,15 @@ def try_from_config(t: time, *, panic: bool) -> tuple[Shader | None, Shader | No
 
 
 @click.command(short_help="Toggle screen shader")
-@click.argument("shader", **optional_param("SHADER", convert_to_shader))
+@click.argument(
+    "shader",
+    type=ShaderParamType(),
+    **optional_param("SHADER"),
+)
 @click.option(
     "--fallback",
     metavar="SHADER",
-    callback=convert_to_shader,
+    type=ShaderParamType(),
     help="Select fallback shader",
 )
 @click.option(
