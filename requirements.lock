@@ -5,7 +5,10 @@
 #   pre: false
 #   features: []
 #   all-features: false
+#   with-sources: false
 
 -e file:.
 click==8.1.7
+    # via hyprshade
 more-itertools==10.1.0
+    # via hyprshade
