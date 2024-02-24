@@ -39,23 +39,23 @@ class TestValidateOptionalParam:
 
 class TestOptionalParam:
     def test_basic(self):
-        o = utils.optional_param("FOO", None)
+        o = utils.optional_param("FOO")
         assert o["metavar"] == "FOO"
         assert o["nargs"] == -1
         assert o["callback"] is not None
 
     def test_callback(self):
-        o = utils.optional_param("FOO", None)
+        o = utils.optional_param("FOO")
         callback = o["callback"]
         assert callback(None, None, ("foo",)) == "foo"
         assert callback(None, None, ()) is None
 
     def test_given_callback(self):
-        o = utils.optional_param("FOO", lambda *_: "bar")
+        o = utils.optional_param("FOO", callback=lambda *_: "bar")
         callback = o["callback"]
         assert callback(None, None, ("foo",)) == "bar"
 
     def test_callback_synergy(self):
-        o = utils.optional_param("FOO", lambda _1, _2, x: x + "bar")
+        o = utils.optional_param("FOO", callback=lambda _1, _2, x: x + "bar")
         callback = o["callback"]
         assert callback(None, None, ("foo",)) == "foobar"
