@@ -7,13 +7,9 @@ from typing import Final
 from more_itertools import first_true, flatten
 
 from hyprshade.config.utils import hypr_config_home, hyprshade_config_home
-from hyprshade.utils import scandir_recursive
+from hyprshade.utils import scandir_recursive, stripped_basename
 
 from . import hyprctl
-
-
-def _stripped_basename(s: str) -> str:
-    return path.splitext(path.basename(s))[0]
 
 
 class _ShaderDirs:
@@ -67,7 +63,7 @@ class Shader:
             if shader_name_or_path.find(path.sep) != -1
             else None
         )
-        self._name = _stripped_basename(shader_name_or_path)
+        self._name = stripped_basename(shader_name_or_path)
         self._stale = self._given_path is not None and not path.exists(self._given_path)
 
     def __eq__(self, __value: object) -> bool:

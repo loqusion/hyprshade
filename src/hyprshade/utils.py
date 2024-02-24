@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from os import path
 from typing import TYPE_CHECKING, AnyStr
 
 if TYPE_CHECKING:
@@ -32,3 +33,7 @@ def scandir_recursive(
 
     while dir_stack:
         yield from scandir_recursive(dir_stack.pop(), max_depth=max_depth - 1)
+
+
+def stripped_basename(s: str) -> str:
+    return path.splitext(path.basename(s))[0]

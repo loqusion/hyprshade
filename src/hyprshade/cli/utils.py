@@ -6,12 +6,15 @@ from os import path
 from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
 import click
+from more_itertools import flatten
 
 from hyprshade.config.utils import systemd_user_config_home
 from hyprshade.shader import Shader
+from hyprshade.utils import scandir_recursive
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable, Iterator
+    from os import PathLike
 
 T = TypeVar("T", str, int, float, bool, click.ParamType)
 SystemdUnitType = Literal["service", "timer"]
@@ -65,3 +68,8 @@ def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:
 
 def get_script_path() -> str:
     return path.realpath(sys.argv[0], strict=True)
+
+
+def ls_dirs(dirs: Iterable[str | PathLike[str]]) -> Iterator[str]:
+    all_files = flatten(scandir_recursive(d, max_depth=5) for d in dirs)
+    return (f.path for f in sorted(all_files, key=lambda f: f.name))

@@ -2,22 +2,13 @@ from __future__ import annotations
 
 from bisect import bisect_left
 from itertools import islice
-from typing import TYPE_CHECKING, final
+from typing import final
 
 import click
-from more_itertools import flatten
 
 from hyprshade.shader import Shader
-from hyprshade.utils import scandir_recursive
 
-if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
-    from os import PathLike
-
-
-def ls_dirs(dirs: Iterable[str | PathLike[str]]) -> Iterator[str]:
-    all_files = flatten(scandir_recursive(d, max_depth=5) for d in dirs)
-    return (f.path for f in sorted(all_files, key=lambda f: f.name))
+from .utils import ls_dirs
 
 
 @final
