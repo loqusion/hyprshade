@@ -6,7 +6,7 @@ from os import path
 from typing import TYPE_CHECKING, Any, Final, Literal, TypeVar
 
 import click
-from more_itertools import flatten
+from more_itertools import flatten, unique_justseen
 
 from hyprshade.config.utils import systemd_user_config_home
 from hyprshade.shader import Shader
@@ -88,7 +88,9 @@ class ShaderParamType(click.ParamType):
 
     @staticmethod
     def _shader_names() -> Iterable[str]:
-        return set(map(stripped_basename, ls_dirs(Shader.dirs.all())))
+        return unique_justseen(
+            sorted(map(stripped_basename, ls_dirs(Shader.dirs.all())))
+        )
 
     def shell_complete(
         self, ctx: click.Context, param: click.Parameter, incomplete: str
