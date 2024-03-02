@@ -38,8 +38,7 @@ lint = { chain = ["lint:style", "lint:typing"] }
 fmt = { chain = ["lint:fmt:black", "lint:fmt:ruff"] }
 release = "./scripts/release.sh"
 
-# NOTE: Invoke with `python -m pytest` and not `pytest` to add the current directory to `sys.path`
-"test:pytest" = "python -m pytest tests/"
+"test:pytest" = "pytest tests/"
 "test:coverage" = "coverage run -m pytest tests/"
 "test:_coverage-report" = "coverage report"
 "test:coverage-report" = { chain = ["test:coverage", "test:_coverage-report"] }
@@ -91,6 +90,7 @@ check_untyped_defs = true
 [tool.pytest.ini_options]
 addopts = ["-r", "a", "--import-mode=importlib"]
 markers = ["requires_hyprland: Tests that require hyprland to be running"]
+pythonpath = "."
 
 [tool.coverage.run]
 source = ["src/"]
