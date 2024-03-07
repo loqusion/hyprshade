@@ -100,7 +100,6 @@ If you provide the basename, Hyprshade searches in `~/.config/hypr/shaders` and 
 >
 > ```hypr
 > exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-> exec-once = systemctl --user import-environment
 > ```
 
 [hyprland-faq-import-env]: https://webcache.googleusercontent.com/search?q=cache:Q0G2-L4_OVgJ:https://wiki.hyprland.org/FAQ/&hl=en&gl=us&client=firefox-b-1-d#some-of-my-apps-take-a-really-long-time-to-open
