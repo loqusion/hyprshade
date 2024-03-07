@@ -5,6 +5,7 @@ from datetime import datetime, time
 import click
 from more_itertools import quantify
 
+from hyprshade.config.core import ConfigError
 from hyprshade.config.schedule import Schedule
 from hyprshade.shader import Shader
 
@@ -38,7 +39,7 @@ def get_fallback(
 def try_from_config(t: time, *, panic: bool) -> tuple[Shader | None, Shader | None]:
     try:
         schedule = Schedule.from_config()
-    except FileNotFoundError:
+    except (FileNotFoundError, ConfigError):
         if panic:
             raise
         return None, None
