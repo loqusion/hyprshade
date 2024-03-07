@@ -12,6 +12,7 @@ from .utils import hypr_config_home, hyprshade_config_home
 
 
 class Config:
+    _config_path: str
     _dict: ConfigDict
 
     def __init__(self, path_: str | None = None):
@@ -20,16 +21,23 @@ class Config:
             raise FileNotFoundError(
                 "Could not find a config file; see https://github.com/loqusion/hyprshade#scheduling"
             )
+        self._config_path = path_
         self._dict = Config._load(path_)
         self.validate()
 
     def validate(self) -> None:
-        for shade in self._dict["shades"]:
-            if not shade.get("name"):
-                raise ValueError("Shade name is required")
-            if not shade.get("start_time") and shade.get("default") is not True:
-                raise ValueError(
-                    f"Non-default shader '{shade['name']}' must define start_time"
+        shaders = self._dict.get("shades", [])
+        if not isinstance(shaders, list):
+            raise ConfigError(self._config_path, "`shades` must be a list")
+        for shader in shaders:
+            if not shader.get("name"):
+                raise ConfigError(
+                    self._config_path, "`name` is required for each item in `shades`"
+                )
+            if not shader.get("start_time") and shader.get("default") is not True:
+                raise ConfigError(
+                    self._config_path,
+                    f"Non-default shader '{shader['name']}' must define `start_time`",
                 )
 
     @staticmethod
@@ -56,3 +64,13 @@ class Config:
         assert nth(yes_default, 0) is None, "There should be only one default shade"
 
         return rest, default
+
+
+class ConfigError(ValueError):
+    def __init__(self, config_path: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.config_path = config_path
+
+    def __str__(self) -> str:
+        msg = super().__str__()
+        return f"Failed to parse {self.config_path}: {msg}"
