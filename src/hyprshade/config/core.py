@@ -66,7 +66,7 @@ class Config:
         return rest, default
 
 
-class ConfigError(ValueError):
+class ConfigError(Exception):
     def __init__(self, config_path: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.config_path = config_path
