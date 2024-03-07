@@ -1,0 +1,10 @@
+{
+  "configurations": [
+    {
+      "name": "Python Debugger: hyprshade",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/.venv/bin/hyprshade"
+    }
+  ]
+}
