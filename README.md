@@ -96,14 +96,19 @@ If you provide the basename, Hyprshade searches in `~/.config/hypr/shaders` and 
 ### Scheduling
 
 > [!WARNING]
-> In order for for this to work, you must have the following lines in your `hyprland.conf`:
+> For scheduling to work, `systemd --user` must have access to the environment variable
+> `HYPRLAND_INSTANCE_SIGNATURE`.
+>
+> Add the following line to `hyprland.conf`[^2]:
 >
 > ```hypr
-> exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
-> exec-once = systemctl --user import-environment
+> exec-once = dbus-update-activation-environment --systemd HYPRLAND_INSTANCE_SIGNATURE
 > ```
+>
+> [^2]: See also: [Hyprland FAQ][hyprland-faq-import-env] ([cache][hyprland-faq-import-env-cache])
 
-[hyprland-faq-import-env]: https://webcache.googleusercontent.com/search?q=cache:Q0G2-L4_OVgJ:https://wiki.hyprland.org/FAQ/&hl=en&gl=us&client=firefox-b-1-d#some-of-my-apps-take-a-really-long-time-to-open
+[hyprland-faq-import-env]: https://wiki.hyprland.org/FAQ/#some-of-my-apps-take-a-really-long-time-to-open
+[hyprland-faq-import-env-cache]: https://web.archive.org/web/20240226003306/https://wiki.hyprland.org/FAQ/#some-of-my-apps-take-a-really-long-time-to-open
 
 To have specific shaders enabled during certain periods of the day, you can
 create a config file in either `~/.config/hypr/hyprshade.toml` or `~/.config/hyprshade/config.toml`.
