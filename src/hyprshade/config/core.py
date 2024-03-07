@@ -21,6 +21,16 @@ class Config:
                 "Could not find a config file; see https://github.com/loqusion/hyprshade#scheduling"
             )
         self._dict = Config._load(path_)
+        self.validate()
+
+    def validate(self) -> None:
+        for shade in self._dict["shades"]:
+            if not shade.get("name"):
+                raise ValueError("Shade name is required")
+            if not shade.get("start_time") and shade.get("default") is not True:
+                raise ValueError(
+                    f"Non-default shader '{shade['name']}' must define start_time"
+                )
 
     @staticmethod
     def _load(path_: str) -> ConfigDict:
