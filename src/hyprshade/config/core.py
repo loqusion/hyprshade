@@ -23,22 +23,7 @@ class Config:
             )
         self._config_path = path_
         self._dict = Config._load(path_)
-        self.validate()
-
-    def validate(self) -> None:
-        shaders = self._dict.get("shades", [])
-        if not isinstance(shaders, list):
-            raise ConfigError(self._config_path, "`shades` must be a list")
-        for shader in shaders:
-            if not shader.get("name"):
-                raise ConfigError(
-                    self._config_path, "`name` is required for each item in `shades`"
-                )
-            if not shader.get("start_time") and shader.get("default") is not True:
-                raise ConfigError(
-                    self._config_path,
-                    f"Non-default shader '{shader['name']}' must define `start_time`",
-                )
+        self._validate()
 
     @staticmethod
     def _load(path_: str) -> ConfigDict:
@@ -53,6 +38,21 @@ class Config:
             path.join(hyprshade_config_home(), "config.toml"),
         ]
         return first_true((c for c in candidates if c is not None), pred=path.isfile)
+
+    def _validate(self) -> None:
+        shaders = self._dict.get("shades", [])
+        if not isinstance(shaders, list):
+            raise ConfigError(self._config_path, "`shades` must be a list")
+        for shader in shaders:
+            if not shader.get("name"):
+                raise ConfigError(
+                    self._config_path, "`name` is required for each item in `shades`"
+                )
+            if not shader.get("start_time") and shader.get("default") is not True:
+                raise ConfigError(
+                    self._config_path,
+                    f"Non-default shader '{shader['name']}' must define `start_time`",
+                )
 
     def partition(self) -> tuple[list[ShaderConfig], DefaultShadeConfig | None]:
         no_default, yes_default = partition(
