@@ -111,7 +111,9 @@ class Shader:
             raise FileNotFoundError(f"No file found at '{self._given_path}'")
         if self._given_path:
             return self._given_path
+        return self._resolve_path_from_shader_dirs()
 
+    def _resolve_path_from_shader_dirs(self) -> str:
         dirs = Shader.dirs.all()
         all_files = flatten(scandir_recursive(d, max_depth=5) for d in dirs)
         for file in all_files:
