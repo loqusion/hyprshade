@@ -33,6 +33,20 @@ class ShaderWithMeta(Shader):
         return is_in_shader_paths
 
     @classmethod
+    def get_shaders_list(cls) -> list[ShaderWithMeta]:
+        current = cls._current()
+        shaders = list(map(cls, ls_dirs(Shader.dirs.all())))
+        if current:
+            i = cls._bisect(shaders, current)
+            if shaders[i] == current:
+                shaders[i]._is_current = True
+                shaders[i]._is_in_shader_paths = True
+            else:
+                current._is_in_shader_paths = False
+                shaders.insert(i, current)
+        return shaders
+
+    @classmethod
     def _current(cls) -> ShaderWithMeta | None:
         shader = super().current()
         if shader is None:
@@ -51,20 +65,6 @@ class ShaderWithMeta(Shader):
             if y == x:
                 return i
         return first_index
-
-    @staticmethod
-    def get_shaders_list() -> list[ShaderWithMeta]:
-        current = ShaderWithMeta._current()
-        shaders = list(map(ShaderWithMeta, ls_dirs(Shader.dirs.all())))
-        if current:
-            i = ShaderWithMeta._bisect(shaders, current)
-            if shaders[i] == current:
-                shaders[i]._is_current = True
-                shaders[i]._is_in_shader_paths = True
-            else:
-                current._is_in_shader_paths = False
-                shaders.insert(i, current)
-        return shaders
 
 
 @click.command(short_help="List available screen shaders")

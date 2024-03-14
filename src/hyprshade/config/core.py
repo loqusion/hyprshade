@@ -25,19 +25,16 @@ class Config:
         self._dict = Config._load(path_)
         self._validate()
 
-    @staticmethod
-    def _load(path_: str) -> ConfigDict:
-        with open(path_, "rb") as f:
-            return cast(ConfigDict, tomllib.load(f))
+    def partition(self) -> tuple[list[ShaderConfig], DefaultShadeConfig | None]:
+        no_default, yes_default = partition(
+            lambda s: s.get("default", False), self._dict["shades"]
+        )
+        rest = cast(list[ShaderConfig], list(no_default))
+        default = cast(DefaultShadeConfig, nth(yes_default, 0))
 
-    @staticmethod
-    def get_path() -> str | None:
-        candidates = [
-            os.getenv("HYPRSHADE_CONFIG"),
-            path.join(hypr_config_home(), "hyprshade.toml"),
-            path.join(hyprshade_config_home(), "config.toml"),
-        ]
-        return first_true((c for c in candidates if c is not None), pred=path.isfile)
+        assert nth(yes_default, 0) is None, "There should be only one default shade"
+
+        return rest, default
 
     def _validate(self) -> None:
         shaders = self._dict.get("shades", [])
@@ -54,16 +51,19 @@ class Config:
                     f"Non-default shader '{shader['name']}' must define `start_time`",
                 )
 
-    def partition(self) -> tuple[list[ShaderConfig], DefaultShadeConfig | None]:
-        no_default, yes_default = partition(
-            lambda s: s.get("default", False), self._dict["shades"]
-        )
-        rest = cast(list[ShaderConfig], list(no_default))
-        default = cast(DefaultShadeConfig, nth(yes_default, 0))
+    @staticmethod
+    def _load(path_: str) -> ConfigDict:
+        with open(path_, "rb") as f:
+            return cast(ConfigDict, tomllib.load(f))
 
-        assert nth(yes_default, 0) is None, "There should be only one default shade"
-
-        return rest, default
+    @staticmethod
+    def get_path() -> str | None:
+        candidates = [
+            os.getenv("HYPRSHADE_CONFIG"),
+            path.join(hypr_config_home(), "hyprshade.toml"),
+            path.join(hyprshade_config_home(), "config.toml"),
+        ]
+        return first_true((c for c in candidates if c is not None), pred=path.isfile)
 
 
 class ConfigError(Exception):

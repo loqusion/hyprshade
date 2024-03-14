@@ -77,12 +77,6 @@ class ShaderParamType(click.ParamType):
     ):
         return Shader(value)
 
-    @staticmethod
-    def _shader_names() -> Iterable[str]:
-        return unique_justseen(
-            sorted(map(stripped_basename, ls_dirs(Shader.dirs.all())))
-        )
-
     def shell_complete(
         self, ctx: click.Context, param: click.Parameter, incomplete: str
     ):
@@ -93,3 +87,9 @@ class ShaderParamType(click.ParamType):
             return click.Path().shell_complete(ctx, param, incomplete)
 
         return [CompletionItem(name) for name in ShaderParamType._shader_names()]
+
+    @staticmethod
+    def _shader_names() -> Iterable[str]:
+        return unique_justseen(
+            sorted(map(stripped_basename, ls_dirs(Shader.dirs.all())))
+        )
