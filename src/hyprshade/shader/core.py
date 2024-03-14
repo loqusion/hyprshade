@@ -117,7 +117,7 @@ class Shader:
         dirs = Shader.dirs.all()
         all_files = flatten(scandir_recursive(d, max_depth=5) for d in dirs)
         for file in all_files:
-            if path.splitext(file.name)[0] == self._name:
+            if strip_all_extensions(file.name) == self._name:
                 return file.path
 
         raise FileNotFoundError(
@@ -125,3 +125,15 @@ class Shader:
             " directories:\n\t"
             "{}".format("\n\t".join(dirs))
         )
+
+
+MAX_ITERATIONS: Final = 99
+
+
+def strip_all_extensions(name: str) -> str:
+    for _ in range(MAX_ITERATIONS):
+        name, ext = path.splitext(name)
+        if not ext:
+            return name
+
+    raise ValueError(f"Max iterations reached while stripping extensions from '{name}")
