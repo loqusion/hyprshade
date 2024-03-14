@@ -61,7 +61,7 @@ packages = ["src/hyprshade"]
 "shaders" = "share/hyprshade/shaders"
 
 
-[tool.ruff]
+[tool.ruff.lint]
 extend-select = [
   "B",   # flake8-bugbear
   "C4",  # flake8-comprehensions
@@ -79,7 +79,7 @@ extend-select = [
   "YTT", # flake8-2020
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["hyprshade"]
 
 [tool.mypy]
