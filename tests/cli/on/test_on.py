@@ -5,6 +5,7 @@ from click.testing import CliRunner
 
 from hyprshade.cli import cli
 from hyprshade.shader import hyprctl
+from tests.types import ShaderPathFactory
 
 pytestmark = [
     pytest.mark.requires_hyprland(),
@@ -47,4 +48,14 @@ def test_invalid_shader(
 
     assert result.exit_code != 0
     assert isinstance(result.exception, FileNotFoundError)
+    assert hyprctl.get_screen_shader() == initial_shader
+
+
+def test_invalid_shader_dot(runner: CliRunner, shader_path_factory: ShaderPathFactory):
+    initial_shader = hyprctl.get_screen_shader()
+    _shader_path = shader_path_factory("invalid.name")
+    result = runner.invoke(cli, ["on", "invalid.name"])
+
+    assert result.exit_code != 0
+    assert isinstance(result.exception, ValueError)
     assert hyprctl.get_screen_shader() == initial_shader
