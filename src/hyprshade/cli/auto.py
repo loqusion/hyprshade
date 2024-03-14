@@ -5,7 +5,7 @@ from datetime import datetime
 import click
 
 from hyprshade.config.schedule import Schedule
-from hyprshade.shader import Shader
+from hyprshade.shader.core import Shader
 
 
 @click.command(short_help="Set screen shader on schedule")

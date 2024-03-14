@@ -7,7 +7,7 @@ import click
 from .utils import ShaderParamType
 
 if TYPE_CHECKING:
-    from hyprshade.shader import Shader
+    from hyprshade.shader.core import Shader
 
 
 @click.command(short_help="Turn on screen shader")

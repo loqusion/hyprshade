@@ -3,7 +3,7 @@ from __future__ import annotations
 from itertools import chain, pairwise
 from typing import TYPE_CHECKING
 
-from hyprshade.shader import Shader
+from hyprshade.shader.core import Shader
 from hyprshade.utils import is_time_between
 
 if TYPE_CHECKING:

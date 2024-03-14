@@ -9,7 +9,7 @@ import click
 from more_itertools import flatten, unique_justseen
 
 from hyprshade.config.utils import systemd_user_config_home
-from hyprshade.shader import Shader
+from hyprshade.shader.core import Shader
 from hyprshade.utils import scandir_recursive, stripped_basename
 
 if TYPE_CHECKING:

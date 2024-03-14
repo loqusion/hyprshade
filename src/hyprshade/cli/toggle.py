@@ -7,7 +7,7 @@ from more_itertools import quantify
 
 from hyprshade.config.core import ConfigError
 from hyprshade.config.schedule import Schedule
-from hyprshade.shader import Shader
+from hyprshade.shader.core import Shader
 
 from .utils import ShaderParamType, optional_param
 

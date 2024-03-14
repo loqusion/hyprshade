@@ -6,7 +6,7 @@ from typing import final
 
 import click
 
-from hyprshade.shader import Shader
+from hyprshade.shader.core import Shader
 
 from .utils import ls_dirs
 

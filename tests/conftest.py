@@ -5,7 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from hyprshade.shader import Shader, hyprctl
+from hyprshade.shader import hyprctl
+from hyprshade.shader.core import Shader
 from tests.types import ShaderPathFactory
 
 
