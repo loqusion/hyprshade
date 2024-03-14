@@ -108,9 +108,7 @@ class Shader:
 
     def _resolve_path(self) -> str:
         if not self.does_given_path_exist:
-            raise FileNotFoundError(
-                f"Shader '{self._name}' does not exist at '{self._given_path}'"
-            )
+            raise FileNotFoundError(f"No file found at '{self._given_path}'")
         if self._given_path:
             return self._given_path
 
