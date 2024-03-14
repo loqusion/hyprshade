@@ -1,28 +1,9 @@
 # mypy: disable-error-code="arg-type"
 
-from pathlib import Path
-
 import click
 import pytest
 
 from hyprshade.cli import utils
-
-
-class TestConvertToShader:
-    def test_works(self):
-        shader = utils.convert_to_shader(None, None, "foo")
-        assert shader is not None
-        assert shader.name == "foo"
-
-    def test_none(self):
-        assert utils.convert_to_shader(None, None, None) is None
-
-    def test_stale(self):
-        if Path("./foo").exists():
-            pytest.fail("test assumption failed: ./foo exists")
-
-        with pytest.raises(click.BadParameter):
-            utils.convert_to_shader(None, None, "./foo")
 
 
 class TestValidateOptionalParam:
