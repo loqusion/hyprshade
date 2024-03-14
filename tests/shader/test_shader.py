@@ -37,7 +37,7 @@ class TestConstructor:
         shader = Shader(str(shader_path))
         assert shader._name == "shader"
         assert shader._given_path == str(shader_path)
-        assert shader._stale is False
+        assert shader.does_given_path_exist is True
 
     def test_nonexistent_path(self, tmp_path: Path):
         shader_path = tmp_path / "foo.glsl"
@@ -47,7 +47,7 @@ class TestConstructor:
         shader = Shader(str(shader_path))
         assert shader._name == "foo"
         assert shader._given_path == str(shader_path)
-        assert shader._stale
+        assert shader.does_given_path_exist is False
 
 
 class TestEquality:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from functools import cached_property
 from os import path
 from typing import Final
 
@@ -64,7 +65,6 @@ class Shader:
             else None
         )
         self._name = stripped_basename(shader_name_or_path)
-        self._stale = self._given_path is not None and not path.exists(self._given_path)
 
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, Shader):
@@ -85,9 +85,9 @@ class Shader:
     def name(self) -> str:
         return self._name
 
-    @property
-    def stale(self) -> bool:
-        return self._stale
+    @cached_property
+    def does_given_path_exist(self) -> bool:
+        return self._given_path is None or path.exists(self._given_path)
 
     def dirname(self) -> str:
         return path.dirname(self._resolve_path())
@@ -107,7 +107,7 @@ class Shader:
         return None if path_ is None else Shader(path_)
 
     def _resolve_path(self) -> str:
-        if self._stale:
+        if not self.does_given_path_exist:
             raise FileNotFoundError(
                 f"Shader '{self._name}' does not exist at '{self._given_path}'"
             )
