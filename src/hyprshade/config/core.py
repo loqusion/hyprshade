@@ -16,7 +16,7 @@ class Config:
     _dict: ConfigDict
 
     def __init__(self, path_: str | None = None):
-        path_ = path_ or Config.get_path()
+        path_ = path_ or Config._get_path()
         if path_ is None:
             raise FileNotFoundError(
                 "Could not find a config file; see https://github.com/loqusion/hyprshade#scheduling"
@@ -57,7 +57,7 @@ class Config:
             return cast(ConfigDict, tomllib.load(f))
 
     @staticmethod
-    def get_path() -> str | None:
+    def _get_path() -> str | None:
         candidates = [
             os.getenv("HYPRSHADE_CONFIG"),
             path.join(hypr_config_home(), "hyprshade.toml"),
