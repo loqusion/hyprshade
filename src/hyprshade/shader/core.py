@@ -61,15 +61,14 @@ class Shader:
     _name: str
 
     def __init__(self, shader_name_or_path: str):
-        is_given_path = shader_name_or_path.find(path.sep) != -1
-        if is_given_path:
+        if shader_name_or_path.find(path.sep) != -1:
             self._given_path = path.abspath(shader_name_or_path)
             self._name = stripped_basename(self._given_path)
+        elif shader_name_or_path.find(".") != -1:
+            raise ValueError(
+                f"Shader name '{shader_name_or_path}' must not contain a '.' character"
+            )
         else:
-            if shader_name_or_path.find(".") != -1:
-                raise ValueError(
-                    f"Shader name '{shader_name_or_path}' must not contain a '.' character"
-                )
             self._given_path = None
             self._name = shader_name_or_path
 
