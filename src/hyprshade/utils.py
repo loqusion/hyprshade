@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from os import path
-from typing import TYPE_CHECKING, AnyStr
+from typing import TYPE_CHECKING, AnyStr, Final
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -36,4 +36,16 @@ def scandir_recursive(
 
 
 def stripped_basename(s: str) -> str:
-    return path.splitext(path.basename(s))[0]
+    return strip_all_extensions(path.basename(s))
+
+
+MAX_ITERATIONS: Final = 99
+
+
+def strip_all_extensions(name: str) -> str:
+    for _ in range(MAX_ITERATIONS):
+        name, ext = path.splitext(name)
+        if not ext:
+            return name
+
+    raise ValueError(f"Max iterations reached while stripping extensions from '{name}")

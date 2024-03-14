@@ -8,7 +8,7 @@ from typing import Final
 from more_itertools import first_true, flatten
 
 from hyprshade.config.utils import hypr_config_home, hyprshade_config_home
-from hyprshade.utils import scandir_recursive, stripped_basename
+from hyprshade.utils import scandir_recursive, strip_all_extensions, stripped_basename
 
 from . import hyprctl
 
@@ -125,15 +125,3 @@ class Shader:
             " directories:\n\t"
             "{}".format("\n\t".join(dirs))
         )
-
-
-MAX_ITERATIONS: Final = 99
-
-
-def strip_all_extensions(name: str) -> str:
-    for _ in range(MAX_ITERATIONS):
-        name, ext = path.splitext(name)
-        if not ext:
-            return name
-
-    raise ValueError(f"Max iterations reached while stripping extensions from '{name}")
