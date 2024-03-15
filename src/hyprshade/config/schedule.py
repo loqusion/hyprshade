@@ -60,7 +60,7 @@ class Schedule:
 
     def _entries(self) -> list[ScheduledShaderConfig]:
         def has_schedule(
-            shader_config: ShaderConfig
+            shader_config: ShaderConfig,
         ) -> TypeGuard[ScheduledShaderConfig]:
             if not shader_config.default:
                 assert shader_config.start_time is not None
