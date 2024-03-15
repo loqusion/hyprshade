@@ -21,10 +21,10 @@ class TestLsDirs:
 
     def test_multiple_dirs(self, tmp_path_factory: pytest.TempPathFactory):
         paths = []
-        for dir_ in ["foo", "bar", "baz"]:
-            tmp_path_ = tmp_path_factory.mktemp(dir_)
-            (tmp_path_ / f"qux{dir_}").touch()
-            paths.append(tmp_path_)
+        for name in ["foo", "bar", "baz"]:
+            tmp_path = tmp_path_factory.mktemp(name)
+            (tmp_path / f"qux{name}").touch()
+            paths.append(tmp_path)
 
         assert list(ls_dirs(paths)) == list(
             map(str, [paths[1] / "quxbar", paths[2] / "quxbaz", paths[0] / "quxfoo"])

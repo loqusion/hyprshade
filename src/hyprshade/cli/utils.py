@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import sys
-from os import path
 from typing import TYPE_CHECKING, Any, Final, Literal, TypeVar
 
 import click
@@ -53,12 +52,12 @@ def optional_param(
 def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:
     dest_dir = systemd_user_config_home()
     os.makedirs(dest_dir, exist_ok=True)
-    with open(path.join(dest_dir, f"hyprshade.{unit_type}"), "w") as f:
+    with open(os.path.join(dest_dir, f"hyprshade.{unit_type}"), "w") as f:
         f.write(body)
 
 
 def get_script_path() -> str:
-    return path.realpath(sys.argv[0], strict=True)
+    return os.path.realpath(sys.argv[0], strict=True)
 
 
 def ls_dirs(dirs: Iterable[str | PathLike[str]]) -> Iterator[str]:
@@ -82,7 +81,7 @@ class ShaderParamType(click.ParamType):
     ):
         from click.shell_completion import CompletionItem
 
-        is_path = incomplete.find(path.sep) != -1
+        is_path = incomplete.find(os.path.sep) != -1
         if is_path:
             return click.Path().shell_complete(ctx, param, incomplete)
 

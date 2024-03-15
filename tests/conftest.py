@@ -47,10 +47,10 @@ def _clear_screen_shader():
 def shader_dir_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     prev_env = os.environ.get(Shader.dirs.ENV_VAR_NAME)
 
-    path_ = tmp_path / "env/shaders"
-    path_.mkdir(parents=True, exist_ok=True)
-    monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(path_))
-    yield path_
+    path = tmp_path / "env/shaders"
+    path.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(path))
+    yield path
 
     if prev_env is None:
         monkeypatch.delenv(Shader.dirs.ENV_VAR_NAME, raising=False)
@@ -65,9 +65,9 @@ def shader_dir_user(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     config_path = tmp_path / "config"
     monkeypatch.setenv("XDG_CONFIG_HOME", str(config_path))
 
-    path_ = config_path / "hypr/shaders"
-    path_.mkdir(parents=True, exist_ok=True)
-    yield path_
+    path = config_path / "hypr/shaders"
+    path.mkdir(parents=True, exist_ok=True)
+    yield path
 
     if xdg_config_home is None:
         monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
@@ -84,17 +84,17 @@ def shader_dir_system(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
         sysconfig, "get_path", lambda name: str(data_path) if name == "data" else ""
     )
 
-    path_ = Path(sysconfig.get_path("data"), "share", "hyprshade", "shaders").resolve()
-    path_.mkdir(parents=True, exist_ok=True)
-    yield path_
+    path = Path(sysconfig.get_path("data"), "share", "hyprshade", "shaders").resolve()
+    path.mkdir(parents=True, exist_ok=True)
+    yield path
 
     monkeypatch.setattr(sysconfig, "get_path", prev_sysconfig_get_path)
 
 
-def _shader_path_at(dir_: Path) -> Path:
-    path_ = dir_ / "shader.glsl"
-    path_.write_text("void main() {}")
-    return path_
+def _shader_path_at(name: Path) -> Path:
+    path = name / "shader.glsl"
+    path.write_text("void main() {}")
+    return path
 
 
 @pytest.fixture()
@@ -120,9 +120,9 @@ def shader_path_system(shader_dir_system: Path) -> Path:
 @pytest.fixture()
 def shader_path_factory(shader_dir_env: Path) -> ShaderPathFactory:
     def _shader_path(name: str) -> Path:
-        path_ = shader_dir_env / f"{name}.glsl"
-        path_.write_text("void main() {}")
-        return path_
+        path = shader_dir_env / f"{name}.glsl"
+        path.write_text("void main() {}")
+        return path
 
     return _shader_path
 

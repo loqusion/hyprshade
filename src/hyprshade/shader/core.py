@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import logging
+import os
 from functools import cached_property
-from os import path
 from typing import Final
 
 from more_itertools import first_true, flatten
@@ -19,25 +19,25 @@ class _ShaderDirs:
 
     @staticmethod
     def env() -> str:
-        return path.expanduser(
-            path.expandvars(path.expandvars("$" + _ShaderDirs.ENV_VAR_NAME))
+        return os.path.expanduser(
+            os.path.expandvars(os.path.expandvars("$" + _ShaderDirs.ENV_VAR_NAME))
         )
 
     @staticmethod
     def user_hypr() -> str:
-        return path.join(hypr_config_home(), "shaders")
+        return os.path.join(hypr_config_home(), "shaders")
 
     @staticmethod
     def user_hyprshade() -> str:
-        return path.join(hyprshade_config_home(), "shaders")
+        return os.path.join(hyprshade_config_home(), "shaders")
 
     @staticmethod
     def system() -> str:
         import sysconfig
 
         return first_true(
-            [path.join(sysconfig.get_path("data"), "share", "hyprshade", "shaders")],
-            pred=path.exists,
+            [os.path.join(sysconfig.get_path("data"), "share", "hyprshade", "shaders")],
+            pred=os.path.exists,
             default=_ShaderDirs.SYSTEM_DIR,
         )
 
@@ -51,7 +51,7 @@ class _ShaderDirs:
                 _ShaderDirs.user_hyprshade(),
                 _ShaderDirs.system(),
             ]
-            if path.exists(x)
+            if os.path.exists(x)
         ]
 
 
@@ -61,8 +61,8 @@ class Shader:
     _name: str
 
     def __init__(self, shader_name_or_path: str):
-        if shader_name_or_path.find(path.sep) != -1:
-            self._given_path = path.abspath(shader_name_or_path)
+        if shader_name_or_path.find(os.path.sep) != -1:
+            self._given_path = os.path.abspath(shader_name_or_path)
             self._name = stripped_basename(self._given_path)
         elif shader_name_or_path.find(".") != -1:
             raise ValueError(
@@ -76,10 +76,10 @@ class Shader:
         if not isinstance(__value, Shader):
             return False
         try:
-            s, s2 = self._resolve_path(), __value._resolve_path()
+            s1, s2 = self._resolve_path(), __value._resolve_path()
         except FileNotFoundError:
             return False
-        return path.samefile(s, s2)
+        return os.path.samefile(s1, s2)
 
     def __str__(self) -> str:
         return self._name
@@ -93,15 +93,15 @@ class Shader:
 
     @cached_property
     def does_given_path_exist(self) -> bool:
-        return self._given_path is None or path.exists(self._given_path)
+        return self._given_path is None or os.path.exists(self._given_path)
 
     def dirname(self) -> str:
-        return path.dirname(self._resolve_path())
+        return os.path.dirname(self._resolve_path())
 
     def on(self) -> None:
-        path_ = self._resolve_path()
-        logging.debug(f"Turning on shader '{self._name}' at '{path_}'")
-        hyprctl.set_screen_shader(path_)
+        path = self._resolve_path()
+        logging.debug(f"Turning on shader '{self._name}' at '{path}'")
+        hyprctl.set_screen_shader(path)
 
     @staticmethod
     def off() -> None:
@@ -109,8 +109,8 @@ class Shader:
 
     @staticmethod
     def current() -> Shader | None:
-        path_ = hyprctl.get_screen_shader()
-        return None if path_ is None else Shader(path_)
+        path = hyprctl.get_screen_shader()
+        return None if path is None else Shader(path)
 
     def _resolve_path(self) -> str:
         if not self.does_given_path_exist:
