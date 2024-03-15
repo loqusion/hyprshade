@@ -66,6 +66,7 @@ class RootConfig(LazyConfig):
                     self.raise_error("must be an array")
 
                 field_shades = []
+                found_default = False
                 for i, shade in enumerate(shades, 1):
                     if not isinstance(shade, dict):
                         self.raise_error("must be a table", extra_steps=(str(i),))
@@ -79,6 +80,15 @@ class RootConfig(LazyConfig):
                             "Default shader must not define `start_time`",
                             extra_steps=(str(i),),
                         )
+                    if found_default and shade.get("default") is True:
+                        self.raise_error(
+                            "Only one default shader is allowed",
+                            extra_steps=(str(i),),
+                        )
+
+                    if shade.get("default") is True:
+                        found_default = True
+
                     field_shades.append(
                         ShaderConfig(shade, path=self.path, steps=("shades", str(i)))
                     )
