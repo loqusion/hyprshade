@@ -9,7 +9,7 @@ class TestChevron:
 
         assert find_spec("chevron") is not None
 
-    def test_string_template(self):
+    def test_template(self):
         assert render("Hello, {{name}}!", {"name": "world"}) == "Hello, world!"
 
 
@@ -21,7 +21,7 @@ class TestPystache:
 
         assert find_spec("chevron") is None
 
-    def test_string_template(self):
+    def test_template(self):
         assert render("Hello, {{name}}!", {"name": "world"}) == "Hello, world!"
 
 
