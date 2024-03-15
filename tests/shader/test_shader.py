@@ -90,7 +90,6 @@ class TestDisplay:
 
 
 @pytest.mark.requires_hyprland()
-@pytest.mark.usefixtures("_save_screen_shader")
 class TestOnOff:
     def test_on(self, shader_path_env: Path):
         Shader("shader").on()

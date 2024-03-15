@@ -1,3 +1,4 @@
+import contextlib
 import os
 import sysconfig
 from functools import lru_cache
@@ -10,23 +11,22 @@ from hyprshade.shader.core import Shader
 from tests.types import ShaderPathFactory
 
 
-@pytest.fixture(scope="module")
-def _save_screen_shader():
-    """Save the current screen shader and restore it after testing"""
+@pytest.fixture(scope="session", autouse=True)
+def _save_and_restore_shader():
+    with contextlib.suppress(hyprctl.HyprctlError, FileNotFoundError):
+        screen_shader = hyprctl.get_screen_shader()
 
-    screen_shader = hyprctl.get_screen_shader()
     yield
 
-    if screen_shader is None:
-        hyprctl.clear_screen_shader()
-        return
-    try:
-        hyprctl.set_screen_shader(screen_shader)
-    except BaseException:
-        import os
-
-        hyprctl.clear_screen_shader()
-        os.system('notify-send "hyprshade" "Failed to restore screen shader"')
+    with contextlib.suppress(hyprctl.HyprctlError, FileNotFoundError):
+        try:
+            if screen_shader is None:
+                hyprctl.clear_screen_shader()
+            else:
+                hyprctl.set_screen_shader(screen_shader)
+        except BaseException:
+            hyprctl.clear_screen_shader()
+            os.system('notify-send "hyprshade" "Failed to restore screen shader"')
 
 
 @pytest.fixture()
