@@ -74,6 +74,11 @@ class RootConfig(LazyConfig):
                             "Non-default shader must define `start_time`",
                             extra_steps=(str(i),),
                         )
+                    if "start_time" in shade and shade.get("default") is True:
+                        self.raise_error(
+                            "Default shader must not define `start_time`",
+                            extra_steps=(str(i),),
+                        )
                     field_shades.append(
                         ShaderConfig(shade, path=self.path, steps=("shades", str(i)))
                     )
