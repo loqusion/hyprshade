@@ -12,6 +12,12 @@ class TestChevron:
     def test_template(self):
         assert render("Hello, {{name}}!", {"name": "world"}) == "Hello, world!"
 
+    def test_default_variable(self):
+        template = "Hello, {{#name}}{{.}}{{/name}}{{^name}}world{{/name}}!"
+
+        assert render(template, {"name": "planet"}) == "Hello, planet!"
+        assert render(template) == "Hello, world!"
+
 
 @pytest.mark.requires_pystache()
 @pytest.mark.usefixtures("_disable_chevron")
@@ -23,6 +29,12 @@ class TestPystache:
 
     def test_template(self):
         assert render("Hello, {{name}}!", {"name": "world"}) == "Hello, world!"
+
+    def test_default_variable(self):
+        template = "Hello, {{#name}}{{.}}{{/name}}{{^name}}world{{/name}}!"
+
+        assert render(template, {"name": "planet"}) == "Hello, planet!"
+        assert render(template) == "Hello, world!"
 
 
 @pytest.fixture(scope="class")
