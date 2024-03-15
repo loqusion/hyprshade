@@ -135,8 +135,17 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
             and not item.config.getoption("--hyprland", default=False)
         ):
             pytest.skip("Not running in hyprland")
+        elif marker.name == "requires_pystache" and not has_pystache():
+            pytest.skip("pystache not installed")
 
 
 @lru_cache
 def has_hyprland():
     return os.getenv("HYPRLAND_INSTANCE_SIGNATURE") is not None
+
+
+@lru_cache
+def has_pystache() -> bool:
+    from importlib.util import find_spec
+
+    return find_spec("pystache") is not None
