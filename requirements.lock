@@ -10,5 +10,5 @@
 -e file:.
 click==8.1.7
     # via hyprshade
-more-itertools==10.1.0
+more-itertools==10.2.0
     # via hyprshade
