@@ -8,6 +8,8 @@
 #   with-sources: false
 
 -e file:.
+chevron==0.14.0
+    # via hyprshade
 click==8.1.7
     # via hyprshade
 coverage==7.4.4

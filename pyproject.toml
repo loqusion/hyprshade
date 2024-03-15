@@ -6,7 +6,11 @@ authors = [{ name = "John Bernard", email = "loqusion@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
 license = { text = "MIT" }
-dependencies = ["click>=8.1.7", "more_itertools>=10.1.0"]
+dependencies = [
+    "click>=8.1.7",
+    "more_itertools>=10.1.0",
+    "chevron>=0.14.0",
+]
 
 [project.urls]
 Issues = "https://github.com/loqusion/hyprshade/issues"
