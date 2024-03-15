@@ -121,6 +121,8 @@ class ShaderConfig(LazyConfig):
                 name = self.raw_data["name"]
                 if not isinstance(name, str):
                     self.raise_error("must be a string")
+                elif name.find(".") != -1:
+                    self.raise_error(f"'{name}' must not contain a period")
                 self._field_name = name
             else:
                 self.raise_error("required field")
