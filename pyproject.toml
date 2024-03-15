@@ -23,7 +23,6 @@ build-backend = "hatchling.build"
 [tool.rye]
 managed = true
 dev-dependencies = [
-  "black>=23.7.0",
   "coverage>=7.3.0",
   "hatchling>=1.18.0",
   "mypy>=1.5.1",

@@ -8,9 +8,7 @@
 #   with-sources: false
 
 -e file:.
-black==23.10.1
 click==8.1.7
-    # via black
     # via hyprshade
 coverage==7.3.2
 editables==0.5
@@ -22,17 +20,12 @@ more-itertools==10.1.0
     # via hyprshade
 mypy==1.6.1
 mypy-extensions==1.0.0
-    # via black
     # via mypy
 packaging==23.2
-    # via black
     # via hatchling
     # via pytest
 pathspec==0.11.2
-    # via black
     # via hatchling
-platformdirs==3.11.0
-    # via black
 pluggy==1.3.0
     # via hatchling
     # via pytest
