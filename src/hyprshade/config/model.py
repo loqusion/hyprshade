@@ -64,13 +64,23 @@ class RootConfig(LazyConfig):
         if self._field_shades is MISSING:
             if "shades" in self._dict:
                 shades = self._dict["shades"]
-                if isinstance(shades, list):
-                    self._field_shades = [
-                        ShaderConfig(s, path=self.path, steps=("shades",))
-                        for s in shades
-                    ]
-                else:
+                if not isinstance(shades, list):
                     self.raise_error("must be an array")
+
+                field_shades = []
+                for i, shade in enumerate(shades, 1):
+                    if not isinstance(shade, dict):
+                        self.raise_error("must be a table", extra_steps=(str(i),))
+                    if "start_time" not in shade and shade.get("default") is not True:
+                        self.raise_error(
+                            "Non-default shader must define `start_time`",
+                            extra_steps=(str(i),),
+                        )
+                    field_shades.append(
+                        ShaderConfig(shade, path=self.path, steps=("shades", str(i)))
+                    )
+
+                self._field_shades = field_shades
             else:
                 self._dict["shades"] = []
                 self._field_shades = []
