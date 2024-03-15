@@ -33,7 +33,7 @@ def chevron_render(*args, **kwargs) -> str:
 
 
 def pystache_render(template: SupportsRead[str] | str, context=None) -> str:
-    import pystache  # type: ignore[import-not-found]
+    import pystache  # type: ignore[import-not-found, import-untyped]
 
     template = coerce_template_to_str(template)
     return pystache.render(template, context or {})
