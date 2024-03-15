@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import time
-from typing import final
 
 MISSING = object()
 
@@ -52,7 +51,6 @@ class LazyConfig:
         )
 
 
-@final
 class RootConfig(LazyConfig):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -92,7 +90,6 @@ class RootConfig(LazyConfig):
         return self.shades
 
 
-@final
 class ShaderConfig(LazyConfig):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
