@@ -31,7 +31,7 @@ def parse_config(obj):
 
 class LazyConfig:
     def __init__(self, config_dict: dict, *, path: str, steps: tuple = ()):
-        self._dict = config_dict
+        self.raw_data = config_dict
         self.path = path
         self.steps = steps
 
@@ -62,8 +62,8 @@ class RootConfig(LazyConfig):
     @property
     def shades(self) -> list[ShaderConfig]:
         if self._field_shades is MISSING:
-            if "shades" in self._dict:
-                shades = self._dict["shades"]
+            if "shades" in self.raw_data:
+                shades = self.raw_data["shades"]
                 if not isinstance(shades, list):
                     self.raise_error("must be an array")
 
@@ -82,7 +82,7 @@ class RootConfig(LazyConfig):
 
                 self._field_shades = field_shades
             else:
-                self._dict["shades"] = []
+                self.raw_data["shades"] = []
                 self._field_shades = []
 
         return self._field_shades  # type: ignore[return-value]
@@ -105,8 +105,8 @@ class ShaderConfig(LazyConfig):
     @property
     def name(self) -> str:
         if self._field_name is MISSING:
-            if "name" in self._dict:
-                name = self._dict["name"]
+            if "name" in self.raw_data:
+                name = self.raw_data["name"]
                 if not isinstance(name, str):
                     self.raise_error("must be a string")
                 self._field_name = name
@@ -118,13 +118,13 @@ class ShaderConfig(LazyConfig):
     @property
     def start_time(self) -> time | None:
         if self._field_start_time is MISSING:
-            if "start_time" in self._dict:
-                start_time = self._dict["start_time"]
+            if "start_time" in self.raw_data:
+                start_time = self.raw_data["start_time"]
                 if not isinstance(start_time, time):
                     self.raise_error("must be time")
                 self._field_start_time = start_time
             else:
-                self._dict["start_time"] = None
+                self.raw_data["start_time"] = None
                 self._field_start_time = None
 
         return self._field_start_time  # type: ignore[return-value]
@@ -132,13 +132,13 @@ class ShaderConfig(LazyConfig):
     @property
     def end_time(self) -> time | None:
         if self._field_end_time is MISSING:
-            if "end_time" in self._dict:
-                end_time = self._dict["end_time"]
+            if "end_time" in self.raw_data:
+                end_time = self.raw_data["end_time"]
                 if not isinstance(end_time, time):
                     self.raise_error("must be time")
                 self._field_end_time = end_time
             else:
-                self._dict["end_time"] = None
+                self.raw_data["end_time"] = None
                 self._field_end_time = None
 
         return self._field_end_time  # type: ignore[return-value]
@@ -146,13 +146,13 @@ class ShaderConfig(LazyConfig):
     @property
     def default(self) -> bool:
         if self._field_default is MISSING:
-            if "default" in self._dict:
-                default = self._dict["default"]
+            if "default" in self.raw_data:
+                default = self.raw_data["default"]
                 if not isinstance(default, bool):
                     self.raise_error("must be a boolean")
                 self._field_default = default
             else:
-                self._dict["default"] = False
+                self.raw_data["default"] = False
                 self._field_default = False
 
         return self._field_default  # type: ignore[return-value]
