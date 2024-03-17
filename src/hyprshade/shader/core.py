@@ -8,7 +8,8 @@ from typing import Final
 from more_itertools import first_true, flatten
 
 from hyprshade.config.utils import hypr_config_home, hyprshade_config_home
-from hyprshade.utils import scandir_recursive, strip_all_extensions, stripped_basename
+from hyprshade.utils.fs import scandir_recursive
+from hyprshade.utils.path import strip_all_extensions, stripped_basename
 
 from . import hyprctl
 

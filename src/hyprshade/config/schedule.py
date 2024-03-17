@@ -4,7 +4,7 @@ from itertools import chain, pairwise
 from typing import TYPE_CHECKING, TypeGuard
 
 from hyprshade.shader.core import Shader
-from hyprshade.utils import is_time_between
+from hyprshade.utils.time import is_time_between
 
 from .model import ShaderConfig
 
