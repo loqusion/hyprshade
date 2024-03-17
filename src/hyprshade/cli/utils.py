@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING, Any, Final, Literal, TypeVar
 import click
 from more_itertools import flatten, unique_justseen
 
-from hyprshade.config.utils import systemd_user_config_home
 from hyprshade.shader.core import Shader
 from hyprshade.utils.fs import scandir_recursive
 from hyprshade.utils.path import stripped_basename
+from hyprshade.utils.xdg import user_config_dir
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
@@ -51,7 +51,7 @@ def optional_param(
 
 
 def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:
-    dest_dir = systemd_user_config_home()
+    dest_dir = user_config_dir("systemd/user")
     os.makedirs(dest_dir, exist_ok=True)
     with open(os.path.join(dest_dir, f"hyprshade.{unit_type}"), "w") as f:
         f.write(body)

@@ -5,8 +5,9 @@ import tomllib
 
 from more_itertools import first_true
 
+from hyprshade.utils.xdg import user_config_dir
+
 from .model import RootConfig
-from .utils import hypr_config_home, hyprshade_config_home
 
 
 class Config:
@@ -29,7 +30,7 @@ class Config:
     def _get_path() -> str | None:
         candidates = [
             os.getenv("HYPRSHADE_CONFIG"),
-            os.path.join(hypr_config_home(), "hyprshade.toml"),
-            os.path.join(hyprshade_config_home(), "config.toml"),
+            os.path.join(user_config_dir("hypr"), "hyprshade.toml"),
+            os.path.join(user_config_dir("hyprshade"), "config.toml"),
         ]
         return first_true((c for c in candidates if c is not None), pred=os.path.isfile)

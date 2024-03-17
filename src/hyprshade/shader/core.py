@@ -7,9 +7,9 @@ from typing import Final
 
 from more_itertools import first_true, flatten
 
-from hyprshade.config.utils import hypr_config_home, hyprshade_config_home
 from hyprshade.utils.fs import scandir_recursive
 from hyprshade.utils.path import strip_all_extensions, stripped_basename
+from hyprshade.utils.xdg import user_config_dir
 
 from . import hyprctl
 
@@ -26,11 +26,11 @@ class _ShaderDirs:
 
     @staticmethod
     def user_hypr() -> str:
-        return os.path.join(hypr_config_home(), "shaders")
+        return os.path.join(user_config_dir("hypr"), "shaders")
 
     @staticmethod
     def user_hyprshade() -> str:
-        return os.path.join(hyprshade_config_home(), "shaders")
+        return os.path.join(user_config_dir("hyprshade"), "shaders")
 
     @staticmethod
     def system() -> str:
