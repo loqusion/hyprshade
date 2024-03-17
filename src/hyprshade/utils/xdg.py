@@ -8,3 +8,10 @@ def user_config_dir(appname: str) -> str:
     if not path.strip():
         path = os.path.expanduser("~/.config")
     return os.path.join(path, appname)
+
+
+def user_state_dir(appname: str) -> str:
+    path = os.environ.get("XDG_STATE_HOME", "")
+    if not path.strip():
+        path = os.path.expanduser("~/.local/state")
+    return os.path.join(path, appname)
