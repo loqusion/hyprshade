@@ -7,8 +7,11 @@ from typing import Final
 
 from more_itertools import flatten
 
+from hyprshade.template import mustache
+from hyprshade.template.constants import TEMPLATE_EXTENSIONS
 from hyprshade.utils.fs import scandir_recursive
 from hyprshade.utils.path import strip_all_extensions, stripped_basename
+from hyprshade.utils.xdg import user_state_dir
 
 from . import hyprctl
 from .dirs import ShaderDirs
@@ -61,7 +64,7 @@ class Shader:
         return os.path.dirname(self._resolve_path())
 
     def on(self) -> None:
-        path = self._resolve_path()
+        path = self._resolve_path_after_intermediate_steps()
         logging.debug(f"Turning on shader '{self._name}' at '{path}'")
         hyprctl.set_screen_shader(path)
 
@@ -73,6 +76,13 @@ class Shader:
     def current() -> Shader | None:
         path = hyprctl.get_screen_shader()
         return None if path is None else Shader(path)
+
+    def _resolve_path_after_intermediate_steps(self) -> str:
+        path = self._resolve_path()
+        _, extension = os.path.splitext(os.path.basename(path))
+        if extension.strip(".") in TEMPLATE_EXTENSIONS:
+            return self._render_template(path)
+        return path
 
     def _resolve_path(self) -> str:
         if not self.does_given_path_exist:
@@ -93,3 +103,13 @@ class Shader:
             " directories:\n\t"
             "{}".format("\n\t".join(dirs))
         )
+
+    def _render_template(self, path: str) -> str:
+        with open(path) as f:
+            content = mustache.render(f)
+        base, _ = os.path.splitext(os.path.basename(path))
+        rendered_path = os.path.join(user_state_dir("hyprshade"), base)
+        os.makedirs(os.path.dirname(rendered_path), exist_ok=True)
+        with open(rendered_path, "w") as f:
+            f.write(content)
+        return rendered_path
