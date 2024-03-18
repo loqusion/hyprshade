@@ -1,6 +1,8 @@
 import contextlib
 import os
 import sysconfig
+from collections.abc import Generator
+from contextlib import contextmanager
 from functools import lru_cache
 from pathlib import Path
 
@@ -27,6 +29,57 @@ def _save_and_restore_shader():
         except BaseException:
             hyprctl.clear_screen_shader()
             os.system('notify-send "hyprshade" "Failed to restore screen shader"')
+
+
+@pytest.fixture(scope="session", autouse=True)
+def isolation():
+    with temp_directory() as d:
+        state_dir = d / "state"
+        state_dir.mkdir()
+        config_dir = d / "config"
+        config_dir.mkdir()
+
+        env = {
+            "XDG_CONFIG_HOME": str(config_dir),
+            "XDG_STATE_HOME": str(state_dir),
+        }
+
+        with as_cwd(d), EnvVars(env):
+            yield d
+
+
+@contextmanager
+def temp_directory() -> Generator[Path, None, None]:
+    from tempfile import TemporaryDirectory
+
+    with TemporaryDirectory() as d:
+        yield Path(d).resolve()
+
+
+@contextmanager
+def as_cwd(path: Path) -> Generator[Path, None, None]:
+    old_cwd = os.getcwd()
+    os.chdir(path)
+
+    yield path
+
+    os.chdir(old_cwd)
+
+
+class EnvVars(dict):
+    def __init__(self, env: dict):
+        super().__init__(os.environ)
+        self.old_env = dict(self)
+
+        self.update(env)
+
+    def __enter__(self):
+        os.environ.clear()
+        os.environ.update(self)
+
+    def __exit__(self, *exc):
+        os.environ.clear()
+        os.environ.update(self.old_env)
 
 
 @pytest.fixture()
