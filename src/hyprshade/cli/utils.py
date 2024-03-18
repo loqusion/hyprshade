@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
     from os import PathLike
 
+
 T = TypeVar("T", str, int, float, bool, click.ParamType)
 SystemdUnitType = Literal["service", "timer"]
 
