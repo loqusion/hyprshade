@@ -31,8 +31,11 @@ def test_single(is_long: bool, runner: CliRunner, shader_path_env: Path):
 
     assert result.exit_code == 0
 
-    pattern = "shader" + (
-        rf" +{re.escape(shader_path_env.parent.as_posix())}" if is_long else ""
+    pattern = (
+        "^"
+        + "shader"
+        + (rf" +{re.escape(shader_path_env.as_posix())}" if is_long else "")
+        + "$"
     )
     assert re.match(pattern, result.output.strip()) is not None
 
@@ -52,8 +55,11 @@ def test_multiple(
     for name, path, line in zip(
         shader_names, shader_paths, result.output.strip().splitlines(), strict=True
     ):
-        pattern = re.escape(name) + (
-            rf" +{re.escape(path.parent.as_posix())}" if is_long else ""
+        pattern = (
+            "^"
+            + re.escape(name)
+            + (rf" +{re.escape(path.as_posix())}" if is_long else "")
+            + "$"
         )
         assert re.match(pattern, line.strip()) is not None
 
@@ -79,8 +85,10 @@ def test_active(
         zip(shader_names, shader_paths, result.output.strip().splitlines(), strict=True)
     ):
         pattern = (
-            (re.escape("* ") if i == current_index else "")
+            "^"
+            + (re.escape("* ") if i == current_index else "")
             + re.escape(name)
-            + (rf" +{re.escape(path.parent.as_posix())}" if is_long else "")
+            + (rf" +{re.escape(path.as_posix())}" if is_long else "")
+            + "$"
         )
         assert re.match(pattern, line.strip()) is not None
