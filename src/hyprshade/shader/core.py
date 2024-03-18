@@ -5,59 +5,17 @@ import os
 from functools import cached_property
 from typing import Final
 
-from more_itertools import first_true, flatten
+from more_itertools import flatten
 
 from hyprshade.utils.fs import scandir_recursive
 from hyprshade.utils.path import strip_all_extensions, stripped_basename
-from hyprshade.utils.xdg import user_config_dir
 
 from . import hyprctl
-
-
-class _ShaderDirs:
-    ENV_VAR_NAME: Final = "HYPRSHADE_SHADERS_DIR"
-    SYSTEM_DIR: Final = "/usr/share/hyprshade/shaders"
-
-    @staticmethod
-    def env() -> str:
-        return os.path.expanduser(
-            os.path.expandvars(os.path.expandvars("$" + _ShaderDirs.ENV_VAR_NAME))
-        )
-
-    @staticmethod
-    def user_hypr() -> str:
-        return os.path.join(user_config_dir("hypr"), "shaders")
-
-    @staticmethod
-    def user_hyprshade() -> str:
-        return os.path.join(user_config_dir("hyprshade"), "shaders")
-
-    @staticmethod
-    def system() -> str:
-        import sysconfig
-
-        return first_true(
-            [os.path.join(sysconfig.get_path("data"), "share", "hyprshade", "shaders")],
-            pred=os.path.exists,
-            default=_ShaderDirs.SYSTEM_DIR,
-        )
-
-    @staticmethod
-    def all() -> list[str]:
-        return [
-            x
-            for x in [
-                _ShaderDirs.env(),
-                _ShaderDirs.user_hypr(),
-                _ShaderDirs.user_hyprshade(),
-                _ShaderDirs.system(),
-            ]
-            if os.path.exists(x)
-        ]
+from .dirs import ShaderDirs
 
 
 class Shader:
-    dirs: Final = _ShaderDirs
+    dirs: Final = ShaderDirs
     _given_path: str | None
     _name: str
 
