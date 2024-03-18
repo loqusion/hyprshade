@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import time
+from typing import Any
 
 MISSING = object()
 
@@ -113,6 +114,7 @@ class ShaderConfig(LazyConfig):
         self._field_start_time = MISSING
         self._field_end_time = MISSING
         self._field_default = MISSING
+        self._field_config = MISSING
 
     @property
     def name(self) -> str:
@@ -170,3 +172,26 @@ class ShaderConfig(LazyConfig):
                 self._field_default = False
 
         return self._field_default  # type: ignore[return-value]
+
+    @property
+    def config(self) -> dict[str, Any] | None:
+        if self._field_config is MISSING:
+            if "config" in self.raw_data:
+                config = self.raw_data["config"]
+                if not isinstance(config, dict):
+                    self.raise_error("must be a table")
+
+                augmented_config = {}
+                for key, value in config.items():
+                    if not isinstance(key, str):
+                        self.raise_error("key must be a string", extra_steps=(key,))
+                    if isinstance(value, str):
+                        value = value.upper()
+                    augmented_config[key] = value
+
+                self._field_config = augmented_config
+            else:
+                self.raw_data["config"] = None
+                self._field_config = None
+
+        return self._field_config  # type: ignore[return-value]
