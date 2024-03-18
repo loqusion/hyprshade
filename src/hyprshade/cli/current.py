@@ -18,6 +18,6 @@ def current(long: bool):
         return
 
     if long:
-        click.echo(f"{current}  {current.dirname()}")
+        click.echo(f"{current}  {current.path()}")
         return
     click.echo(current)
