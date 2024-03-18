@@ -23,11 +23,11 @@ class Shader:
         if shader_name_or_path.find(os.path.sep) != -1:
             self._given_path = os.path.abspath(shader_name_or_path)
             self._name = stripped_basename(self._given_path)
-        elif shader_name_or_path.find(".") != -1:
-            raise ValueError(
-                f"Shader name '{shader_name_or_path}' must not contain a '.' character"
-            )
         else:
+            if shader_name_or_path.find(".") != -1:
+                raise ValueError(
+                    f"Shader name '{shader_name_or_path}' must not contain a '.' character"
+                )
             self._given_path = None
             self._name = shader_name_or_path
 
