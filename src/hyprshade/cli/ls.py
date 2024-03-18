@@ -80,9 +80,9 @@ def ls(long: bool):
     for shader in shaders:
         c = "*" if shader.is_current else " "
         if long:
-            click.echo(f"{c} {shader!s:{width}} {shader.dirname()}")
+            click.echo(f"{c} {shader!s:{width}} {shader.path()}")
             continue
         if shader.is_current and not shader.is_in_shader_paths:
-            click.echo(f"{c} {shader!s}  ({shader.dirname()})")
+            click.echo(f"{c} {shader!s}  ({shader.path()})")
             continue
         click.echo(f"{c} {shader!s}")

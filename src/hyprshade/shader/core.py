@@ -54,6 +54,9 @@ class Shader:
     def does_given_path_exist(self) -> bool:
         return self._given_path is None or os.path.exists(self._given_path)
 
+    def path(self) -> str:
+        return self._resolve_path()
+
     def dirname(self) -> str:
         return os.path.dirname(self._resolve_path())
 
