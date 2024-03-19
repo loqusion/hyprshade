@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import TYPE_CHECKING, Any, Final, Literal, TypeVar
+from typing import TYPE_CHECKING, Any, Final, Literal, TypeVar, overload
 
 import click
 from more_itertools import flatten, unique_justseen
 
+from hyprshade.config.core import Config
 from hyprshade.shader.core import Shader
 from hyprshade.utils.fs import scandir_recursive
 from hyprshade.utils.path import stripped_basename
@@ -94,3 +95,21 @@ class ShaderParamType(click.ParamType):
         return unique_justseen(
             sorted(map(stripped_basename, ls_dirs(Shader.dirs.all())))
         )
+
+
+class ContextObject:
+    _config: Config | None
+
+    def __init__(self, config: Config | None):
+        self._config = config
+
+    @overload
+    def get_config(self, raising: Literal[True]) -> Config: ...
+    @overload
+    def get_config(self, raising: Literal[False]) -> Config | None: ...
+    @overload
+    def get_config(self, raising: bool = False) -> Config | None: ...
+    def get_config(self, raising: bool = False) -> Config | None:
+        if self._config is None and raising:
+            Config.raise_not_found()
+        return self._config

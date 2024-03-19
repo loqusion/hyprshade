@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, time
+from typing import TYPE_CHECKING
 
 import click
 from more_itertools import quantify
@@ -8,7 +9,10 @@ from more_itertools import quantify
 from hyprshade.config.schedule import Schedule
 from hyprshade.shader.core import Shader
 
-from .utils import ShaderParamType, optional_param
+from .utils import ContextObject, ShaderParamType, optional_param
+
+if TYPE_CHECKING:
+    from hyprshade.config.core import Config
 
 
 def get_shader_to_toggle(
@@ -35,13 +39,13 @@ def get_fallback(
     return None
 
 
-def try_from_config(t: time, *, panic: bool) -> tuple[Shader | None, Shader | None]:
-    try:
-        schedule = Schedule.from_config()
-    except FileNotFoundError:
-        if panic:
-            raise
+def try_from_config(
+    t: time, config: Config | None
+) -> tuple[Shader | None, Shader | None]:
+    if config is None:
         return None, None
+
+    schedule = Schedule(config)
     return schedule.scheduled_shader(t), schedule.default_shader
 
 
@@ -69,7 +73,9 @@ def try_from_config(t: time, *, panic: bool) -> tuple[Shader | None, Shader | No
     default=False,
     help="Automatically infer fallback",
 )
+@click.pass_obj
 def toggle(
+    obj: ContextObject,
     shader: Shader | None,
     fallback: Shader | None,
     fallback_default: bool,
@@ -89,6 +95,7 @@ def toggle(
     """
 
     t = datetime.now().time()
+    config = obj.get_config(raising=(fallback_default or fallback_auto))
 
     fallback_opts = [fallback, fallback_default, fallback_auto]
     if quantify(fallback_opts) > 1:
@@ -96,7 +103,7 @@ def toggle(
             "--fallback", "Must not specify more than one --fallback* option"
         )
 
-    scheduled, default = try_from_config(t, panic=(fallback_default or fallback_auto))
+    scheduled, default = try_from_config(t, config)
     shader = shader or scheduled
 
     fallback = fallback or get_fallback(

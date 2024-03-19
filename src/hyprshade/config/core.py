@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import tomllib
+from typing import Never
 
 from more_itertools import first_true
 
@@ -16,10 +17,14 @@ class Config:
     def __init__(self, path: str | None = None):
         path = path or Config._get_path()
         if path is None:
-            raise FileNotFoundError(
-                "Could not find a config file; see https://github.com/loqusion/hyprshade#scheduling"
-            )
+            self.raise_not_found()
         self.model = RootConfig(Config._load(path), path=path)
+
+    @staticmethod
+    def raise_not_found() -> Never:
+        raise FileNotFoundError(
+            "Could not find a config file; see https://github.com/loqusion/hyprshade#scheduling"
+        )
 
     @staticmethod
     def _load(path: str) -> dict:

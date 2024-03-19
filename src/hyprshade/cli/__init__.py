@@ -5,6 +5,9 @@ from typing import Final
 
 import click
 
+from hyprshade.cli.utils import ContextObject
+from hyprshade.config.core import Config
+
 from .auto import auto
 from .current import current
 from .install import install
@@ -27,9 +30,16 @@ COMMANDS: Final = [
 @click.group()
 @click.version_option()
 @click.option("-v", "--verbose", is_flag=True, help="Enable verbose output")
-def cli(verbose: bool):
+@click.pass_context
+def cli(ctx: click.Context, verbose: bool):
     level = logging.DEBUG if verbose else logging.WARNING
     logging.basicConfig(level=level)
+
+    try:
+        config = Config()
+    except FileNotFoundError:
+        config = None
+    ctx.obj = ContextObject(config)
 
 
 for command in COMMANDS:

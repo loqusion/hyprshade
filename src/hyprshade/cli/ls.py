@@ -6,13 +6,13 @@ from typing import final
 
 import click
 
-from hyprshade.shader.core import Shader
+from hyprshade.shader.core import Shader, ShaderBasic
 
 from .utils import ls_dirs
 
 
 @final
-class ShaderWithMeta(Shader):
+class ShaderWithMeta(ShaderBasic):
     _is_current: bool
     _is_in_shader_paths: bool | None
 
@@ -48,12 +48,12 @@ class ShaderWithMeta(Shader):
 
     @classmethod
     def _current(cls) -> ShaderWithMeta | None:
-        shader = super().current()
+        shader = Shader.current()
         if shader is None:
             return None
-        shader = cls(shader._resolve_path())
-        shader._is_current = True
-        return shader
+        shader_with_meta = cls(shader._resolve_path())
+        shader_with_meta._is_current = True
+        return shader_with_meta
 
     @staticmethod
     def _bisect(a: list[ShaderWithMeta], x: ShaderWithMeta) -> int:

@@ -22,12 +22,6 @@ class Schedule:
     def __init__(self, config: Config):
         self.config = config
 
-    @classmethod
-    def from_config(cls, path: str | None = None) -> Schedule:
-        from .core import Config
-
-        return cls(Config(path))
-
     def scheduled_shader(self, t: time) -> Shader | None:
         for entry in self._resolved_entries():
             if is_time_between(t, entry.start_time, entry.end_time):

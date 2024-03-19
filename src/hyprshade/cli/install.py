@@ -6,18 +6,20 @@ import click
 
 from hyprshade.config.schedule import Schedule
 
-from .utils import get_script_path, write_systemd_user_unit
+from .utils import ContextObject, get_script_path, write_systemd_user_unit
 
 
 @click.command(short_help="Install systemd user units")
-def install():
+@click.pass_obj
+def install(obj: ContextObject):
     """Install systemd user units.
 
     Requires a schedule to be specified in hyprshade.toml.
     """
 
     script_path = get_script_path()
-    schedule = Schedule.from_config()
+    config = obj.get_config(raising=True)
+    schedule = Schedule(config)
     timer_config = "\n".join(
         sorted([f"OnCalendar=*-*-* {x}" for x in schedule.event_times()])
     )
