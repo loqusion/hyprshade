@@ -54,4 +54,8 @@ def main():
             raise e
         message = str(e) or repr(e)
         click.echo(f"{click.style('Error', fg='red')}: {message}", err=True)
+        click.echo(
+            click.style("Use --verbose to see the full traceback", fg="yellow"),
+            err=True,
+        )
         return 1
