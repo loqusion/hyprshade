@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from itertools import chain, pairwise
-from typing import TYPE_CHECKING, TypeGuard
+from typing import TYPE_CHECKING, Any, TypeGuard
 
 from hyprshade.shader.core import Shader
 from hyprshade.utils.time import is_time_between
@@ -13,8 +14,6 @@ if TYPE_CHECKING:
     from datetime import time
 
     from .core import Config
-
-    TimeRange = tuple[time, time]
 
 
 class Schedule:
@@ -30,9 +29,9 @@ class Schedule:
         return cls(Config(path))
 
     def scheduled_shader(self, t: time) -> Shader | None:
-        for shader_name, (start_time, end_time) in self._resolved_entries():
-            if is_time_between(t, start_time, end_time):
-                return Shader(shader_name)
+        for entry in self._resolved_entries():
+            if is_time_between(t, entry.start_time, entry.end_time):
+                return Shader(entry.name)
 
         return self.default_shader
 
@@ -49,14 +48,16 @@ class Schedule:
         assert next(filtered, None) is None
         return Shader(default.name) if default else None
 
-    def _resolved_entries(self) -> Iterator[tuple[str, TimeRange]]:
+    def _resolved_entries(self) -> Iterator[ResolvedEntry]:
         if not (entries := self._entries()):
             return iter(())
         for entry, next_entry in pairwise(chain(entries, [entries[0]])):
-            name = entry.name
-            start_time = entry.start_time
-            end_time = entry.end_time or next_entry.start_time
-            yield name, (start_time, end_time)
+            yield ResolvedEntry(
+                name=entry.name,
+                start_time=entry.start_time,
+                end_time=entry.end_time or next_entry.start_time,
+                config=entry.config,
+            )
 
     def _entries(self) -> list[ScheduledShaderConfig]:
         def has_schedule(
@@ -73,3 +74,11 @@ class Schedule:
 
 class ScheduledShaderConfig(ShaderConfig):
     start_time: time
+
+
+@dataclass()
+class ResolvedEntry:
+    name: str
+    start_time: time
+    end_time: time
+    config: dict[str, Any] | None
