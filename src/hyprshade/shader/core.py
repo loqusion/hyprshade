@@ -103,9 +103,9 @@ class Shader(ShaderBasic):
         hyprctl.clear_screen_shader()
 
     @staticmethod
-    def current() -> Shader | None:
+    def current() -> ShaderBasic | None:
         path = hyprctl.get_screen_shader()
-        return None if path is None else Shader(path)
+        return None if path is None else ShaderBasic(path)
 
     def _resolve_path_after_intermediate_steps(self) -> str:
         path = self._resolve_path()
