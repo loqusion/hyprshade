@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import os
 import tomllib
-from typing import Never
+from typing import Any, Never
 
 from more_itertools import first_true
 
 from hyprshade.utils.xdg import user_config_dir
 
-from .model import RootConfig
+from .model import RootConfig, ShaderConfig
 
 
 class Config:
@@ -19,6 +19,16 @@ class Config:
         if path is None:
             self.raise_not_found()
         self.model = RootConfig(Config._load(path), path=path)
+
+    def shader_config(self, name_or_path: str) -> ShaderConfig | None:
+        from hyprshade.shader.core import Shader
+
+        name = Shader.path_to_name(name_or_path)
+        return first_true(self.model.shaders, pred=lambda s: s.name == name)
+
+    def shader_variables(self, name_or_path: str) -> dict[str, Any] | None:
+        shader_config = self.shader_config(name_or_path)
+        return shader_config.config if shader_config else None
 
     @staticmethod
     def raise_not_found() -> Never:

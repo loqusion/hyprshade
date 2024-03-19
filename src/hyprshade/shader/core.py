@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import os
 from functools import cached_property
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 from more_itertools import flatten
 
@@ -15,6 +15,9 @@ from hyprshade.utils.xdg import user_state_dir
 
 from . import hyprctl
 from .dirs import ShaderDirs
+
+if TYPE_CHECKING:
+    from hyprshade.config.core import Config
 
 
 class ShaderBasic:
@@ -89,9 +92,11 @@ class ShaderBasic:
 
 class Shader(ShaderBasic):
     dirs: Final = ShaderDirs
+    _config: Config | None
 
-    def __init__(self, shader_name_or_path: str):
+    def __init__(self, shader_name_or_path: str, config: Config | None):
         super().__init__(shader_name_or_path)
+        self._config = config
 
     def on(self) -> None:
         path = self._resolve_path_after_intermediate_steps()
@@ -116,7 +121,10 @@ class Shader(ShaderBasic):
 
     def _render_template(self, path: str) -> str:
         with open(path) as f:
-            content = mustache.render(f)
+            variables = (
+                self._config.shader_variables(self._name) if self._config else None
+            )
+            content = mustache.render(f, variables)
         base, _ = os.path.splitext(os.path.basename(path))
         rendered_path = os.path.join(user_state_dir("hyprshade"), base)
         os.makedirs(os.path.dirname(rendered_path), exist_ok=True)

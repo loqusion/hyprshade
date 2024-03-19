@@ -25,7 +25,7 @@ class Schedule:
     def scheduled_shader(self, t: time) -> Shader | None:
         for entry in self._resolved_entries():
             if is_time_between(t, entry.start_time, entry.end_time):
-                return Shader(entry.name)
+                return Shader(entry.name, self.config)
 
         return self.default_shader
 
@@ -40,7 +40,7 @@ class Schedule:
         filtered = filter(lambda s: s.default, self.config.model.shaders)
         default = next(filtered, None)
         assert next(filtered, None) is None
-        return Shader(default.name) if default else None
+        return Shader(default.name, self.config) if default else None
 
     def _resolved_entries(self) -> Iterator[ResolvedEntry]:
         if not (entries := self._entries()):

@@ -77,7 +77,9 @@ class ShaderParamType(click.ParamType):
         param: click.Parameter | None,
         ctx: click.Context | None,
     ):
-        return Shader(value)
+        obj: ContextObject | None = ctx.obj if ctx is not None else None
+        config = obj.get_config() if obj is not None else None
+        return Shader(value, config)
 
     def shell_complete(
         self, ctx: click.Context, param: click.Parameter, incomplete: str
