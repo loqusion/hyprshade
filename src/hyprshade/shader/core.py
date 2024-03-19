@@ -23,7 +23,7 @@ class ShaderBasic:
 
     def __init__(self, shader_name_or_path: str):
         if shader_name_or_path.find(os.path.sep) != -1:
-            self._name = ShaderBasic._path_to_name(shader_name_or_path)
+            self._name = ShaderBasic.path_to_name(shader_name_or_path)
             self._given_path = os.path.abspath(shader_name_or_path)
         else:
             if shader_name_or_path.find(".") != -1:
@@ -62,6 +62,10 @@ class ShaderBasic:
     def dirname(self) -> str:
         return os.path.dirname(self._resolve_path())
 
+    @staticmethod
+    def path_to_name(path: str) -> str:
+        return stripped_basename(path)
+
     def _resolve_path(self) -> str:
         if self._given_path:
             if not self.does_given_path_exist:
@@ -81,10 +85,6 @@ class ShaderBasic:
             " directories:\n\t"
             "{}".format("\n\t".join(dirs))
         )
-
-    @staticmethod
-    def _path_to_name(path: str) -> str:
-        return stripped_basename(path)
 
 
 class Shader(ShaderBasic):
