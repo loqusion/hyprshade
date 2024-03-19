@@ -57,10 +57,7 @@ class Schedule:
         def has_schedule(
             shader_config: ShaderConfig,
         ) -> TypeGuard[ScheduledShaderConfig]:
-            if not shader_config.default:
-                assert shader_config.start_time is not None
-                return True
-            return False
+            return not shader_config.default and shader_config.start_time is not None
 
         filtered = filter(has_schedule, self.config.model.shaders)
         return sorted(filtered, key=lambda s: s.start_time)

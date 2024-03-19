@@ -71,11 +71,6 @@ class RootConfig(LazyConfig):
                 for i, shade in enumerate(shades, 1):
                     if not isinstance(shade, dict):
                         self.raise_error("must be a table", extra_steps=(str(i),))
-                    if "start_time" not in shade and shade.get("default") is not True:
-                        self.raise_error(
-                            "Non-default shader must define `start_time`",
-                            extra_steps=(str(i),),
-                        )
                     if "start_time" in shade and shade.get("default") is True:
                         self.raise_error(
                             "Default shader must not define `start_time`",
