@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 def render(
-    template: SupportsRead | str,
+    template: SupportsRead[str] | str,
     data: dict[str, Any] | None = None,
 ) -> str:
     for impl in MustacheImpl.ALL:
