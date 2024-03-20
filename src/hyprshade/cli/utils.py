@@ -93,7 +93,7 @@ class ShaderParamType(click.ParamType):
         return [CompletionItem(name) for name in ShaderParamType._shader_names()]
 
     @staticmethod
-    def _shader_names() -> Iterable[str]:
+    def _shader_names() -> Iterator[str]:
         return unique_justseen(
             sorted(map(stripped_basename, ls_dirs(Shader.dirs.all())))
         )
