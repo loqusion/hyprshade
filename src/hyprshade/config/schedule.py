@@ -44,7 +44,7 @@ class Schedule:
 
     def _resolved_entries(self) -> Iterator[ResolvedEntry]:
         if not (entries := self._entries()):
-            return iter(())
+            return
         for entry, next_entry in pairwise(chain(entries, [entries[0]])):
             yield ResolvedEntry(
                 name=entry.name,
