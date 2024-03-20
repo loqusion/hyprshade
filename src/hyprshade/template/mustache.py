@@ -16,6 +16,7 @@ def render(
         with suppress(MustacheModuleImportError):
             return impl.render(template, data)
 
+    # TODO: Add instructions to install a mustache parser
     raise ImportError("No mustache library found.")
 
 
