@@ -1,6 +1,6 @@
-import contextlib
 import os
 import sysconfig
+from contextlib import suppress
 from functools import lru_cache
 from pathlib import Path
 
@@ -13,12 +13,12 @@ from tests.types import ShaderPathFactory
 
 @pytest.fixture(scope="session", autouse=True)
 def _save_and_restore_shader():
-    with contextlib.suppress(hyprctl.HyprctlError, FileNotFoundError):
+    with suppress(hyprctl.HyprctlError, FileNotFoundError):
         screen_shader = hyprctl.get_screen_shader()
 
     yield
 
-    with contextlib.suppress(hyprctl.HyprctlError, FileNotFoundError):
+    with suppress(hyprctl.HyprctlError, FileNotFoundError):
         try:
             if screen_shader is None:
                 hyprctl.clear_screen_shader()
