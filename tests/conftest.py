@@ -1,8 +1,6 @@
 import contextlib
 import os
 import sysconfig
-from collections.abc import Generator
-from contextlib import contextmanager
 from functools import lru_cache
 from pathlib import Path
 
@@ -33,55 +31,60 @@ def _save_and_restore_shader():
                 os.system('notify-send "hyprshade" "Failed to restore screen shader"')
 
 
-@pytest.fixture(scope="session", autouse=True)
-def isolation():
-    with temp_directory() as d:
-        state_dir = d / "state"
-        state_dir.mkdir()
-        config_dir = d / "config"
-        config_dir.mkdir()
+class Isolation:
+    def __init__(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        self.state_dir = tmp_path / "_state"
+        self.config_dir = tmp_path / "_config"
 
-        env = {
-            "XDG_CONFIG_HOME": str(config_dir),
-            "XDG_STATE_HOME": str(state_dir),
-        }
+        self.usr_dir = tmp_path / "_usr"
 
-        with as_cwd(d), EnvVars(env):
-            yield d
+        self.hyprshade_env_dir = tmp_path / "_env"
+        self.hyprshade_user_hypr_dir = self.config_dir / "hypr"
+        self.hyprshade_user_hyprshade_dir = self.config_dir / "hyprshade"
+        self.hyprshade_system_dir = self.usr_dir / "share/hyprshade/shaders"
 
+        self._monkeypatch = monkeypatch
 
-@contextmanager
-def temp_directory() -> Generator[Path, None, None]:
-    from tempfile import TemporaryDirectory
-
-    with TemporaryDirectory() as d:
-        yield Path(d).resolve()
-
-
-@contextmanager
-def as_cwd(path: Path) -> Generator[Path, None, None]:
-    old_cwd = os.getcwd()
-    os.chdir(path)
-
-    yield path
-
-    os.chdir(old_cwd)
-
-
-class EnvVars(dict):
-    def __init__(self, env: dict):
-        super().__init__(os.environ)
-        self.old_env = dict(self)
-
-        self.update(env)
+        self._old_cwd = os.getcwd()
+        self.cwd = str(tmp_path)
 
     def __enter__(self):
-        os.environ.clear()
-        os.environ.update(self)
+        self._ensure_mkdir()
+
+        env = {
+            "XDG_CONFIG_HOME": str(self.config_dir),
+            "XDG_STATE_HOME": str(self.state_dir),
+            Shader.dirs.ENV_VAR_NAME: str(self.hyprshade_env_dir),
+        }
+        for key, value in env.items():
+            self._monkeypatch.setenv(key, value)
+
+        def _sysconfig_get_path(name: str) -> str:
+            match name:
+                case "data":
+                    return str(self.usr_dir)
+                case _:
+                    raise ValueError(f"Unknown path name: {name}")
+
+        self._monkeypatch.setattr(sysconfig, "get_path", _sysconfig_get_path)
+
+        os.chdir(self.cwd)
+
+        return self
 
     def __exit__(self, *exc):
-        os.environ.clear()
-        os.environ.update(self.old_env)
+        os.chdir(self._old_cwd)
+
+    def _ensure_mkdir(self):
+        for attribute in self.__dict__.values():
+            if isinstance(attribute, Path):
+                attribute.mkdir(exist_ok=True, parents=True)
+
+
+@pytest.fixture(autouse=True)
+def isolation(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    with Isolation(tmp_path, monkeypatch) as i:
+        yield i
 
 
 @pytest.fixture()
