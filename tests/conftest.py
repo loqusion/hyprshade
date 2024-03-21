@@ -27,8 +27,10 @@ def _save_and_restore_shader():
             else:
                 hyprctl.set_screen_shader(screen_shader)
         except BaseException:
-            hyprctl.clear_screen_shader()
-            os.system('notify-send "hyprshade" "Failed to restore screen shader"')
+            try:
+                hyprctl.clear_screen_shader()
+            finally:
+                os.system('notify-send "hyprshade" "Failed to restore screen shader"')
 
 
 @pytest.fixture(scope="session", autouse=True)
