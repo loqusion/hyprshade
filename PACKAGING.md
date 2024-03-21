@@ -4,8 +4,7 @@ The following are requirements for a working installation of Hyprshade:
 
 - Python 3.11+
 - Dependencies: see `pyproject.toml`'s `project.dependencies`
-- Build dependencies: [Hatchling](https://hatch.pypa.io/latest/) (not required
-  if you install from wheel)
+- Build dependencies: [Hatchling](https://hatch.pypa.io/latest/)
 
 The following are also recommended:
 
