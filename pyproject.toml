@@ -81,8 +81,14 @@ extend-select = [
   "YTT", # flake8-2020
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["I002"]
+"src/hyprshade/__init__.py" = ["I002"]
+"src/hyprshade/__main__.py" = ["I002"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["hyprshade"]
+required-imports = ["from __future__ import annotations"]
 
 [tool.mypy]
 check_untyped_defs = true
