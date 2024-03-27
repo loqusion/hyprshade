@@ -82,8 +82,10 @@ class Isolation:
 
 
 @pytest.fixture(autouse=True)
-def isolation(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    with Isolation(tmp_path, monkeypatch) as i:
+def isolation(
+    tmp_path_factory: pytest.TempPathFactory, monkeypatch: pytest.MonkeyPatch
+):
+    with Isolation(tmp_path_factory.mktemp("isolation"), monkeypatch) as i:
         yield i
 
 
