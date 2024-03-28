@@ -195,11 +195,7 @@ def shader_path_factory(shader_dir_env: Path) -> ShaderPathFactory:
 
 def pytest_runtest_setup(item: pytest.Item) -> None:
     for marker in item.iter_markers():
-        if (
-            marker.name == "requires_hyprland"
-            and not has_hyprland()
-            and not item.config.getoption("--hyprland", default=False)
-        ):
+        if marker.name == "requires_hyprland" and not has_hyprland():
             pytest.skip("Not running in hyprland")
         elif marker.name == "requires_pystache" and not has_pystache():
             pytest.skip("pystache not installed")
