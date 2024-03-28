@@ -5,11 +5,8 @@ import pytest
 
 from hyprshade.shader import hyprctl
 
-pytestmark = [
-    pytest.mark.requires_hyprland(),
-]
 
-
+@pytest.mark.requires_hyprland()
 def test_hyprctl(shader_path: Path):
     hyprctl.set_screen_shader(str(shader_path))
     assert hyprctl.get_screen_shader() == str(shader_path)
