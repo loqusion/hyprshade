@@ -19,7 +19,7 @@ def test_hyprctl(shader_path: Path):
 
 
 @pytest.mark.usefixtures("_mock_hyprctl_invalid_json")
-def test_json_error(monkeypatch: pytest.MonkeyPatch):
+def test_json_error():
     with pytest.raises(RuntimeError):
         hyprctl.get_screen_shader()
 
