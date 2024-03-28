@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 import os
-from functools import cached_property
 from typing import TYPE_CHECKING, Final
 
 from more_itertools import flatten
@@ -55,10 +54,6 @@ class PureShader:
     def name(self) -> str:
         return self._name
 
-    @cached_property
-    def does_given_path_exist(self) -> bool:
-        return self._given_path is None or os.path.exists(self._given_path)
-
     def path(self) -> str:
         return self._resolve_path()
 
@@ -71,7 +66,7 @@ class PureShader:
 
     def _resolve_path(self) -> str:
         if self._given_path:
-            if not self.does_given_path_exist:
+            if not os.path.exists(self._given_path):
                 raise FileNotFoundError(f"No file found at '{self._given_path}'")
             return self._given_path
         return self._resolve_path_from_shader_dirs()
