@@ -26,7 +26,7 @@ def test_json_error(monkeypatch: pytest.MonkeyPatch):
 
 @pytest.fixture()
 def _mock_hyprctl_invalid_json(monkeypatch: pytest.MonkeyPatch):
-    def _subprocess_run_invalid_json(*args, **kwargs) -> subprocess.CompletedProcess:
+    def _subprocess_run_invalid_json(args, **kwargs) -> subprocess.CompletedProcess:
         return subprocess.CompletedProcess(
             args=args,
             returncode=0,
