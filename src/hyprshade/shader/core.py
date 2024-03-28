@@ -20,13 +20,13 @@ if TYPE_CHECKING:
     from hyprshade.config.core import Config
 
 
-class ShaderBasic:
+class PureShader:
     _name: str
     _given_path: str | None
 
     def __init__(self, shader_name_or_path: str):
         if shader_name_or_path.find(os.path.sep) != -1:
-            self._name = ShaderBasic.path_to_name(shader_name_or_path)
+            self._name = PureShader.path_to_name(shader_name_or_path)
             self._given_path = os.path.abspath(shader_name_or_path)
         else:
             if shader_name_or_path.find(".") != -1:
@@ -37,7 +37,7 @@ class ShaderBasic:
             self._given_path = None
 
     def __eq__(self, __value: object) -> bool:
-        if not isinstance(__value, ShaderBasic):
+        if not isinstance(__value, PureShader):
             return False
         try:
             s1, s2 = self._resolve_path(), __value._resolve_path()
@@ -90,7 +90,7 @@ class ShaderBasic:
         )
 
 
-class Shader(ShaderBasic):
+class Shader(PureShader):
     dirs: Final = ShaderDirs
     _config: Config | None
 
@@ -108,9 +108,9 @@ class Shader(ShaderBasic):
         hyprctl.clear_screen_shader()
 
     @staticmethod
-    def current() -> ShaderBasic | None:
+    def current() -> PureShader | None:
         path = hyprctl.get_screen_shader()
-        return None if path is None else ShaderBasic(path)
+        return None if path is None else PureShader(path)
 
     def _resolve_path_after_intermediate_steps(self) -> str:
         path = self._resolve_path()

@@ -6,13 +6,13 @@ from typing import final
 
 import click
 
-from hyprshade.shader.core import Shader, ShaderBasic
+from hyprshade.shader.core import PureShader, Shader
 
 from .utils import ls_dirs
 
 
 @final
-class ShaderWithMeta(ShaderBasic):
+class ShaderWithMeta(PureShader):
     _is_current: bool
     _is_in_shader_paths: bool | None
 
