@@ -41,7 +41,7 @@ class Isolation:
         self.hyprshade_env_dir = tmp_path / "_env"
         self.hyprshade_user_hypr_dir = self.config_dir / "hypr"
         self.hyprshade_user_hyprshade_dir = self.config_dir / "hyprshade"
-        self.hyprshade_system_dir = self.usr_dir / "share/hyprshade/shaders"
+        self.hyprshade_system_dir = self.usr_dir / "share/hyprshade"
 
         self._monkeypatch = monkeypatch
 
@@ -79,6 +79,12 @@ class Isolation:
         for attribute in self.__dict__.values():
             if isinstance(attribute, Path):
                 attribute.mkdir(exist_ok=True, parents=True)
+        for path in [
+            self.hyprshade_user_hypr_dir,
+            self.hyprshade_user_hyprshade_dir,
+            self.hyprshade_system_dir,
+        ]:
+            (path / "shaders").mkdir(exist_ok=True, parents=True)
 
 
 @pytest.fixture(autouse=True)
