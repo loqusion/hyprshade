@@ -49,7 +49,7 @@ class PureShader:
         return self._name
 
     def __repr__(self) -> str:
-        return f"Shader({self._name!r})"
+        return f"{type(self).__name__}({self._name!r})"
 
     @property
     def name(self) -> str:
