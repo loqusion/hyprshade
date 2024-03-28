@@ -18,10 +18,27 @@ def test_hyprctl(shader_path: Path):
     assert hyprctl.get_screen_shader() is None
 
 
+@pytest.mark.usefixtures("_mock_hyprctl_failure")
+def test_hyprctl_failure():
+    with pytest.raises(hyprctl.HyprctlError):
+        hyprctl.get_screen_shader()
+
+    with pytest.raises(hyprctl.HyprctlError):
+        hyprctl.set_screen_shader("")
+
+
 @pytest.mark.usefixtures("_mock_hyprctl_invalid_json")
 def test_json_error():
     with pytest.raises(RuntimeError):
         hyprctl.get_screen_shader()
+
+
+@pytest.fixture()
+def _mock_hyprctl_failure(monkeypatch: pytest.MonkeyPatch):
+    def _subprocess_run_failure(args, **kwargs) -> subprocess.CompletedProcess:
+        raise subprocess.CalledProcessError(1, args)
+
+    monkeypatch.setattr(hyprctl.subprocess, "run", _subprocess_run_failure)
 
 
 @pytest.fixture()
