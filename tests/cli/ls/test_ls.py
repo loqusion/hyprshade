@@ -7,6 +7,7 @@ from hyprshade.cli import cli
 from tests.types import ShaderPathFactory
 
 pytestmark = [
+    pytest.mark.requires_hyprland(),
     pytest.mark.usefixtures("_clear_screen_shader"),
 ]
 
@@ -63,7 +64,6 @@ def test_multiple(
         assert re.match(pattern, line.strip()) is not None
 
 
-@pytest.mark.requires_hyprland()
 @pytest.mark.parametrize("is_long", [False, True])
 @pytest.mark.parametrize("current_index", [0, 1, 2])
 def test_active(
