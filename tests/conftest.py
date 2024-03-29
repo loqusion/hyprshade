@@ -109,65 +109,12 @@ def isolation(
 
 
 @pytest.fixture()
-def _clear_shader_env(shader_dir_env, shader_dir_user, shader_dir_system):
-    pass
-
-
-@pytest.fixture()
 def _clear_screen_shader():
     with suppress(hyprctl.HyprctlError, FileNotFoundError):
         hyprctl.clear_screen_shader()
     yield
     with suppress(hyprctl.HyprctlError, FileNotFoundError):
         hyprctl.clear_screen_shader()
-
-
-@pytest.fixture()
-def shader_dir_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-    prev_env = os.environ.get(Shader.dirs.ENV_VAR_NAME)
-
-    path = tmp_path / "env/shaders"
-    path.mkdir(parents=True, exist_ok=True)
-    monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, str(path))
-    yield path
-
-    if prev_env is None:
-        monkeypatch.delenv(Shader.dirs.ENV_VAR_NAME, raising=False)
-    else:
-        monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, prev_env)
-
-
-@pytest.fixture()
-def shader_dir_user(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-    xdg_config_home = os.environ.get("XDG_CONFIG_HOME")
-
-    config_path = tmp_path / "config"
-    monkeypatch.setenv("XDG_CONFIG_HOME", str(config_path))
-
-    path = config_path / "hypr/shaders"
-    path.mkdir(parents=True, exist_ok=True)
-    yield path
-
-    if xdg_config_home is None:
-        monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
-    else:
-        monkeypatch.setenv("XDG_CONFIG_HOME", xdg_config_home)
-
-
-@pytest.fixture()
-def shader_dir_system(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-    prev_sysconfig_get_path = sysconfig.get_path
-
-    data_path = tmp_path / "data"
-    monkeypatch.setattr(
-        sysconfig, "get_path", lambda name: str(data_path) if name == "data" else ""
-    )
-
-    path = Path(sysconfig.get_path("data"), "share", "hyprshade", "shaders").resolve()
-    path.mkdir(parents=True, exist_ok=True)
-    yield path
-
-    monkeypatch.setattr(sysconfig, "get_path", prev_sysconfig_get_path)
 
 
 def _write_shader(path: Path) -> Path:
@@ -178,21 +125,6 @@ def _write_shader(path: Path) -> Path:
 @pytest.fixture()
 def shader_path(tmp_path: Path) -> Path:
     return _write_shader(tmp_path / "shader.glsl")
-
-
-@pytest.fixture()
-def shader_path_env(shader_dir_env: Path) -> Path:
-    return _write_shader(shader_dir_env)
-
-
-@pytest.fixture()
-def shader_path_user(shader_dir_user: Path) -> Path:
-    return _write_shader(shader_dir_user)
-
-
-@pytest.fixture()
-def shader_path_system(shader_dir_system: Path) -> Path:
-    return _write_shader(shader_dir_system)
 
 
 @pytest.fixture()
