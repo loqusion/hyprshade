@@ -132,8 +132,15 @@ class TestPureShaderResolvePath:
 
 @pytest.mark.requires_hyprland()
 class TestShaderOnOff:
-    def test_on_and_off(self, shader_path_factory: ShaderPathFactory):
-        shader_path = shader_path_factory("shader")
+    @pytest.mark.parametrize(
+        "directory_name", ["env", "user_hypr", "user_hyprshade", "system"]
+    )
+    def test_on_and_off(
+        self,
+        directory_name: HyprshadeDirectoryName,
+        shader_path_factory: ShaderPathFactory,
+    ):
+        shader_path = shader_path_factory("shader", directory_name)
         ShaderNoConfig("shader").on()
         assert hyprctl.get_screen_shader() == str(shader_path)
 
