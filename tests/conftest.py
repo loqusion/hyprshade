@@ -8,7 +8,7 @@ import pytest
 
 from hyprshade.shader import hyprctl
 from hyprshade.shader.core import Shader
-from tests.types import ShaderPathFactory
+from tests.types import HyprshadeDirectoryName, ShaderPathFactory
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -75,6 +75,19 @@ class Isolation:
     def __exit__(self, *exc):
         os.chdir(self._old_cwd)
 
+    def shaders_dir(self, name: HyprshadeDirectoryName) -> Path:
+        match name:
+            case "env":
+                return self.hyprshade_env_dir
+            case "user_hypr":
+                return self.hyprshade_user_hypr_dir / "shaders"
+            case "user_hyprshade":
+                return self.hyprshade_user_hyprshade_dir / "shaders"
+            case "system":
+                return self.hyprshade_system_dir / "shaders"
+            case _:
+                raise ValueError(f"Unknown directory name: {name}")
+
     def _ensure_mkdir(self):
         for attribute in self.__dict__.values():
             if isinstance(attribute, Path):
@@ -102,11 +115,11 @@ def _clear_shader_env(shader_dir_env, shader_dir_user, shader_dir_system):
 
 @pytest.fixture()
 def _clear_screen_shader():
-    """Clear the current screen shader before and after each test"""
-
-    hyprctl.clear_screen_shader()
+    with suppress(hyprctl.HyprctlError, FileNotFoundError):
+        hyprctl.clear_screen_shader()
     yield
-    hyprctl.clear_screen_shader()
+    with suppress(hyprctl.HyprctlError, FileNotFoundError):
+        hyprctl.clear_screen_shader()
 
 
 @pytest.fixture()
@@ -157,38 +170,42 @@ def shader_dir_system(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     monkeypatch.setattr(sysconfig, "get_path", prev_sysconfig_get_path)
 
 
-def _shader_path_at(name: Path) -> Path:
-    path = name / "shader.glsl"
+def _write_shader(path: Path) -> Path:
     path.write_text("void main() {}")
     return path
 
 
 @pytest.fixture()
 def shader_path(tmp_path: Path) -> Path:
-    return _shader_path_at(tmp_path)
+    return _write_shader(tmp_path / "shader.glsl")
 
 
 @pytest.fixture()
 def shader_path_env(shader_dir_env: Path) -> Path:
-    return _shader_path_at(shader_dir_env)
+    return _write_shader(shader_dir_env)
 
 
 @pytest.fixture()
 def shader_path_user(shader_dir_user: Path) -> Path:
-    return _shader_path_at(shader_dir_user)
+    return _write_shader(shader_dir_user)
 
 
 @pytest.fixture()
 def shader_path_system(shader_dir_system: Path) -> Path:
-    return _shader_path_at(shader_dir_system)
+    return _write_shader(shader_dir_system)
 
 
 @pytest.fixture()
-def shader_path_factory(shader_dir_env: Path) -> ShaderPathFactory:
-    def _shader_path(name: str) -> Path:
-        path = shader_dir_env / f"{name}.glsl"
-        path.write_text("void main() {}")
-        return path
+def shader_path_factory(isolation: Isolation) -> ShaderPathFactory:
+    def _shader_path(
+        name: str,
+        directory_name: HyprshadeDirectoryName = "system",
+        *,
+        extension: str = "glsl",
+    ) -> Path:
+        directory = isolation.shaders_dir(directory_name)
+        path = directory / ".".join([name, extension])
+        return _write_shader(path)
 
     return _shader_path
 

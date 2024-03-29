@@ -6,8 +6,6 @@ from click.shell_completion import CompletionItem
 from hyprshade.cli.utils import ShaderParamType
 from tests.types import ShaderPathFactory
 
-pytestmark = [pytest.mark.usefixtures("_clear_shader_env")]
-
 
 @pytest.fixture()
 def _shaders(shader_path_factory: ShaderPathFactory):

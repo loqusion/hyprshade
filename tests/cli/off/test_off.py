@@ -18,8 +18,8 @@ def test_off(runner: CliRunner):
     assert hyprctl.get_screen_shader() is None
 
 
-def test_off_after_set(runner: CliRunner, shader_path_env: Path):
-    hyprctl.set_screen_shader(shader_path_env.as_posix())
+def test_off_after_set(runner: CliRunner, shader_path: Path):
+    hyprctl.set_screen_shader(shader_path.as_posix())
     result = runner.invoke(cli, "off")
 
     assert result.exit_code == 0

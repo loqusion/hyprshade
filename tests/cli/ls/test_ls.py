@@ -1,16 +1,12 @@
 import re
-from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
 
 from hyprshade.cli import cli
-from hyprshade.shader import hyprctl
 from tests.types import ShaderPathFactory
 
 pytestmark = [
-    pytest.mark.requires_hyprland(),
-    pytest.mark.usefixtures("_clear_shader_env"),
     pytest.mark.usefixtures("_clear_screen_shader"),
 ]
 
@@ -25,7 +21,10 @@ def test_empty(is_long: bool, runner: CliRunner):
 
 
 @pytest.mark.parametrize("is_long", [False, True])
-def test_single(is_long: bool, runner: CliRunner, shader_path_env: Path):
+def test_single(
+    is_long: bool, runner: CliRunner, shader_path_factory: ShaderPathFactory
+):
+    shader_path = shader_path_factory("shader")
     cmd_args = ["--long"] if is_long else []
     result = runner.invoke(cli, ["ls", *cmd_args])
 
@@ -34,7 +33,7 @@ def test_single(is_long: bool, runner: CliRunner, shader_path_env: Path):
     pattern = (
         "^"
         + "shader"
-        + (rf" +{re.escape(shader_path_env.as_posix())}" if is_long else "")
+        + (rf" +{re.escape(shader_path.as_posix())}" if is_long else "")
         + "$"
     )
     assert re.match(pattern, result.output.strip()) is not None
@@ -64,6 +63,7 @@ def test_multiple(
         assert re.match(pattern, line.strip()) is not None
 
 
+@pytest.mark.requires_hyprland()
 @pytest.mark.parametrize("is_long", [False, True])
 @pytest.mark.parametrize("current_index", [0, 1, 2])
 def test_active(
@@ -72,6 +72,8 @@ def test_active(
     runner: CliRunner,
     shader_path_factory: ShaderPathFactory,
 ):
+    from hyprshade.shader import hyprctl
+
     shader_names = ["shader1", "shader2", "shader3"]
     shader_paths = list(map(shader_path_factory, shader_names))
 

@@ -2,8 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from hyprshade.shader.core import Shader
-from tests.types import ShaderPathFactory
+from hyprshade.shader import hyprctl
+from hyprshade.shader.core import PureShader, Shader
+from tests.types import HyprshadeDirectoryName, ShaderPathFactory
 
 
 class ShaderNoConfig(Shader):
@@ -11,122 +12,144 @@ class ShaderNoConfig(Shader):
         super().__init__(shader_name_or_path, None)
 
 
-class TestConstructor:
+class TestPureShaderConstructor:
     def test_name(self):
-        assert ShaderNoConfig("foo")._name == "foo"
+        shader = PureShader("foo")
+        assert shader._name == "foo"
+        assert shader._given_path is None
 
-    def test_path(self, shader_path: Path):
-        shader = ShaderNoConfig(str(shader_path))
-        assert shader._name == "shader"
-        assert shader._given_path == str(shader_path)
-        assert shader.does_given_path_exist is True
+    def test_invalid_name(self):
+        with pytest.raises(ValueError, match="must not contain a '.' character"):
+            _shader = PureShader("foo.glsl")
 
-    def test_nonexistent_path(self, tmp_path: Path):
+    def test_path(self, tmp_path: Path):
         shader_path = tmp_path / "foo.glsl"
-        if shader_path.exists():
-            pytest.fail(f"test assumption failed: {shader_path} exists")
+        shader = PureShader(str(shader_path))
 
-        shader = ShaderNoConfig(str(shader_path))
         assert shader._name == "foo"
         assert shader._given_path == str(shader_path)
-        assert shader.does_given_path_exist is False
 
 
-class TestEquality:
-    def test_same_path(self, shader_path_env: Path):
-        assert ShaderNoConfig("shader") == ShaderNoConfig("shader")
-        assert ShaderNoConfig(str(shader_path_env)) == ShaderNoConfig(
-            str(shader_path_env)
-        )
-        assert ShaderNoConfig("shader") == ShaderNoConfig(str(shader_path_env))
-        assert ShaderNoConfig(str(shader_path_env)) == ShaderNoConfig("shader")
+class TestPureShaderEq:
+    def test_basic(self):
+        assert PureShader("foo") != None  # noqa: E711
+        assert PureShader("foo") != "foo"
+        assert PureShader("foo") != PureShader("bar")
+        assert PureShader("foo") != PureShader("foo")
 
-    def test_different_path(self, shader_path_factory: ShaderPathFactory):
+    def test_with_paths(self, shader_path_factory: ShaderPathFactory):
         shader_path1 = shader_path_factory("foo")
         shader_path2 = shader_path_factory("bar")
 
-        assert ShaderNoConfig(str(shader_path1)) == ShaderNoConfig("foo")
-        assert ShaderNoConfig(str(shader_path2)) == ShaderNoConfig("bar")
+        assert PureShader("foo") == PureShader("foo")
+        assert PureShader(str(shader_path1)) == PureShader(str(shader_path1))
+        assert PureShader(str(shader_path1)) == PureShader("foo")
 
-        assert ShaderNoConfig("foo") != ShaderNoConfig("bar")
-        assert ShaderNoConfig(str(shader_path1)) != ShaderNoConfig(str(shader_path2))
-        assert ShaderNoConfig("foo") != ShaderNoConfig(str(shader_path2))
-        assert ShaderNoConfig(str(shader_path1)) != ShaderNoConfig("bar")
-
-    def test_other(self, shader_path_env: Path):
-        assert ShaderNoConfig("shader") != None  # noqa: E711
-        assert ShaderNoConfig("shader") != "shader"
-        assert ShaderNoConfig("doesnotexist") != ShaderNoConfig("doesnotexist")
+        assert PureShader("foo") != PureShader("bar")
+        assert PureShader(str(shader_path1)) != PureShader(str(shader_path2))
+        assert PureShader("foo") != PureShader(str(shader_path2))
+        assert PureShader(str(shader_path1)) != PureShader("bar")
 
 
-class TestDisplay:
+class TestPureShaderDisplay:
     def test_str(self):
-        assert str(ShaderNoConfig("foo")) == "foo"
+        assert str(PureShader("foo")) == "foo"
 
-    @pytest.mark.skip("TODO: fix this test")
     def test_repr(self):
-        assert repr(ShaderNoConfig("foo")) == "Shader('foo')"
+        class ShaderSubclass(PureShader):
+            pass
 
-    def test_name(self):
-        assert ShaderNoConfig("foo").name == "foo"
-
-    def test_dirname(self, shader_dir_env: Path, shader_path_env: Path):
-        assert ShaderNoConfig(str(shader_path_env)).dirname() == str(
-            shader_dir_env.resolve()
-        )
+        assert repr(PureShader("foo")) == "PureShader('foo')"
+        assert repr(ShaderSubclass("foo")) == "ShaderSubclass('foo')"
 
 
-@pytest.mark.requires_hyprland()
-class TestOnOff:
-    def test_on(self, shader_path_env: Path):
-        ShaderNoConfig("shader").on()
-        assert ShaderNoConfig.current() == ShaderNoConfig("shader")
+class TestPureShaderName:
+    def test_str(self):
+        assert PureShader("foo").name == "foo"
 
-    def test_on_path(self, shader_path: Path):
-        ShaderNoConfig(str(shader_path)).on()
-        assert ShaderNoConfig.current() == ShaderNoConfig(str(shader_path))
+    def test_path(self, tmp_path_factory: pytest.TempPathFactory):
+        shader_path = tmp_path_factory.mktemp("foo.glsl")
+        assert PureShader(str(shader_path)).name == "foo"
 
-    def test_on_doesnotexist(self):
-        with pytest.raises(FileNotFoundError):
-            ShaderNoConfig("doesnotexist").on()
-
-    def test_off(self):
-        ShaderNoConfig.off()
-        assert ShaderNoConfig.current() is None
+    def test_path_multiple_extensions(self, tmp_path_factory: pytest.TempPathFactory):
+        shader_path = tmp_path_factory.mktemp("foo.glsl.mustache")
+        assert PureShader(str(shader_path)).name == "foo"
 
 
-class TestResolvePath:
-    def test_one_path(self, shader_path_env: Path):
-        assert ShaderNoConfig("shader")._resolve_path() == str(shader_path_env)
+class TestPureShaderDirname:
+    pass
 
-    def test_env_priority(
-        self, monkeypatch: pytest.MonkeyPatch, shader_path: Path, tmp_path: Path
-    ):
-        system_path = tmp_path / "hypr/system/shaders"
-        system_path.mkdir(parents=True)
-        (system_path / "shader.glsl").touch()
 
-        ShaderNoConfig.dirs.SYSTEM_DIR = str(tmp_path)  # type: ignore[misc]
-        monkeypatch.setenv(ShaderNoConfig.dirs.ENV_VAR_NAME, str(shader_path.parent))
-
-        assert ShaderNoConfig("shader")._resolve_path() == str(shader_path)
-
+class TestPureShaderResolvePath:
     def test_given_path(self, shader_path: Path):
-        assert ShaderNoConfig(str(shader_path))._resolve_path() == str(shader_path)
+        assert PureShader(str(shader_path))._resolve_path() == str(shader_path)
 
-    def test_notfound(self, tmp_path: Path, shader_dir_system: Path):
-        with pytest.raises(FileNotFoundError):
-            ShaderNoConfig("foo")._resolve_path()
-
+    def test_given_path_not_exist(self, tmp_path: Path):
         path_not_exist = tmp_path / "foo.glsl"
         if path_not_exist.exists():
             pytest.fail(f"test assumption failed: {path_not_exist} exists")
         with pytest.raises(FileNotFoundError):
-            ShaderNoConfig(str(path_not_exist))._resolve_path()
+            PureShader(str(path_not_exist))._resolve_path()
 
-    def test_ignores_cwd(self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-        shader_path = tmp_path / "foo"
-        shader_path.touch()
+    @pytest.mark.parametrize(
+        "directory_name", ["env", "user_hypr", "user_hyprshade", "system"]
+    )
+    def test_resolves_from(
+        self,
+        directory_name: HyprshadeDirectoryName,
+        shader_path_factory: ShaderPathFactory,
+    ):
+        shader_path = shader_path_factory("shader", directory_name)
+        assert PureShader("shader")._resolve_path() == str(shader_path)
+
+    @pytest.mark.parametrize(
+        ("priority_directory_name", "other_directory_name"),
+        [
+            ("env", "user_hypr"),
+            ("env", "user_hyprshade"),
+            ("env", "system"),
+            ("user_hypr", "system"),
+            ("user_hyprshade", "system"),
+        ],
+    )
+    def test_priority(
+        self,
+        priority_directory_name: HyprshadeDirectoryName,
+        other_directory_name: HyprshadeDirectoryName,
+        shader_path_factory: ShaderPathFactory,
+    ):
+        priority_shader_path = shader_path_factory("shader", priority_directory_name)
+        _other_shader_path = shader_path_factory("shader", other_directory_name)
+
+        assert PureShader("shader")._resolve_path() == str(priority_shader_path)
+
+    def test_ignores_cwd(self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         monkeypatch.chdir(tmp_path)
+        (tmp_path / "foo.glsl").touch()
         with pytest.raises(FileNotFoundError):
-            ShaderNoConfig("foo")._resolve_path()
+            PureShader("foo")._resolve_path()
+
+
+@pytest.mark.requires_hyprland()
+class TestShaderOnOff:
+    def test_on_and_off(self, shader_path_factory: ShaderPathFactory):
+        shader_path = shader_path_factory("shader")
+        ShaderNoConfig("shader").on()
+        assert hyprctl.get_screen_shader() == str(shader_path)
+
+        ShaderNoConfig.off()
+        assert hyprctl.get_screen_shader() is None
+
+    def test_on_given_path(self, shader_path: Path):
+        ShaderNoConfig(str(shader_path)).on()
+        assert hyprctl.get_screen_shader() == str(shader_path)
+
+    def test_on_not_exist(self, tmp_path: Path):
+        with pytest.raises(FileNotFoundError):
+            ShaderNoConfig("doesnotexist").on()
+        with pytest.raises(FileNotFoundError):
+            ShaderNoConfig(str(tmp_path / "doesnotexist.glsl")).on()
+
+
+class TestShaderTemplate:
+    pass
