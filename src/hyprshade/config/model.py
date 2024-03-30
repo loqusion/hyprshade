@@ -179,7 +179,9 @@ class ShaderConfig(LazyConfig):
                 augmented_config = {}
                 for key, value in config.items():
                     if not isinstance(key, str):
-                        self.raise_error("key must be a string", extra_steps=(key,))
+                        self.raise_error(
+                            "key must be a string", extra_steps=(str(key),)
+                        )
                     if isinstance(value, str):
                         value = value.upper()
                     augmented_config[key] = value
