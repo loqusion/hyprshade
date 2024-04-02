@@ -28,6 +28,8 @@ def install(obj: ContextObject):
         "service",
         f"""[Unit]
 Description=Apply screen filter
+StartLimitBurst=10
+StartLimitIntervalSec=5
 
 [Service]
 Type=oneshot
@@ -41,6 +43,7 @@ ExecStart={shlex.quote(script_path)} auto
 Description=Apply screen filter on schedule
 
 [Timer]
+AccuracySec=1s
 {timer_config}
 
 [Install]

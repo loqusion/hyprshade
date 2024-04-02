@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import time
+from datetime import time, timedelta
+from math import ceil
 from typing import Any
+from typing import Final
 
 MISSING = object()
 
+# 30 feels like a smooth shift with a step per second
+GRADUAL_SHIFT_STEPS: Final = 30
 
 class ConfigError(Exception):
     def __init__(self, *args, location: str, path: str):
@@ -81,6 +85,12 @@ class RootConfig(LazyConfig):
                             "Only one default shader is allowed",
                             extra_steps=(str(i),),
                         )
+                    if "gradual_shift_duration" in shade :
+                        if shade.get("start_time") is False:
+                            self.raise_error(
+                                "A shader with a gradual shift duration must define a `start_time`",
+                                extra_steps=(str(i),),
+                            )
 
                     if shade.get("default") is True:
                         found_default = True
@@ -108,6 +118,7 @@ class ShaderConfig(LazyConfig):
         self._field_name = MISSING
         self._field_start_time = MISSING
         self._field_end_time = MISSING
+        self._field_gradual_shift_times = MISSING
         self._field_default = MISSING
         self._field_config = MISSING
 
@@ -153,6 +164,25 @@ class ShaderConfig(LazyConfig):
                 self._field_end_time = None
 
         return self._field_end_time  # type: ignore[return-value]
+
+    @property
+    def gradual_shift_times(self) -> list[timedelta] | None:
+        if self._field_gradual_shift_times is MISSING:
+            if "gradual_shift_duration" in self.raw_data:
+                gradual_shift_duration = self.raw_data["gradual_shift_duration"]
+
+                if not isinstance(gradual_shift_duration, int):
+                    self.raise_error("must be an number of seconds")
+                if gradual_shift_duration > 86400: # More than a day
+                    self.raise_error("Gradual shift duration cannot be longer than a day")
+
+                steps = min(gradual_shift_duration, GRADUAL_SHIFT_STEPS)
+                self._field_gradual_shift_times = [timedelta(seconds=ceil(gradual_shift_duration*((i+1)/steps))) for i in range(0, steps-1)] # Remove one because start_time counts as one step
+            else:
+                self.raw_data["gradual_shift_duration"] = None
+                self._field_gradual_shift_times = None
+
+        return self._field_gradual_shift_times  # type: ignore[return-value]
 
     @property
     def default(self) -> bool:

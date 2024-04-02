@@ -22,6 +22,7 @@ def test_example_config(request: pytest.FixtureRequest):
                 "name": "blue-light-filter",
                 "start_time": time(19, 0, 0),
                 "end_time": time(6, 0, 0),
+                "gradual_shift_duration": 10,
                 "default": False,
                 "config": None,
             },

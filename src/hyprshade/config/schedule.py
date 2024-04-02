@@ -8,10 +8,11 @@ from hyprshade.shader.core import Shader
 from hyprshade.utils.time import is_time_between
 
 from .model import ShaderConfig
+from datetime import timedelta, time
+from math import floor
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from datetime import time
 
     from .core import Config
 
@@ -31,7 +32,21 @@ class Schedule:
 
     def event_times(self) -> Iterator[time]:
         for entry in self._entries():
-            yield entry.start_time
+            if entry.gradual_shift_times is not None:
+                start_time_delta = timedelta(days=0, hours=entry.start_time.hour, minutes=entry.start_time.minute, seconds=entry.start_time.second)
+                end_time_delta = None
+                if entry.end_time is not None:
+                    end_time_delta = timedelta(days=(1 if entry.end_time < entry.start_time else 0), hours=entry.end_time.hour, minutes=entry.end_time.minute, seconds=entry.end_time.second)
+
+                yield entry.start_time
+                for offset in entry.gradual_shift_times:
+                    offset_time = start_time_delta + offset
+
+                    # If the offset time is not past the end time add it to the schedule
+                    if end_time_delta is None or offset_time.total_seconds() < end_time_delta.total_seconds():
+                        yield time(floor(offset_time.total_seconds() / 3600 % 24), floor(offset_time.total_seconds() / 60 % 60), floor(offset_time.total_seconds() % 60))
+            else:
+                yield entry.start_time
             if entry.end_time is not None:
                 yield entry.end_time
 
