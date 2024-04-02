@@ -6,6 +6,8 @@ uniform sampler2D tex;
 
 const float temperature = 2600.0;
 const float temperatureStrength = 1.0;
+// This variable is automatically handled with the `gradual_switch_duration` config variable
+const float gradualPercentage = {{#gradualPercentage}}{{.}}{{/gradualPercentage}}{{^gradualPercentage}}1.0{{/gradualPercentage}};
 
 #define WithQuickAndDirtyLuminancePreservation
 const float LuminancePreservationFactor = 1.0;
@@ -35,7 +37,7 @@ void main() {
                  LuminancePreservationFactor);
 #endif
 
-    color = mix(color, color * colorTemperatureToRGB(temperature), temperatureStrength);
+    color = mix(color, color * colorTemperatureToRGB(temperature), temperatureStrength * gradualPercentage);
 
     vec4 outCol = vec4(color, pixColor[3]);
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 import logging
 import os
 from typing import TYPE_CHECKING, Final
@@ -119,6 +120,28 @@ class Shader(PureShader):
             variables = (
                 self._config.shader_variables(self._name) if self._config else None
             )
+
+            config = self._config.shader_config(self._name) if self._config else None
+            if config is not None and config.gradual_shift_times is not None and config.start_time is not None:
+                now = datetime.now().time()
+                now_delta = timedelta(hours=now.hour, minutes=now.minute, seconds=now.second)
+                start_delta = timedelta(hours=config.start_time.hour,minutes=config.start_time.minute,seconds=config.start_time.second)
+
+                delta = now_delta - start_delta
+
+                percentage_increase=1.0/(len(config.gradual_shift_times)+1)
+                percentage = percentage_increase
+                for i in range(0, len(config.gradual_shift_times)):
+                    if delta < config.gradual_shift_times[i]:
+                        break
+                    percentage = percentage + percentage_increase
+                percentage = round(percentage, 2) # round to get clearer values in the shader
+
+                if variables is None:
+                    variables = {"gradualPercentage": percentage}
+                else:
+                    variables["gradualPercentage"] = percentage
+                pass
             content = mustache.render(f, variables)
         base, _ = os.path.splitext(os.path.basename(path))
         rendered_path = os.path.join(user_state_dir("hyprshade"), base)
