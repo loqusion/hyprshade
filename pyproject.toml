@@ -15,9 +15,6 @@ Source = "https://github.com/loqusion/hyprshade"
 [project.scripts]
 hyprshade = "hyprshade.cli:main"
 
-[project.optional-dependencies]
-test = ["pystache>=0.6.5"]
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -95,10 +92,7 @@ check_untyped_defs = true
 
 [tool.pytest.ini_options]
 addopts = ["-r", "a", "--import-mode=importlib"]
-markers = [
-  "requires_hyprland: Tests that require hyprland to be running",
-  "requires_pystache: Tests that require pystache to be installed",
-]
+markers = ["requires_hyprland: Tests that require hyprland to be running"]
 pythonpath = "."
 
 [tool.coverage.run]
