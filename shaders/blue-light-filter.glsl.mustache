@@ -4,8 +4,8 @@ precision highp float;
 varying vec2 v_texcoord;
 uniform sampler2D tex;
 
-const float temperature = 2600.0;
-const float temperatureStrength = 1.0;
+const float temperature = {{#d}}{{temperature}} ? 2600.0{{/d}};
+const float temperatureStrength = {{#d}}{{temperatureStrength}} ? 1.0{{/d}};
 
 #define WithQuickAndDirtyLuminancePreservation
 const float LuminancePreservationFactor = 1.0;
@@ -41,3 +41,5 @@ void main() {
 
     gl_FragColor = outCol;
 }
+
+// vim: ft=glsl
