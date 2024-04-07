@@ -23,6 +23,13 @@ def test_variable():
     assert render("Hello, {{name}}!", {"name": "world"}) == "Hello, world!"
 
 
+def test_duplicate_data_keys():
+    with pytest.raises(
+        ValueError, match=f"Invalid data keys: {NULLISH_COALESCE_LAMBDA_NAME}"
+    ):
+        render("Hello, {{name}}!", {"name": "world", NULLISH_COALESCE_LAMBDA_NAME: 3})
+
+
 class TestNullishCoalesce:
     def test_nullish_coalesce(self):
         template = f"Hello, {nc('{{name}} ? world')}!"
