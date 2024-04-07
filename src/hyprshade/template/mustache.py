@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from contextlib import suppress
 from typing import TYPE_CHECKING, Any, Final
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from _typeshed import SupportsRead
 
 
@@ -12,12 +15,44 @@ def render(
     template: SupportsRead[str] | str,
     data: dict[str, Any] | None = None,
 ) -> str:
+    assert_no_duplicate_keys(data or {}, DEFAULT_RENDER_DATA)
+    data = {**DEFAULT_RENDER_DATA, **(data or {})}
     for impl in MustacheImpl.ALL:
         with suppress(MustacheModuleImportError):
             return impl.render(template, data)
 
     # TODO: Add instructions to install a mustache parser
     raise ImportError("No mustache library found.")
+
+
+NULLISH_COALESCE_OPERATOR_PATTERN: Final = re.compile(r"\s*\?\s*")
+
+
+def nullish_coalesce(text: str, render: Callable[[str], str]):
+    lhs, *rhs = NULLISH_COALESCE_OPERATOR_PATTERN.split(text)
+    match len(rhs):
+        case 0:
+            raise ValueError(
+                "Mustache nullish coalesce operator requires a default value."
+            )
+        case 1:
+            rendered_lhs = render(lhs)
+            return rendered_lhs if rendered_lhs.strip() else render(rhs[0])
+        case _:
+            raise ValueError(
+                "Mustache nullish coalesce operator must occur only once in an expression."
+            )
+
+
+NULLISH_COALESCE_LAMBDA_NAME: Final = "d"
+DEFAULT_RENDER_DATA: Final = {NULLISH_COALESCE_LAMBDA_NAME: nullish_coalesce}
+
+
+def assert_no_duplicate_keys(d1: dict, d2: dict) -> None:
+    duplicate_keys = d1.keys() & d2.keys()
+    if duplicate_keys:
+        # TODO: Improve error message
+        raise ValueError(f"Invalid data keys: {', '.join(duplicate_keys)}")
 
 
 class MustacheModuleImportError(ImportError):
