@@ -156,3 +156,25 @@ class TestShaderOnOff:
 
 class TestShaderTemplate:
     pass
+
+
+class TestShaderIntegration:
+    @pytest.mark.parametrize("is_template", [False, True])
+    def test_on_off_current_eq(
+        self, is_template: bool, shader_path_factory: ShaderPathFactory
+    ):
+        if is_template:
+            pytest.skip(
+                "Template shader identity is buggy since the rendered path is different from the source path"
+            )
+
+        shader_path = shader_path_factory(
+            "shader", extension=("glsl" if not is_template else "glsl.mustache")
+        )
+        shader = ShaderNoConfig(str(shader_path))
+
+        Shader.off()
+        assert Shader.current() is None
+
+        shader.on()
+        assert Shader.current() == shader
