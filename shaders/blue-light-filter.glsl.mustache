@@ -4,8 +4,8 @@ precision highp float;
 varying vec2 v_texcoord;
 uniform sampler2D tex;
 
-const float temperature = {{#d}}{{temperature}} ? 2600.0{{/d}};
-const float temperatureStrength = {{#d}}{{temperatureStrength}} ? 1.0{{/d}};
+const float temperature = {{#nc}}{{temperature}} ? 2600.0{{/nc}};
+const float temperatureStrength = {{#nc}}{{temperatureStrength}} ? 1.0{{/nc}};
 
 #define WithQuickAndDirtyLuminancePreservation
 const float LuminancePreservationFactor = 1.0;

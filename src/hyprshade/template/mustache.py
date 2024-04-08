@@ -40,7 +40,7 @@ def nullish_coalesce(text: str, render: Callable[[str], str]):
             raise ValueError("Mustache nullish coalesce operator is not valid.")
 
 
-NULLISH_COALESCE_LAMBDA_NAME: Final = "d"
+NULLISH_COALESCE_LAMBDA_NAME: Final = "nc"
 DEFAULT_RENDER_DATA: Final = {NULLISH_COALESCE_LAMBDA_NAME: nullish_coalesce}
 
 

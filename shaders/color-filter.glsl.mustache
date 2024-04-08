@@ -6,7 +6,7 @@ varying vec2 v_texcoord;
 uniform sampler2D tex;
 
 // Intensity of filter (1.0 - 0.0)
-const float intensity = {{#d}}{{intensity}} ? 0.2{{/d}};
+const float intensity = {{#nc}}{{intensity}} ? 0.2{{/nc}};
 
 // Enum for color correction type
 const int PROTANOPIA = 0;
@@ -14,7 +14,7 @@ const int DEUTERANOPIA = 1;
 const int TRITANOPIA = 2;
 
 // Color correction type
-const int type = {{#d}}{{type}} ? PROTANOPIA{{/d}};
+const int type = {{#nc}}{{type}} ? PROTANOPIA{{/nc}};
 
 void main() {
     vec4 pixColor = texture2D(tex, v_texcoord);
