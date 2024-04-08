@@ -13,7 +13,7 @@ chevron==0.14.0
 click==8.1.7
     # via hyprshade
 coverage==7.4.4
-hatchling==1.22.3
+hatchling==1.22.5
 iniconfig==2.0.0
     # via pytest
 more-itertools==10.2.0
@@ -30,9 +30,9 @@ pluggy==1.4.0
     # via hatchling
     # via pytest
 pytest==8.1.1
-ruff==0.3.3
-trove-classifiers==2024.3.3
+ruff==0.3.5
+trove-classifiers==2024.3.25
     # via hatchling
-typing-extensions==4.10.0
+typing-extensions==4.11.0
     # via mypy
 pip==24.0
