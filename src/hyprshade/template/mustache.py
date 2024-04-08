@@ -24,19 +24,20 @@ NULLISH_COALESCE_OPERATOR_PATTERN: Final = re.compile(r"\s*\?\s*")
 
 
 def nullish_coalesce(text: str, render: Callable[[str], str]):
-    lhs, *rhs = NULLISH_COALESCE_OPERATOR_PATTERN.split(text)
-    match len(rhs):
-        case 0:
+    match NULLISH_COALESCE_OPERATOR_PATTERN.split(text):
+        case [_]:
             raise ValueError(
                 "Mustache nullish coalesce operator requires a default value."
             )
-        case 1:
+        case [lhs, rhs]:
             rendered_lhs = render(lhs)
-            return rendered_lhs if rendered_lhs.strip() else render(rhs[0])
-        case _:
+            return rendered_lhs if rendered_lhs.strip() else render(rhs)
+        case [_, _, *_]:
             raise ValueError(
                 "Mustache nullish coalesce operator must occur only once in an expression."
             )
+        case _:
+            raise ValueError("Mustache nullish coalesce operator is not valid.")
 
 
 NULLISH_COALESCE_LAMBDA_NAME: Final = "d"
