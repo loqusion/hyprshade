@@ -159,6 +159,7 @@ class TestShaderTemplate:
 
 
 class TestShaderIntegration:
+    @pytest.mark.requires_hyprland()
     @pytest.mark.parametrize("is_template", [False, True])
     def test_on_off_current_eq(
         self, is_template: bool, shader_path_factory: ShaderPathFactory
