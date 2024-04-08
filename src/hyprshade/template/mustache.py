@@ -32,7 +32,7 @@ def nullish_coalesce(text: str, render: Callable[[str], str]):
         case [lhs, rhs]:
             rendered_lhs = render(lhs)
             return rendered_lhs if rendered_lhs.strip() else render(rhs)
-        case [_, _, *_]:
+        case [_, _, _, *_]:
             raise ValueError(
                 "Mustache nullish coalesce operator must occur only once in an expression."
             )
