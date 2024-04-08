@@ -76,10 +76,6 @@ class TestPureShaderName:
         assert PureShader(str(shader_path)).name == "foo"
 
 
-class TestPureShaderDirname:
-    pass
-
-
 class TestPureShaderResolvePath:
     def test_given_path(self, shader_path: Path):
         assert PureShader(str(shader_path))._resolve_path() == str(shader_path)
