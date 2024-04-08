@@ -57,9 +57,6 @@ class PureShader:
     def path(self) -> str:
         return self._resolve_path()
 
-    def dirname(self) -> str:
-        return os.path.dirname(self._resolve_path())
-
     @staticmethod
     def path_to_name(path: str) -> str:
         return stripped_basename(path)
