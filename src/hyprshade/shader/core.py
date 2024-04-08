@@ -91,9 +91,14 @@ class Shader(PureShader):
         self._config = config
 
     def on(self) -> None:
-        path = self._resolve_path_after_intermediate_steps()
-        logging.debug(f"Turning on shader '{self._name}' at '{path}'")
-        hyprctl.set_screen_shader(path)
+        source_path = self._resolve_path()
+        _, source_path_extension = os.path.splitext(os.path.basename(source_path))
+        if source_path_extension.strip(".") in TEMPLATE_EXTENSIONS:
+            rendered_path = self._render_template(source_path)
+        else:
+            rendered_path = source_path
+        logging.debug(f"Turning on shader '{self._name}' at '{rendered_path}'")
+        hyprctl.set_screen_shader(rendered_path)
 
     @staticmethod
     def off() -> None:
@@ -103,13 +108,6 @@ class Shader(PureShader):
     def current() -> PureShader | None:
         path = hyprctl.get_screen_shader()
         return None if path is None else PureShader(path)
-
-    def _resolve_path_after_intermediate_steps(self) -> str:
-        path = self._resolve_path()
-        _, extension = os.path.splitext(os.path.basename(path))
-        if extension.strip(".") in TEMPLATE_EXTENSIONS:
-            return self._render_template(path)
-        return path
 
     def _render_template(self, path: str) -> str:
         with open(path) as f:
