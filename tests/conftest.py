@@ -8,7 +8,7 @@ import pytest
 
 from hyprshade.shader import hyprctl
 from hyprshade.shader.core import Shader
-from tests.types import HyprshadeDirectoryName, ShaderPathFactory
+from tests.types import ConfigFactory, HyprshadeDirectoryName, ShaderPathFactory
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -140,6 +140,11 @@ def shader_path_factory(isolation: Isolation) -> ShaderPathFactory:
         return _write_shader(path)
 
     return _shader_path
+
+
+@pytest.fixture()
+def config_factory(isolation: Isolation) -> ConfigFactory:
+    return ConfigFactory(isolation)
 
 
 def pytest_runtest_setup(item: pytest.Item) -> None:
