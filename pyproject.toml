@@ -29,6 +29,8 @@ dev-dependencies = [
   "pip>=23.2.1",
   "pytest>=7.4.1",
   "ruff>=0.0.287",
+  "freezegun>=1.4.0",
+  "tomlkit>=0.12.4",
 ]
 
 [tool.rye.scripts]
