@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from itertools import chain, pairwise
 from typing import TYPE_CHECKING, Any, TypeGuard
 
+from more_itertools import only
+
 from hyprshade.shader.core import Shader
 from hyprshade.utils.time import is_time_between
 
@@ -37,9 +39,7 @@ class Schedule:
 
     @property
     def default_shader(self) -> Shader | None:
-        filtered = filter(lambda s: s.default, self.config.model.shaders)
-        default = next(filtered, None)
-        assert next(filtered, None) is None
+        default = only(filter(lambda s: s.default, self.config.model.shaders))
         return Shader(default.name, self.config) if default else None
 
     def _resolved_entries(self) -> Iterator[ResolvedEntry]:
