@@ -30,6 +30,33 @@ class HyprctlError(Exception):
         super().__init__(message, *args, **kwargs)
 
 
+class HyprctlJSONError(Exception):
+    def __init__(
+        self,
+        message: str,
+        *,
+        error: Exception | None = None,
+        completed_process: subprocess.CompletedProcess,
+        **kwargs,
+    ):
+        command = " ".join(completed_process.args)
+        stdout = str(completed_process.stdout).strip() or "<empty>"
+        stderr = str(completed_process.stderr).strip() or "<empty>"
+        message = f"""{message}
+This is likely a bug in Hyprland; go bug Vaxry about it (nicely :)).
+
+{click.style("command", fg="red")}:
+{textwrap.indent(command, " " * 4)}
+
+{click.style("stdout", fg="red")}:
+{textwrap.indent(stdout, " " * 4)}
+
+{click.style("stderr", fg="red")}:
+{textwrap.indent(stderr, " " * 4)}"""
+
+        super().__init__(message, **kwargs)
+
+
 def set_screen_shader(shader_path: str) -> None:
     try:
         subprocess.run(
@@ -58,20 +85,16 @@ def get_screen_shader() -> str | None:
     except subprocess.CalledProcessError as e:
         raise HyprctlError(e) from e
     except JSONDecodeError as e:
-        stdout = str(hyprctl_pipe.stdout).strip() or "<empty>"
-        stderr = str(hyprctl_pipe.stderr).strip() or "<empty>"
-        message = f"""hyprctl returned invalid JSON.
-This is likely a bug in Hyprland; go bug Vaxry about it (nicely :)).
+        raise HyprctlJSONError(
+            "hyprctl returned invalid JSON.", error=e, completed_process=hyprctl_pipe
+        ) from e
 
-{click.style("stdout", fg="red")}:
-{textwrap.indent(stdout, " " * 4)}
-
-{click.style("stderr", fg="red")}:
-{textwrap.indent(stderr, " " * 4)}"""
-
-        raise RuntimeError(message) from e
-
-    shader = str(shader_json["str"]).strip()
+    if (raw_shader_str := shader_json.get("str")) is None:
+        raise HyprctlJSONError(
+            "JSON returned by hyprctl does not contain the 'str' property.",
+            completed_process=hyprctl_pipe,
+        )
+    shader = str(raw_shader_str).strip()
     if shader == EMPTY_STR:
         return None
 
