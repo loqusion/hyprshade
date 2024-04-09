@@ -18,14 +18,7 @@ class HyprctlError(Exception):
         stderr = str(error.stderr).strip() or "<empty>"
         message = f"""hyprctl returned a non-zero exit code.
 
-{click.style("command", fg="red")}:
-{textwrap.indent(command, " " * 4)}
-
-{click.style("stdout", fg="red")}:
-{textwrap.indent(stdout, " " * 4)}
-
-{click.style("stderr", fg="red")}:
-{textwrap.indent(stderr, " " * 4)}"""
+{hyprctl_error_context(command=command, stdout=stdout, stderr=stderr)}"""
 
         super().__init__(message, *args, **kwargs)
 
@@ -45,6 +38,13 @@ class HyprctlJSONError(Exception):
         message = f"""{message}
 This is likely a bug in Hyprland; go bug Vaxry about it (nicely :)).
 
+{hyprctl_error_context(command=command, stdout=stdout, stderr=stderr)}"""
+
+        super().__init__(message, **kwargs)
+
+
+def hyprctl_error_context(*, command: str, stdout: str, stderr: str) -> str:
+    return f"""
 {click.style("command", fg="red")}:
 {textwrap.indent(command, " " * 4)}
 
@@ -52,9 +52,7 @@ This is likely a bug in Hyprland; go bug Vaxry about it (nicely :)).
 {textwrap.indent(stdout, " " * 4)}
 
 {click.style("stderr", fg="red")}:
-{textwrap.indent(stderr, " " * 4)}"""
-
-        super().__init__(message, **kwargs)
+{textwrap.indent(stderr, " " * 4)}""".strip()
 
 
 def set_screen_shader(shader_path: str) -> None:
