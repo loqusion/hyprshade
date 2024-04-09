@@ -30,6 +30,12 @@ def test_json_error():
         hyprctl.get_screen_shader()
 
 
+@pytest.mark.usefixtures("_mock_hyprctl_json_no_str")
+def test_json_no_str():
+    with pytest.raises(hyprctl.HyprctlJSONError):
+        hyprctl.get_screen_shader()
+
+
 @pytest.fixture()
 def _mock_hyprctl_failure(monkeypatch: pytest.MonkeyPatch):
     def _subprocess_run_failure(args, **kwargs) -> subprocess.CompletedProcess:
@@ -49,3 +55,13 @@ def _mock_hyprctl_invalid_json(monkeypatch: pytest.MonkeyPatch):
         )
 
     monkeypatch.setattr(hyprctl.subprocess, "run", _subprocess_run_invalid_json)
+
+
+@pytest.fixture()
+def _mock_hyprctl_json_no_str(monkeypatch: pytest.MonkeyPatch):
+    def _subprocess_run_no_str(args, **kwargs) -> subprocess.CompletedProcess:
+        return subprocess.CompletedProcess(
+            args=args, returncode=0, stdout='{"int": 1}', stderr=""
+        )
+
+    monkeypatch.setattr(hyprctl.subprocess, "run", _subprocess_run_no_str)
