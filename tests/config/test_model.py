@@ -1,6 +1,7 @@
 from datetime import time
 
 import pytest
+from more_itertools import quantify
 
 from hyprshade.config.model import ConfigError, RootConfig
 
@@ -14,7 +15,25 @@ def test_default():
     config = _RootConfig({})
     config.parse_fields()
 
-    assert config.raw_data == {"shades": []}
+    assert config.raw_data == {"shaders": []}
+
+
+class TestBackwardsCompatibility:
+    def test_shades(self):
+        config = _RootConfig({"shades": [{"name": "foo"}]})
+
+        assert config.shaders[0].name == "foo"
+
+    def test_shades_merges_with_shaders(self):
+        config = _RootConfig(
+            {
+                "shaders": [{"name": "foo"}],
+                "shades": [{"name": "bar"}],
+            }
+        )
+
+        assert quantify(config.shaders, pred=lambda s: s.name == "foo") == 1
+        assert quantify(config.shaders, pred=lambda s: s.name == "bar") == 1
 
 
 class TestShaders:
@@ -24,7 +43,7 @@ class TestShaders:
         assert config.shaders == config.shaders == []
 
     def test_not_array(self):
-        config = _RootConfig({"shades": 9000})
+        config = _RootConfig({"shaders": 9000})
 
         with pytest.raises(ConfigError, match="must be an array"):
             _ = config.shaders
@@ -32,14 +51,14 @@ class TestShaders:
 
 class TestShadersItems:
     def test_not_dict(self):
-        config = _RootConfig({"shades": [9000]})
+        config = _RootConfig({"shaders": [9000]})
 
         with pytest.raises(ConfigError, match="must be a table"):
             _ = config.shaders
 
     def test_start_time_and_default(self):
         config = _RootConfig(
-            {"shades": [{"start_time": time(12, 0, 0), "default": True}]}
+            {"shaders": [{"start_time": time(12, 0, 0), "default": True}]}
         )
 
         with pytest.raises(
@@ -50,7 +69,7 @@ class TestShadersItems:
     def test_multiple_default(self):
         config = _RootConfig(
             {
-                "shades": [
+                "shaders": [
                     {"name": "foo", "default": True},
                     {"name": "bar", "default": True},
                 ]
@@ -63,24 +82,24 @@ class TestShadersItems:
 
 class TestShadersName:
     def test_string(self):
-        config = _RootConfig({"shades": [{"name": "foo"}]})
+        config = _RootConfig({"shaders": [{"name": "foo"}]})
 
         assert config.shaders[0].name == "foo"
 
     def test_required(self):
-        config = _RootConfig({"shades": [{}]})
+        config = _RootConfig({"shaders": [{}]})
 
         with pytest.raises(ConfigError, match="required"):
             _ = config.shaders[0].name
 
     def test_not_string(self):
-        config = _RootConfig({"shades": [{"name": 9000}]})
+        config = _RootConfig({"shaders": [{"name": 9000}]})
 
         with pytest.raises(ConfigError, match="must be a string"):
             _ = config.shaders[0].name
 
     def test_contains_period(self):
-        config = _RootConfig({"shades": [{"name": "foo.bar"}]})
+        config = _RootConfig({"shaders": [{"name": "foo.bar"}]})
 
         with pytest.raises(ConfigError, match="must not contain a period"):
             _ = config.shaders[0].name
@@ -89,19 +108,19 @@ class TestShadersName:
 class TestShadersStartTimeAndEndTime:
     @pytest.mark.parametrize("field", ["start_time", "end_time"])
     def test_default(self, field: str):
-        config = _RootConfig({"shades": [{"name": "foo"}]})
+        config = _RootConfig({"shaders": [{"name": "foo"}]})
 
         assert getattr(config.shaders[0], field) is None
 
     @pytest.mark.parametrize("field", ["start_time", "end_time"])
     def test_time(self, field: str):
-        config = _RootConfig({"shades": [{"name": "foo", field: time(12, 0, 0)}]})
+        config = _RootConfig({"shaders": [{"name": "foo", field: time(12, 0, 0)}]})
 
         assert getattr(config.shaders[0], field) == time(12, 0, 0)
 
     @pytest.mark.parametrize("field", ["start_time", "end_time"])
     def test_not_time(self, field: str):
-        config = _RootConfig({"shades": [{"name": "foo", field: 9000}]})
+        config = _RootConfig({"shaders": [{"name": "foo", field: 9000}]})
 
         with pytest.raises(ConfigError, match="must be time"):
             _ = getattr(config.shaders[0], field)
@@ -109,17 +128,17 @@ class TestShadersStartTimeAndEndTime:
 
 class TestShadersDefault:
     def test_default(self):
-        config = _RootConfig({"shades": [{"name": "foo"}]})
+        config = _RootConfig({"shaders": [{"name": "foo"}]})
 
         assert config.shaders[0].default is False
 
     def test_bool(self):
-        config = _RootConfig({"shades": [{"name": "foo", "default": True}]})
+        config = _RootConfig({"shaders": [{"name": "foo", "default": True}]})
 
         assert config.shaders[0].default is True
 
     def test_not_bool(self):
-        config = _RootConfig({"shades": [{"name": "foo", "default": 9000}]})
+        config = _RootConfig({"shaders": [{"name": "foo", "default": 9000}]})
 
         with pytest.raises(ConfigError, match="must be a boolean"):
             _ = config.shaders[0].default
@@ -127,22 +146,22 @@ class TestShadersDefault:
 
 class TestShadersConfig:
     def test_default(self):
-        config = _RootConfig({"shades": [{"name": "foo"}]})
+        config = _RootConfig({"shaders": [{"name": "foo"}]})
         assert config.shaders[0].config is None
 
     def test_dict(self):
-        config = _RootConfig({"shades": [{"name": "foo", "config": {"foo": "bar"}}]})
+        config = _RootConfig({"shaders": [{"name": "foo", "config": {"foo": "bar"}}]})
 
         assert config.shaders[0].config == {"foo": "BAR"}
 
     def test_not_dict(self):
-        config = _RootConfig({"shades": [{"name": "foo", "config": 9000}]})
+        config = _RootConfig({"shaders": [{"name": "foo", "config": 9000}]})
 
         with pytest.raises(ConfigError, match="must be a table"):
             _ = config.shaders[0].config
 
     def test_key_not_string(self):
-        config = _RootConfig({"shades": [{"name": "foo", "config": {9000: "bar"}}]})
+        config = _RootConfig({"shaders": [{"name": "foo", "config": {9000: "bar"}}]})
 
         with pytest.raises(ConfigError, match="must be a string"):
             _ = config.shaders[0].config
