@@ -28,7 +28,6 @@ class HyprctlJSONError(Exception):
         self,
         message: str,
         *,
-        error: Exception | None = None,
         completed_process: subprocess.CompletedProcess,
         **kwargs,
     ):
@@ -84,7 +83,7 @@ def get_screen_shader() -> str | None:
         raise HyprctlError(e) from e
     except JSONDecodeError as e:
         raise HyprctlJSONError(
-            "hyprctl returned invalid JSON.", error=e, completed_process=hyprctl_pipe
+            "hyprctl returned invalid JSON.", completed_process=hyprctl_pipe
         ) from e
 
     if (raw_shader_str := shader_json.get("str")) is None:
