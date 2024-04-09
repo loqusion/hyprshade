@@ -26,7 +26,7 @@ def test_hyprctl_failure():
 
 @pytest.mark.usefixtures("_mock_hyprctl_invalid_json")
 def test_json_error():
-    with pytest.raises(RuntimeError):
+    with pytest.raises(hyprctl.HyprctlJSONError):
         hyprctl.get_screen_shader()
 
 
