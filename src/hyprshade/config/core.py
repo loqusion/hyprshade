@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import os
 import tomllib
-from typing import Any, Never
+from typing import TYPE_CHECKING, Any, Never
 
 from more_itertools import first_true
 
 from hyprshade.utils.xdg import user_config_dir
 
 from .model import RootConfig, ShaderConfig
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 class Config:
@@ -29,6 +32,11 @@ class Config:
     def shader_variables(self, name_or_path: str) -> dict[str, Any] | None:
         shader_config = self.shader_config(name_or_path)
         return shader_config.config if shader_config else None
+
+    def lazy_shader_variables(
+        self, name_or_path: str
+    ) -> Callable[[], dict[str, Any] | None]:
+        return lambda: self.shader_variables(name_or_path)
 
     @staticmethod
     def raise_not_found() -> Never:

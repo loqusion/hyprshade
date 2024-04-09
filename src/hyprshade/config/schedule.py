@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import partial
 from itertools import chain, pairwise
 from typing import TYPE_CHECKING, Any, TypeGuard
 
@@ -28,8 +27,7 @@ class Schedule:
     def scheduled_shader(self, t: time) -> Shader | None:
         for entry in self._resolved_entries():
             if is_time_between(t, entry.start_time, entry.end_time):
-                lazy_variables = partial(self.config.shader_variables, entry.name)
-                return Shader(entry.name, lazy_variables)
+                return Shader(entry.name, self.config.lazy_shader_variables(entry.name))
 
         return self.default_shader
 
@@ -44,8 +42,7 @@ class Schedule:
         default = only(filter(lambda s: s.default, self.config.model.shaders))
         if not default:
             return None
-        lazy_variables = partial(self.config.shader_variables, default.name)
-        return Shader(default.name, lazy_variables)
+        return Shader(default.name, self.config.lazy_shader_variables(default.name))
 
     def _resolved_entries(self) -> Iterator[ResolvedEntry]:
         if not (entries := self._entries()):
