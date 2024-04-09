@@ -45,60 +45,62 @@ class LazyConfig:
         import inspect
 
         field = inspect.currentframe().f_back.f_code.co_name  # type: ignore[union-attr]
-        raise ConfigError(
-            message,
-            location=" -> ".join([*self.steps, field, *extra_steps]),
-            path=self.path,
-        )
+        self._raise_error_impl(message, (*self.steps, field, *extra_steps))
+
+    def _raise_error_impl(self, message, steps: tuple):
+        raise ConfigError(message, location=" -> ".join(steps), path=self.path)
 
 
 class RootConfig(LazyConfig):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._field_shades = MISSING
-
-    @property
-    def shades(self) -> list[ShaderConfig]:
-        if self._field_shades is MISSING:
-            if "shades" in self.raw_data:
-                shades = self.raw_data["shades"]
-                if not isinstance(shades, list):
-                    self.raise_error("must be an array")
-
-                field_shades = []
-                found_default = False
-                for i, shade in enumerate(shades, 1):
-                    if not isinstance(shade, dict):
-                        self.raise_error("must be a table", extra_steps=(str(i),))
-                    if "start_time" in shade and shade.get("default") is True:
-                        self.raise_error(
-                            "Default shader must not define `start_time`",
-                            extra_steps=(str(i),),
-                        )
-                    if found_default and shade.get("default") is True:
-                        self.raise_error(
-                            "Only one default shader is allowed",
-                            extra_steps=(str(i),),
-                        )
-
-                    if shade.get("default") is True:
-                        found_default = True
-
-                    field_shades.append(
-                        ShaderConfig(shade, path=self.path, steps=("shades", str(i)))
-                    )
-
-                self._field_shades = field_shades
-            else:
-                self.raw_data["shades"] = []
-                self._field_shades = []
-
-        return self._field_shades  # type: ignore[return-value]
+        self._field_shaders = MISSING
 
     @property
     def shaders(self) -> list[ShaderConfig]:
-        return self.shades
+        if self._field_shaders is MISSING:
+            # NOTE: `shades` is deprecated but still supported
+            if "shaders" in self.raw_data or "shades" in self.raw_data:
+                shaders = self.raw_data.get("shaders", [])
+                shades = self.raw_data.get("shades", [])
+                if not isinstance(shaders, list):
+                    self.raise_error("must be an array")
+                if not isinstance(shades, list):
+                    self._raise_error_impl("must be an array", ("shades",))
+
+                field_shaders = []
+                found_default = False
+                for step, shaders_array in zip(
+                    ["shaders", "shades"], [shaders, shades], strict=True
+                ):
+                    for i, shader in enumerate(shaders_array, 1):
+                        if not isinstance(shader, dict):
+                            self._raise_error_impl("must be a table", (step, str(i)))
+                        if "start_time" in shader and shader.get("default") is True:
+                            self._raise_error_impl(
+                                "Default shader must not define `start_time`",
+                                (step, str(i)),
+                            )
+                        if found_default and shader.get("default") is True:
+                            self._raise_error_impl(
+                                "Only one default shader is allowed",
+                                (step, str(i)),
+                            )
+
+                        if shader.get("default") is True:
+                            found_default = True
+
+                        field_shaders.append(
+                            ShaderConfig(shader, path=self.path, steps=(step, str(i)))
+                        )
+
+                self._field_shaders = field_shaders
+            else:
+                self.raw_data["shaders"] = []
+                self._field_shaders = []
+
+        return self._field_shaders  # type: ignore[return-value]
 
 
 class ShaderConfig(LazyConfig):
