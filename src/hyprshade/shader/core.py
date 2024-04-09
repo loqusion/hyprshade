@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import TYPE_CHECKING, Final
+from collections.abc import Callable
+from functools import cached_property
+from typing import Any, Final, TypeVar, Union
 
 from more_itertools import flatten
 
@@ -15,8 +17,10 @@ from hyprshade.utils.xdg import user_state_dir
 from . import hyprctl
 from .dirs import ShaderDirs
 
-if TYPE_CHECKING:
-    from hyprshade.config.core import Config
+T = TypeVar("T")
+PossiblyLazy = Union[T, Callable[[], T]]  # noqa: UP007
+
+ShaderVariables = dict[str, Any]
 
 
 class PureShader:
@@ -84,11 +88,15 @@ class PureShader:
 
 class Shader(PureShader):
     dirs: Final = ShaderDirs
-    _config: Config | None
+    _variables: PossiblyLazy[ShaderVariables | None]
 
-    def __init__(self, shader_name_or_path: str, config: Config | None):
+    def __init__(
+        self,
+        shader_name_or_path: str,
+        variables: PossiblyLazy[ShaderVariables | None],
+    ):
         super().__init__(shader_name_or_path)
-        self._config = config
+        self._variables = variables
 
     def on(self) -> None:
         source_path = self._resolve_path()
@@ -109,12 +117,15 @@ class Shader(PureShader):
         path = hyprctl.get_screen_shader()
         return None if path is None else PureShader(path)
 
+    @cached_property
+    def variables(self) -> ShaderVariables | None:
+        if callable(self._variables):
+            return self._variables()
+        return self._variables
+
     def _render_template(self, path: str) -> str:
         with open(path) as f:
-            variables = (
-                self._config.shader_variables(self._name) if self._config else None
-            )
-            content = mustache.render(f, variables)
+            content = mustache.render(f, self.variables)
         base, _ = os.path.splitext(os.path.basename(path))
         rendered_path = os.path.join(user_state_dir("hyprshade"), base)
         os.makedirs(os.path.dirname(rendered_path), exist_ok=True)

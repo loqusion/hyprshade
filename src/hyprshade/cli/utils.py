@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+from functools import partial
 from typing import TYPE_CHECKING, Any, Final, Literal, TypeVar, overload
 
 import click
@@ -79,7 +80,10 @@ class ShaderParamType(click.ParamType):
     ):
         obj: ContextObject | None = ctx.obj if ctx is not None else None
         config = obj.get_config() if obj is not None else None
-        return Shader(value, config)
+        lazy_variables = (
+            partial(config.shader_variables, value) if config is not None else None
+        )
+        return Shader(value, lazy_variables)
 
     def shell_complete(
         self, ctx: click.Context, param: click.Parameter, incomplete: str
