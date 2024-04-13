@@ -1,14 +1,14 @@
-[[shades]]
+[[shaders]]
 name = "vibrance"
 default = true
 
-[[shades]]
+[[shaders]]
 name = "blue-light-filter"
 start_time = 19:00:00
 end_time = 06:00:00
 
-[[shades]]
+[[shaders]]
 name = "color-filter"
-[shades.config]
+[shaders.config]
 type = "protanopia" # "protanopia", "deuteranopia", "tritanopia"
 intensity = 1.0     # 0.0 - 1.0
