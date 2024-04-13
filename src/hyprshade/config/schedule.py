@@ -32,9 +32,13 @@ class Schedule:
         return self.default_shader
 
     def event_times(self) -> Iterator[time]:
+        yielded: set[time] = set()
         for entry in self._entries():
-            yield entry.start_time
-            if entry.end_time is not None:
+            if entry.start_time not in yielded:
+                yielded.add(entry.start_time)
+                yield entry.start_time
+            if entry.end_time is not None and entry.end_time not in yielded:
+                yielded.add(entry.end_time)
                 yield entry.end_time
 
     @property
