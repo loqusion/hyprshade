@@ -24,6 +24,12 @@ class TestBackwardsCompatibility:
 
         assert config.shaders[0].name == "foo"
 
+    def test_shades_not_array(self):
+        config = _RootConfig({"shades": 9000})
+
+        with pytest.raises(ConfigError, match="must be an array"):
+            _ = config.shaders
+
     def test_shades_merges_with_shaders(self):
         config = _RootConfig(
             {
