@@ -66,6 +66,13 @@ class TestShadersItems:
         ):
             _ = config.shaders
 
+    def test_start_time_equals_end_time(self):
+        config = _RootConfig(
+            {"shaders": [{"start_time": time(12, 0, 0), "end_time": time(12, 0, 0)}]}
+        )
+        with pytest.raises(ConfigError, match="must not be the same"):
+            _ = config.shaders
+
     def test_multiple_default(self):
         config = _RootConfig(
             {
