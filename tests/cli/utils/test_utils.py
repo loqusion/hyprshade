@@ -3,7 +3,9 @@ from pathlib import Path
 import pytest
 
 from hyprshade.cli.ls import ls_dirs
-from hyprshade.cli.utils import write_systemd_user_unit
+from hyprshade.cli.utils import ContextObject, write_systemd_user_unit
+from tests.conftest import Isolation
+from tests.types import ConfigFactory
 
 
 class TestLsDirs:
@@ -27,16 +29,38 @@ class TestLsDirs:
             paths.append(tmp_path)
 
         assert list(ls_dirs(paths)) == list(
-            map(str, [paths[1] / "quxbar", paths[2] / "quxbaz", paths[0] / "quxfoo"])
+            map(
+                str,
+                [
+                    paths[1] / "quxbar",
+                    paths[2] / "quxbaz",
+                    paths[0] / "quxfoo",
+                ],
+            )
         )
 
 
-def test_write_systemd_user_unit(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
-    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
-    (tmp_path / "systemd" / "user").mkdir(parents=True)
-
+def test_write_systemd_user_unit(isolation: Isolation):
     write_systemd_user_unit("service", "foo")
-    assert (tmp_path / "systemd" / "user" / "hyprshade.service").read_text() == "foo"
+    assert (
+        isolation.config_dir / "systemd/user/hyprshade.service"
+    ).read_text() == "foo"
 
     write_systemd_user_unit("timer", "bar")
-    assert (tmp_path / "systemd" / "user" / "hyprshade.timer").read_text() == "bar"
+    assert (isolation.config_dir / "systemd/user/hyprshade.timer").read_text() == "bar"
+
+
+class TestContextObject:
+    def test_get_config(self, config_factory: ConfigFactory):
+        config_factory.write({})
+        config = config_factory.get_config()
+        obj = ContextObject(config)
+
+        assert obj.get_config(raising=True) is config
+
+    def test_get_config_none(self):
+        obj = ContextObject(None)
+
+        assert obj.get_config(raising=False) is None
+        with pytest.raises(FileNotFoundError):
+            obj.get_config(raising=True)

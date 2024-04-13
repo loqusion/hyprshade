@@ -59,7 +59,7 @@ def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:
         f.write(body)
 
 
-def get_script_path() -> str:
+def get_script_path() -> str:  # pragma: no cover
     return os.path.realpath(sys.argv[0], strict=True)
 
 
