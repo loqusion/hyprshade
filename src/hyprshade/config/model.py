@@ -82,6 +82,15 @@ class RootConfig(LazyConfig):
                                 "Default shader must not define `start_time`",
                                 (step, str(i)),
                             )
+                        if (
+                            "start_time" in shader
+                            and "end_time" in shader
+                            and shader.get("start_time") == shader.get("end_time")
+                        ):
+                            self._raise_error_impl(
+                                "`start_time` and `end_time` must not be the same",
+                                (step, str(i)),
+                            )
                         if found_default and shader.get("default") is True:
                             self._raise_error_impl(
                                 "Only one default shader is allowed",
