@@ -33,11 +33,11 @@ pluggy==1.4.0
 pytest==8.1.1
 python-dateutil==2.9.0.post0
     # via freezegun
-ruff==0.3.5
+ruff==0.3.7
 six==1.16.0
     # via python-dateutil
 tomlkit==0.12.4
-trove-classifiers==2024.3.25
+trove-classifiers==2024.4.10
     # via hatchling
 typing-extensions==4.11.0
     # via mypy
