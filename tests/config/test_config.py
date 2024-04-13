@@ -10,7 +10,7 @@ def test_example_config(request: pytest.FixtureRequest):
     config.model.parse_fields()
 
     assert config.model.raw_data == {
-        "shades": [
+        "shaders": [
             {
                 "name": "vibrance",
                 "start_time": None,
