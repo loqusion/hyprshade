@@ -28,7 +28,7 @@ class TestPathDecode:
             == b"/usr/share/hyprshade/shaders/blue-light-filter.glsl.mustache"
         )
 
-    def test_decoded_input_length_not_multiple_of_four(self):
+    def test_encoded_input_length_not_multiple_of_four(self):
         assert (
             pathsafe_b64decode("L3Vzci9zaGFyZS9oeXByc2hhZGU") == b"/usr/share/hyprshade"
         )
