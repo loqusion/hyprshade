@@ -104,6 +104,7 @@ class Shader(PureShader):
         self,
         shader_name_or_path: str,
         variables: PossiblyLazy[ShaderVariables | None],
+        *,
         template_instance_path: str | None = None,
     ):
         super().__init__(
