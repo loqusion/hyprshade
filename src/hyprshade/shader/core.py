@@ -26,8 +26,11 @@ ShaderVariables = dict[str, Any]
 class PureShader:
     _name: str
     _given_path: str | None
+    _template_instance_path: str | None
 
-    def __init__(self, shader_name_or_path: str):
+    def __init__(
+        self, shader_name_or_path: str, *, template_instance_path: str | None = None
+    ):
         if shader_name_or_path.find(os.path.sep) != -1:
             self._name = PureShader.path_to_name(shader_name_or_path)
             self._given_path = os.path.abspath(shader_name_or_path)
@@ -38,6 +41,7 @@ class PureShader:
                 )
             self._name = shader_name_or_path
             self._given_path = None
+        self._template_instance_path = template_instance_path
 
     def __eq__(self, __value: object) -> bool:
         if not isinstance(__value, PureShader):
@@ -60,6 +64,10 @@ class PureShader:
 
     def path(self) -> str:
         return self._resolve_path()
+
+    @property
+    def template_instance_path(self) -> str | None:
+        return self._template_instance_path
 
     @staticmethod
     def path_to_name(path: str) -> str:
@@ -90,12 +98,17 @@ class Shader(PureShader):
     dirs: Final = ShaderDirs
     _variables: PossiblyLazy[ShaderVariables | None]
 
+    TEMPLATE_METADATA_PREFIX: Final = "// SOURCE:"
+
     def __init__(
         self,
         shader_name_or_path: str,
         variables: PossiblyLazy[ShaderVariables | None],
+        template_instance_path: str | None = None,
     ):
-        super().__init__(shader_name_or_path)
+        super().__init__(
+            shader_name_or_path, template_instance_path=template_instance_path
+        )
         self._variables = variables
 
     def on(self) -> None:
@@ -115,6 +128,14 @@ class Shader(PureShader):
     @staticmethod
     def current() -> PureShader | None:
         path = hyprctl.get_screen_shader()
+        if path is not None and (
+            os.path.commonpath([path, user_state_dir("hyprshade")])
+            == user_state_dir("hyprshade")
+        ):
+            return PureShader(
+                Shader._extract_source_path_from_template(path),
+                template_instance_path=path,
+            )
         return None if path is None else PureShader(path)
 
     @cached_property
@@ -126,9 +147,27 @@ class Shader(PureShader):
     def _render_template(self, path: str) -> str:
         with open(path) as f:
             content = mustache.render(f, self.variables)
-        base, _ = os.path.splitext(os.path.basename(path))
-        rendered_path = os.path.join(user_state_dir("hyprshade"), base)
-        os.makedirs(os.path.dirname(rendered_path), exist_ok=True)
-        with open(rendered_path, "w") as f:
+        out_path = Shader._template_path_from_source_path(path)
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        with open(out_path, "w") as f:
+            f.write(f"{Shader.TEMPLATE_METADATA_PREFIX} {path}\n")
             f.write(content)
-        return rendered_path
+        return out_path
+
+    @staticmethod
+    def _template_path_from_source_path(path: str) -> str:
+        file_name, _ = os.path.splitext(os.path.basename(path))
+        return os.path.join(user_state_dir("hyprshade"), file_name)
+
+    @staticmethod
+    def _extract_source_path_from_template(path: str) -> str:
+        with open(path) as f:
+            first_line = f.readline()
+            if not first_line.startswith(Shader.TEMPLATE_METADATA_PREFIX):
+                raise ValueError(
+                    f"Expected first line of file '{path}' to start with '{Shader.TEMPLATE_METADATA_PREFIX}'"
+                )
+            source_path = first_line.removeprefix(
+                Shader.TEMPLATE_METADATA_PREFIX
+            ).strip()
+            return source_path
