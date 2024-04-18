@@ -150,9 +150,21 @@ def config_factory(isolation: Isolation) -> ConfigFactory:
 def pytest_runtest_setup(item: pytest.Item) -> None:
     for marker in item.iter_markers():
         if marker.name == "requires_hyprland" and not has_hyprland():
-            pytest.skip("Not running in hyprland")
+            try:
+                try_hyprland()
+            except (FileNotFoundError, ValueError) as e:
+                pytest.skip(str(e))
 
 
 @lru_cache
 def has_hyprland():
     return os.getenv("HYPRLAND_INSTANCE_SIGNATURE") is not None
+
+
+def try_hyprland():
+    candidates = [d for d in os.scandir("/tmp/hypr") if d.is_dir()]
+    if len(candidates) < 1:
+        raise FileNotFoundError("No hyprland instance found")
+    if len(candidates) > 1:
+        raise ValueError("Multiple hyprland instances found")
+    os.environ["HYPRLAND_INSTANCE_SIGNATURE"] = candidates[0].name
