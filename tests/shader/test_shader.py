@@ -164,12 +164,6 @@ class TestShaderIntegration:
     def test_on_off_current_eq(
         self, is_template: bool, shader_path_factory: ShaderPathFactory
     ):
-        if is_template:
-            # FIXME: Confused shader identity results in buggy `hyprshade toggle`
-            pytest.skip(
-                "Template shader identity is buggy since the rendered path is different from the source path"
-            )
-
         shader_path = shader_path_factory(
             "shader", extension=("glsl" if not is_template else "glsl.mustache")
         )
