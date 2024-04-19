@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 import logging
 import os
 from collections.abc import Callable
@@ -9,6 +10,7 @@ from typing import Any, ClassVar, Final, TextIO, TypeAlias, TypeVar
 
 from more_itertools import flatten
 
+from hyprshade.config.model import GRADUAL_SHIFT_MIN_SLEEP, GRADUAL_SHIFT_STEPS
 from hyprshade.template import mustache
 from hyprshade.template.constants import TEMPLATE_EXTENSIONS
 from hyprshade.utils.dictionary import deep_merge
@@ -99,6 +101,7 @@ class PureShader:
 class Shader(PureShader):
     dirs: Final = ShaderDirs
     _variables: PossiblyLazy[ShaderVariables | None]
+    _gradual_shift_duration: int
 
     TEMPLATE_METADATA_PREFIX: Final = "// META:"
 
@@ -106,6 +109,7 @@ class Shader(PureShader):
         self,
         shader_name_or_path: str,
         variables: PossiblyLazy[ShaderVariables | None],
+        gradual_shift_duration: int,
         *,
         template_instance_path: str | None = None,
     ):
@@ -113,16 +117,41 @@ class Shader(PureShader):
             shader_name_or_path, template_instance_path=template_instance_path
         )
         self._variables = variables
+        self._gradual_shift_duration = gradual_shift_duration
 
     def on(self, extra_variables: ShaderVariables | None = None) -> None:
         source_path = self._resolve_path()
         _, source_path_extension = os.path.splitext(os.path.basename(source_path))
         if source_path_extension.strip(".") in TEMPLATE_EXTENSIONS:
-            rendered_path = self._render_template(source_path, extra_variables)
+            if self._gradual_shift_duration > 0:
+                sleep_duration = self._gradual_shift_duration/GRADUAL_SHIFT_STEPS
+                if sleep_duration < GRADUAL_SHIFT_MIN_SLEEP:
+                    logging.warn(f"Gradual shift duration is too low, set to minimum value of {GRADUAL_SHIFT_MIN_SLEEP*GRADUAL_SHIFT_STEPS}")
+                    sleep_duration = GRADUAL_SHIFT_MIN_SLEEP
+
+                log = True
+                for step in range(0, GRADUAL_SHIFT_STEPS):
+                    percentage = round((1.0/GRADUAL_SHIFT_STEPS)*(step+1), 2)
+                    logging.debug(f"Shader at {percentage*100}%")
+                    if self.variables is None:
+                        self.variables = {"gradualPercentage": percentage}
+                    else:
+                        self.variables["gradualPercentage"] = percentage
+
+                    rendered_path = self._render_template(source_path, extra_variables)
+                    if log:
+                        logging.info(f"Turning on shader '{self._name}' at '{rendered_path}' gradually over {sleep_duration*GRADUAL_SHIFT_STEPS} seconds...")
+                    hyprctl.set_screen_shader(rendered_path)
+
+                    if step < GRADUAL_SHIFT_STEPS-1:
+                        time.sleep(sleep_duration)
+            else:
+                rendered_path = self._render_template(source_path, extra_variables)
+                logging.debug(f"Turning on shader '{self._name}' at '{rendered_path}'")
+                hyprctl.set_screen_shader(rendered_path)
         else:
-            rendered_path = source_path
-        logging.debug(f"Turning on shader '{self._name}' at '{rendered_path}'")
-        hyprctl.set_screen_shader(rendered_path)
+            logging.debug(f"Turning on shader '{self._name}' at '{source_path}'")
+            hyprctl.set_screen_shader(source_path)
 
     @staticmethod
     def off() -> None:

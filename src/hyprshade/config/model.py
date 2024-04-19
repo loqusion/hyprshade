@@ -4,11 +4,16 @@ from __future__ import annotations
 
 from datetime import time
 from typing import Any
+from typing import Final
 
 from hyprshade.template import mustache
 
 MISSING = object()
 
+# 30 feels like a smooth shift
+GRADUAL_SHIFT_STEPS: Final = 30
+# Arbitrary limit to 10ms
+GRADUAL_SHIFT_MIN_SLEEP: Final = 0.01
 
 class ConfigError(Exception):
     def __init__(self, *args, location: str, path: str):
@@ -32,10 +37,11 @@ def parse_config(obj):
 
 
 class LazyConfig:
-    def __init__(self, config_dict: dict, *, path: str, steps: tuple = ()):
+    def __init__(self, config_dict: dict, *, path: str, steps: tuple = (), skip_gradual_shift: bool | None = None):
         self.raw_data = config_dict
         self.path = path
         self.steps = steps
+        self._skip_gradual_shift = skip_gradual_shift
 
     def parse_fields(self):
         for attribute in self.__dict__:
@@ -103,7 +109,7 @@ class RootConfig(LazyConfig):
                             found_default = True
 
                         field_shaders.append(
-                            ShaderConfig(shader, path=self.path, steps=(step, str(i)))
+                            ShaderConfig(shader, path=self.path, steps=(step, str(i)), skip_gradual_shift=self._skip_gradual_shift)
                         )
 
                 self._field_shaders = field_shaders
@@ -121,6 +127,7 @@ class ShaderConfig(LazyConfig):
         self._field_name = MISSING
         self._field_start_time = MISSING
         self._field_end_time = MISSING
+        self._field_gradual_shift_duration = MISSING
         self._field_default = MISSING
         self._field_config = MISSING
 
@@ -166,6 +173,23 @@ class ShaderConfig(LazyConfig):
                 self._field_end_time = None
 
         return self._field_end_time  # type: ignore[return-value]
+
+    @property
+    def gradual_shift_duration(self) -> int | None:
+        if self._field_gradual_shift_duration is MISSING:
+            if not self._skip_gradual_shift:
+                if "gradual_shift_duration" in self.raw_data:
+                    gradual_shift_duration = self.raw_data["gradual_shift_duration"]
+
+                    if not isinstance(gradual_shift_duration, int):
+                        self.raise_error("must be an number of seconds")
+
+                    self._field_gradual_shift_duration = gradual_shift_duration
+            else:
+                self.raw_data["gradual_shift_duration"] = None
+                self._field_gradual_shift_duration = None
+
+        return self._field_gradual_shift_duration  # type: ignore[return-value]
 
     @property
     def default(self) -> bool:
