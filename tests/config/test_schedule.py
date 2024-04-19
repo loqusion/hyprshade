@@ -1,15 +1,11 @@
 from datetime import datetime, time
 
 import pytest
-from freezegun import freeze_time as _freeze_time
 
 from hyprshade.config.model import ConfigError
 from hyprshade.config.schedule import Schedule
+from tests.helpers import freeze_time
 from tests.types import ConfigFactory
-
-
-def freeze_time(time_str: str, date_str: str = "2024-04-08"):
-    return _freeze_time(f"{date_str} {time_str}")
 
 
 class TestScheduledShader:
