@@ -72,29 +72,30 @@ def test_scheduled(
     shader_path_factory("default")
     hyprctl.set_screen_shader(initial_shader_path.as_posix())
 
-    config_dict = {
-        "shaders": [
-            {
-                "name": "test1",
-                "start_time": time.fromisoformat("20:00"),
-                "end_time": time.fromisoformat("21:00"),
-            },
-            {
-                "name": "test2",
-                "start_time": time.fromisoformat("21:00"),
-            },
-            {
-                "name": "test3",
-                "start_time": time.fromisoformat("23:00"),
-                "end_time": time.fromisoformat("00:00"),
-            },
-            {
-                "name": "default",
-                "default": True,
-            },
-        ]
-    }
-    config_factory.write(config_dict)
+    config_factory.write(
+        {
+            "shaders": [
+                {
+                    "name": "test1",
+                    "start_time": time.fromisoformat("20:00"),
+                    "end_time": time.fromisoformat("21:00"),
+                },
+                {
+                    "name": "test2",
+                    "start_time": time.fromisoformat("21:00"),
+                },
+                {
+                    "name": "test3",
+                    "start_time": time.fromisoformat("23:00"),
+                    "end_time": time.fromisoformat("00:00"),
+                },
+                {
+                    "name": "default",
+                    "default": True,
+                },
+            ]
+        }
+    )
 
     with freeze_time(time_str):
         result = runner.invoke(cli, ["auto"])
