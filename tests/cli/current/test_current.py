@@ -1,3 +1,5 @@
+import re
+
 import pytest
 from click.testing import CliRunner
 
@@ -25,3 +27,12 @@ def test_it(runner: CliRunner, shader_path_factory: ShaderPathFactory):
 
     assert result.exit_code == 0
     assert result.output.strip() == "shader1"
+
+
+def test_long(runner: CliRunner, shader_path_factory: ShaderPathFactory):
+    shader_path = shader_path_factory("foo")
+    hyprctl.set_screen_shader(str(shader_path))
+    result = runner.invoke(cli, ["current", "--long"])
+
+    assert result.exit_code == 0
+    assert re.match(rf"^foo\s+.*{re.escape(str(shader_path))}", result.output.strip())
