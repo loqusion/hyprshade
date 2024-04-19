@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, time
-from typing import TYPE_CHECKING
+from datetime import datetime
 
 import click
 from more_itertools import quantify
@@ -10,9 +9,6 @@ from hyprshade.config.schedule import Schedule
 from hyprshade.shader.core import Shader
 
 from .utils import ContextObject, ShaderParamType, optional_param
-
-if TYPE_CHECKING:
-    from hyprshade.config.core import Config
 
 
 def get_shader_to_toggle(
@@ -37,16 +33,6 @@ def get_fallback(
     elif fallback_auto:
         return auto
     return None
-
-
-def try_from_config(
-    t: time, config: Config | None
-) -> tuple[Shader | None, Shader | None]:
-    if config is None:
-        return None, None
-
-    schedule = Schedule(config)
-    return schedule.scheduled_shader(t), schedule.default_shader
 
 
 @click.command(short_help="Toggle screen shader")
@@ -103,7 +89,9 @@ def toggle(
             "--fallback", "Must not specify more than one --fallback* option"
         )
 
-    scheduled, default = try_from_config(t, config)
+    schedule = Schedule(config) if config is not None else None
+    scheduled = schedule.scheduled_shader(t) if schedule is not None else None
+    default = schedule.default_shader if schedule is not None else None
     shader = shader or scheduled
 
     fallback = fallback or get_fallback(
