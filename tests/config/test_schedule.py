@@ -12,21 +12,37 @@ class TestScheduledShader:
     @pytest.mark.parametrize(
         ("time_str", "expected"),
         [
-            ("12:00:00", False),
-            ("19:59:59", False),
-            ("20:00:00", True),
-            ("20:30:00", True),
-            ("21:00:00", False),
+            ("00:00:00", "default"),
+            ("12:00:00", "default"),
+            ("19:59:30", "default"),
+            ("20:00:00", "test1"),
+            ("20:30:00", "test1"),
+            ("20:59:30", "test1"),
+            ("21:00:00", "test2"),
+            ("22:00:00", "test2"),
+            ("22:59:30", "test2"),
+            ("23:00:00", "test3"),
+            ("23:30:00", "test3"),
+            ("23:59:30", "test3"),
         ],
     )
-    def test(self, time_str: str, expected: bool, config_factory: ConfigFactory):
+    def test(self, time_str: str, expected: str, config_factory: ConfigFactory):
         config_factory.write(
             {
                 "shaders": [
                     {
-                        "name": "test",
+                        "name": "test1",
                         "start_time": time.fromisoformat("20:00"),
                         "end_time": time.fromisoformat("21:00"),
+                    },
+                    {
+                        "name": "test2",
+                        "start_time": time.fromisoformat("21:00"),
+                    },
+                    {
+                        "name": "test3",
+                        "start_time": time.fromisoformat("23:00"),
+                        "end_time": time.fromisoformat("00:00"),
                     },
                     {
                         "name": "default",
@@ -40,10 +56,7 @@ class TestScheduledShader:
         with freeze_time(time_str):
             shader = schedule.scheduled_shader(datetime.now().time())
             assert shader is not None
-            if expected:
-                assert shader.name == "test"
-            else:
-                assert shader.name == "default"
+            assert shader.name == expected
 
     def test_no_default(self, config_factory: ConfigFactory):
         config_factory.write(
