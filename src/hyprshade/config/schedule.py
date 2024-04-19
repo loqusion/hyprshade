@@ -27,7 +27,11 @@ class Schedule:
     def scheduled_shader(self, t: time) -> Shader | None:
         for entry in self._resolved_entries():
             if is_time_between(t, entry.start_time, entry.end_time):
-                return Shader(entry.name, self.config.lazy_shader_variables(entry.name))
+                shader_conf = self.config.shader_config(entry.name)
+                gradual_shift_duration = 0
+                if shader_conf is not None:
+                    gradual_shift_duration = shader_conf.gradual_shift_duration if shader_conf.gradual_shift_duration is not None else 0
+                return Shader(entry.name, self.config.lazy_shader_variables(entry.name), gradual_shift_duration)
 
         return self.default_shader
 
@@ -46,7 +50,11 @@ class Schedule:
         default = only(filter(lambda s: s.default, self.config.model.shaders))
         if not default:
             return None
-        return Shader(default.name, self.config.lazy_shader_variables(default.name))
+        shader_conf = self.config.shader_config(default.name)
+        gradual_shift_duration = 0
+        if shader_conf is not None:
+            gradual_shift_duration = shader_conf.gradual_shift_duration if shader_conf.gradual_shift_duration is not None else 0
+        return Shader(default.name, self.config.lazy_shader_variables(default.name), gradual_shift_duration)
 
     def _resolved_entries(self) -> Iterator[ResolvedEntry]:
         if not (entries := self._entries()):

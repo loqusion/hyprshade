@@ -17,11 +17,11 @@ if TYPE_CHECKING:
 class Config:
     model: RootConfig
 
-    def __init__(self, path: str | None = None):
+    def __init__(self, path: str | None = None, skip_gradual_shift: bool | None = None):
         path = path or Config._get_path()
         if path is None:
             self.raise_not_found()
-        self.model = RootConfig(Config._load(path), path=path)
+        self.model = RootConfig(Config._load(path), path=path, skip_gradual_shift=skip_gradual_shift)
 
     def shader_config(self, name_or_path: str) -> ShaderConfig | None:
         from hyprshade.shader.core import Shader
