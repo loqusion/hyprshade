@@ -43,6 +43,10 @@ class Isolation:
         self.hyprshade_user_hyprshade_dir = self.config_dir / "hyprshade"
         self.hyprshade_system_dir = self.usr_dir / "share/hyprshade"
 
+        self.systemd_user_dir = self.config_dir / "systemd/user"
+        self.systemd_service_path = self.systemd_user_dir / "hyprshade.service"
+        self.systemd_timer_path = self.systemd_user_dir / "hyprshade.timer"
+
         self._monkeypatch = monkeypatch
 
         self._old_cwd = os.getcwd()
@@ -89,8 +93,8 @@ class Isolation:
                 raise ValueError(f"Unknown directory name: {name}")
 
     def _ensure_mkdir(self):
-        for attribute in self.__dict__.values():
-            if isinstance(attribute, Path):
+        for name, attribute in self.__dict__.items():
+            if isinstance(attribute, Path) and name.endswith("_dir"):
                 attribute.mkdir(exist_ok=True, parents=True)
         for path in [
             self.hyprshade_user_hypr_dir,
