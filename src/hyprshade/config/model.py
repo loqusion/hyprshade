@@ -35,13 +35,16 @@ def parse_config(obj):
         for o in obj.values():
             parse_config(o)
 
+class Options:
+    def __init__(self, skip_gradual_shift: bool | None = False):
+        self.skip_gradual_shift = skip_gradual_shift
 
 class LazyConfig:
-    def __init__(self, config_dict: dict, *, path: str, steps: tuple = (), skip_gradual_shift: bool | None = None):
+    def __init__(self, config_dict: dict, *, path: str, steps: tuple = (), options: Options):
         self.raw_data = config_dict
         self.path = path
         self.steps = steps
-        self._skip_gradual_shift = skip_gradual_shift
+        self.options = options
 
     def parse_fields(self):
         for attribute in self.__dict__:
@@ -109,7 +112,7 @@ class RootConfig(LazyConfig):
                             found_default = True
 
                         field_shaders.append(
-                            ShaderConfig(shader, path=self.path, steps=(step, str(i)), skip_gradual_shift=self._skip_gradual_shift)
+                            ShaderConfig(shader, path=self.path, steps=(step, str(i)), options=self.options)
                         )
 
                 self._field_shaders = field_shaders
@@ -177,7 +180,7 @@ class ShaderConfig(LazyConfig):
     @property
     def gradual_shift_duration(self) -> int | None:
         if self._field_gradual_shift_duration is MISSING:
-            if not self._skip_gradual_shift:
+            if not self.options.skip_gradual_shift:
                 if "gradual_shift_duration" in self.raw_data:
                     gradual_shift_duration = self.raw_data["gradual_shift_duration"]
 

@@ -7,6 +7,7 @@ import click
 
 from hyprshade.cli.utils import ContextObject
 from hyprshade.config.core import Config
+from hyprshade.config.model import Options
 
 from .auto import auto
 from .current import current
@@ -50,8 +51,10 @@ def cli(ctx: click.Context, verbose: bool, skip_gradual_shift: bool):
     level = logging.DEBUG if verbose else logging.WARNING
     logging.basicConfig(level=level)
 
+    options = Options(skip_gradual_shift)
+
     try:
-        config = Config(skip_gradual_shift=skip_gradual_shift)
+        config = Config(options=options)
     except FileNotFoundError:
         config = None
     ctx.obj = ContextObject(config)

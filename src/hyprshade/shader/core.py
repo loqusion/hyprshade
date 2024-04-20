@@ -17,6 +17,7 @@ from hyprshade.utils.dictionary import deep_merge
 from hyprshade.utils.fs import scandir_recursive
 from hyprshade.utils.path import strip_all_extensions, stripped_basename
 from hyprshade.utils.xdg import user_state_dir
+from hyprshade.config.core import ShaderConfig
 
 from . import hyprctl
 from .dirs import ShaderDirs
@@ -101,7 +102,7 @@ class PureShader:
 class Shader(PureShader):
     dirs: Final = ShaderDirs
     _variables: PossiblyLazy[ShaderVariables | None]
-    _gradual_shift_duration: int
+    _config: ShaderConfig | None
 
     TEMPLATE_METADATA_PREFIX: Final = "// META:"
 
@@ -109,7 +110,7 @@ class Shader(PureShader):
         self,
         shader_name_or_path: str,
         variables: PossiblyLazy[ShaderVariables | None],
-        gradual_shift_duration: int,
+        config: ShaderConfig | None,
         *,
         template_instance_path: str | None = None,
     ):
@@ -117,14 +118,20 @@ class Shader(PureShader):
             shader_name_or_path, template_instance_path=template_instance_path
         )
         self._variables = variables
-        self._gradual_shift_duration = gradual_shift_duration
+        self._config = config
 
     def on(self, extra_variables: ShaderVariables | None = None) -> None:
         source_path = self._resolve_path()
         _, source_path_extension = os.path.splitext(os.path.basename(source_path))
         if source_path_extension.strip(".") in TEMPLATE_EXTENSIONS:
-            if self._gradual_shift_duration > 0:
-                sleep_duration = self._gradual_shift_duration/GRADUAL_SHIFT_STEPS
+
+            gradual_shift_duration = 0
+            if self._config is not None:
+                if self._config.gradual_shift_duration is not None:
+                    gradual_shift_duration = self._config.gradual_shift_duration
+
+            if gradual_shift_duration > 0:
+                sleep_duration = gradual_shift_duration/GRADUAL_SHIFT_STEPS
                 if sleep_duration < GRADUAL_SHIFT_MIN_SLEEP:
                     logging.warn(f"Gradual shift duration is too low, set to minimum value of {GRADUAL_SHIFT_MIN_SLEEP*GRADUAL_SHIFT_STEPS}")
                     sleep_duration = GRADUAL_SHIFT_MIN_SLEEP

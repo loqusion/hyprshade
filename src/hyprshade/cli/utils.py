@@ -79,11 +79,10 @@ class ShaderParamType(click.ParamType):
         lazy_variables = (
             config.lazy_shader_variables(value) if config is not None else None
         )
-        shader_conf = config.shader_config(value) if config is not None else None
-        gradual_shift_duration = 0
-        if shader_conf is not None:
-            gradual_shift_duration = shader_conf.gradual_shift_duration if shader_conf.gradual_shift_duration is not None else 0
-        return Shader(value, lazy_variables, gradual_shift_duration)
+        shader_conf = (
+                config.shader_config(value) if config is not None else None
+        )
+        return Shader(value, lazy_variables, shader_conf)
 
     def shell_complete(
         self, ctx: click.Context, param: click.Parameter, incomplete: str
