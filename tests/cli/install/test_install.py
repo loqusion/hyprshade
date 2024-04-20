@@ -31,6 +31,7 @@ def test_no_shaders(
     assert timer_config["Timer"].get("OnCalendar") is None
 
 
+# TODO: Write test
 def test_multiple_shaders(
     runner: CliRunner, isolation: Isolation, config_factory: ConfigFactory
 ):
