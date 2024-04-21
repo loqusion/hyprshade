@@ -13,37 +13,6 @@ from hyprshade.shader.core import Shader
 from .utils import ContextObject, ShaderParamType, optional_param
 
 
-def get_shader_to_toggle(
-    shader: Shader | None, fallback: Shader | None
-) -> Shader | None:
-    current = Shader.current()
-    if shader != current:
-        return shader
-    return fallback
-
-
-def get_fallback(
-    *,
-    shader: Shader | None,
-    default: Shader | None,
-    auto: Shader | None,
-    fallback_default: bool,
-    fallback_auto: bool,
-) -> Shader | None:
-    if fallback_default or (fallback_auto and shader == auto):
-        return default
-    elif fallback_auto:
-        return auto
-    return None
-
-
-def raise_from_config_not_found(e: Exception) -> Never:
-    try:
-        Config.raise_not_found()
-    except FileNotFoundError as e_:
-        raise e from e_
-
-
 @click.command(short_help="Toggle screen shader")
 @click.argument(
     "shader",
@@ -135,3 +104,34 @@ def toggle(
         shader_to_toggle.on()
     else:
         Shader.off()
+
+
+def raise_from_config_not_found(e: Exception) -> Never:
+    try:
+        Config.raise_not_found()
+    except FileNotFoundError as e_:
+        raise e from e_
+
+
+def get_fallback(
+    *,
+    shader: Shader | None,
+    default: Shader | None,
+    auto: Shader | None,
+    fallback_default: bool,
+    fallback_auto: bool,
+) -> Shader | None:
+    if fallback_default or (fallback_auto and shader == auto):
+        return default
+    elif fallback_auto:
+        return auto
+    return None
+
+
+def get_shader_to_toggle(
+    shader: Shader | None, fallback: Shader | None
+) -> Shader | None:
+    current = Shader.current()
+    if shader != current:
+        return shader
+    return fallback
