@@ -11,6 +11,27 @@ from hyprshade.shader.core import PureShader, Shader
 from .utils import ls_dirs
 
 
+@click.command(short_help="List available screen shaders")
+@click.option("-l", "--long", is_flag=True, help="Long listing format")
+def ls(long: bool):
+    """List available screen shaders."""
+
+    shaders = ShaderWithMeta.get_shaders_list()
+    if not shaders:
+        return
+    width = max(map(len, map(str, shaders))) + 1
+
+    for shader in shaders:
+        c = "*" if shader.is_current else " "
+        if long:
+            click.echo(f"{c} {shader!s:{width}} {shader.path()}")
+            continue
+        if shader.is_current and not shader.is_in_shader_paths:
+            click.echo(f"{c} {shader!s}  ({shader.path()})")
+            continue
+        click.echo(f"{c} {shader!s}")
+
+
 @final
 class ShaderWithMeta(PureShader):
     _is_current: bool
@@ -65,24 +86,3 @@ class ShaderWithMeta(PureShader):
             if y == x:
                 return i
         return first_index
-
-
-@click.command(short_help="List available screen shaders")
-@click.option("-l", "--long", is_flag=True, help="Long listing format")
-def ls(long: bool):
-    """List available screen shaders."""
-
-    shaders = ShaderWithMeta.get_shaders_list()
-    if not shaders:
-        return
-    width = max(map(len, map(str, shaders))) + 1
-
-    for shader in shaders:
-        c = "*" if shader.is_current else " "
-        if long:
-            click.echo(f"{c} {shader!s:{width}} {shader.path()}")
-            continue
-        if shader.is_current and not shader.is_in_shader_paths:
-            click.echo(f"{c} {shader!s}  ({shader.path()})")
-            continue
-        click.echo(f"{c} {shader!s}")
