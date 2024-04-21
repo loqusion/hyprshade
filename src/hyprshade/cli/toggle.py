@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Never
 
 import click
 from more_itertools import quantify
 
+from hyprshade.config.core import Config
 from hyprshade.config.schedule import Schedule
 from hyprshade.shader.core import Shader
 
@@ -33,6 +35,13 @@ def get_fallback(
     elif fallback_auto:
         return auto
     return None
+
+
+def raise_from_config_not_found(e: Exception) -> Never:
+    try:
+        Config.raise_not_found()
+    except FileNotFoundError as e_:
+        raise e from e_
 
 
 @click.command(short_help="Toggle screen shader")
@@ -81,13 +90,33 @@ def toggle(
     """
 
     t = datetime.now().time()
-    config = obj.get_config(raising=(fallback_default or fallback_auto))
+    config = obj.get_config()
 
     fallback_opts = [fallback, fallback_default, fallback_auto]
     if quantify(fallback_opts) > 1:
         raise click.BadOptionUsage(
             "--fallback", "Must not specify more than one --fallback* option"
         )
+
+    if config is None:
+        if shader is None:
+            raise_from_config_not_found(
+                ValueError(
+                    "Running `hyprshade toggle` without a positional argument requires a config file; see https://github.com/loqusion/hyprshade#scheduling"
+                )
+            )
+        if fallback_default:
+            raise_from_config_not_found(
+                ValueError(
+                    "--fallback-default requires a config file; see https://github.com/loqusion/hyprshade#scheduling"
+                )
+            )
+        if fallback_auto:
+            raise_from_config_not_found(
+                ValueError(
+                    "--fallback-auto requires a config file; see https://github.com/loqusion/hyprshade#scheduling"
+                )
+            )
 
     schedule = Schedule(config) if config is not None else None
     scheduled = schedule.scheduled_shader(t) if schedule is not None else None
