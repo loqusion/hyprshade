@@ -149,7 +149,7 @@ class Shader(PureShader):
     def _render_template(self, path: str) -> str:
         with open(path) as f:
             content = mustache.render(f, self.variables)
-        out_path = Shader._template_path_from_source_path(path)
+        out_path = Shader._template_instance_path_from_source_path(path)
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
         metadata = TemplateInstanceMetadata(source=path).encode()
         with open(out_path, "w") as f:
@@ -161,7 +161,7 @@ class Shader(PureShader):
         return out_path
 
     @staticmethod
-    def _template_path_from_source_path(path: str) -> str:
+    def _template_instance_path_from_source_path(path: str) -> str:
         file_name, _ = os.path.splitext(os.path.basename(path))
         return os.path.join(user_state_dir("hyprshade"), file_name)
 
