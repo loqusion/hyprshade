@@ -33,7 +33,7 @@ def test_no_args(runner: CliRunner):
 
     assert result.exit_code != 0
     assert result.exception is not None
-    assert "missing argument" in result.output.lower()
+    assert "missing argument" in result.stderr.lower()
     assert hyprctl.get_screen_shader() == initial_shader
 
 
