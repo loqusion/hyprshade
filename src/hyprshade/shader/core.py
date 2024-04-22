@@ -5,7 +5,7 @@ import os
 from collections.abc import Callable
 from dataclasses import KW_ONLY, asdict, dataclass
 from functools import cached_property
-from typing import Any, ClassVar, Final, TypeVar, Union
+from typing import Any, ClassVar, Final, TypeAlias, TypeVar
 
 from more_itertools import flatten
 
@@ -19,7 +19,7 @@ from . import hyprctl
 from .dirs import ShaderDirs
 
 T = TypeVar("T")
-PossiblyLazy = Union[T, Callable[[], T]]  # noqa: UP007
+PossiblyLazy: TypeAlias = T | Callable[[], T]
 
 ShaderVariables = dict[str, Any]
 
