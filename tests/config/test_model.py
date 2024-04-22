@@ -4,6 +4,7 @@ import pytest
 from more_itertools import quantify
 
 from hyprshade.config.model import ConfigError, RootConfig
+from hyprshade.template.mustache import NULLISH_COALESCE_LAMBDA_NAME
 
 
 class _RootConfig(RootConfig):
@@ -177,4 +178,16 @@ class TestShadersConfig:
         config = _RootConfig({"shaders": [{"name": "foo", "config": {9000: "bar"}}]})
 
         with pytest.raises(ConfigError, match="must be a string"):
+            _ = config.shaders[0].config
+
+    def test_key_reserved(self):
+        config = _RootConfig(
+            {
+                "shaders": [
+                    {"name": "foo", "config": {NULLISH_COALESCE_LAMBDA_NAME: 9000}}
+                ]
+            }
+        )
+
+        with pytest.raises(ConfigError, match="reserved"):
             _ = config.shaders[0].config
