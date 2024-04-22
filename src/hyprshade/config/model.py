@@ -5,6 +5,8 @@ from __future__ import annotations
 from datetime import time
 from typing import Any
 
+from hyprshade.template import mustache
+
 MISSING = object()
 
 
@@ -192,6 +194,10 @@ class ShaderConfig(LazyConfig):
                     if not isinstance(key, str):
                         self.raise_error(
                             "key must be a string", extra_steps=(str(key),)
+                        )
+                    if key in mustache.DEFAULT_RENDER_DATA:
+                        self.raise_error(
+                            f"key '{key}' is reserved", extra_steps=(str(key),)
                         )
                     if isinstance(value, str):
                         value = value.upper()
