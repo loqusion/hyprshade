@@ -25,7 +25,7 @@ def test_variable():
 
 def test_duplicate_data_keys():
     with pytest.raises(
-        ValueError, match=f"Invalid data keys: {NULLISH_COALESCE_LAMBDA_NAME}"
+        AssertionError, match=f"Reserved keys: {NULLISH_COALESCE_LAMBDA_NAME}"
     ):
         render("Hello, {{name}}!", {"name": "world", NULLISH_COALESCE_LAMBDA_NAME: 3})
 

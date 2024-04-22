@@ -46,6 +46,4 @@ DEFAULT_RENDER_DATA: Final = {NULLISH_COALESCE_LAMBDA_NAME: nullish_coalesce}
 
 def assert_no_duplicate_keys(d1: dict, d2: dict) -> None:
     duplicate_keys = d1.keys() & d2.keys()
-    if duplicate_keys:
-        # TODO: Improve error message
-        raise ValueError(f"Invalid data keys: {', '.join(duplicate_keys)}")
+    assert not duplicate_keys, f"Reserved keys: {', '.join(duplicate_keys)}"
