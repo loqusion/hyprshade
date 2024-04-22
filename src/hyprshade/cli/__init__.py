@@ -46,7 +46,7 @@ for command in COMMANDS:
     cli.add_command(command)
 
 
-def main():
+def main():  # pragma: no cover
     try:
         return cli()
     except Exception as e:
