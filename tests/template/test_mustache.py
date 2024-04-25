@@ -2,7 +2,11 @@ from typing import Any
 
 import pytest
 
-from hyprshade.template.mustache import NULLISH_COALESCE_LAMBDA_NAME, render
+from hyprshade.template.mustache import (
+    NULLISH_COALESCE_LAMBDA_NAME,
+    ReservedVariablesError,
+    render,
+)
 
 
 def nc(text: str) -> str:
@@ -24,9 +28,7 @@ def test_variable():
 
 
 def test_duplicate_data_keys():
-    with pytest.raises(
-        AssertionError, match=f"Reserved keys: {NULLISH_COALESCE_LAMBDA_NAME}"
-    ):
+    with pytest.raises(ReservedVariablesError):
         render("Hello, {{name}}!", {"name": "world", NULLISH_COALESCE_LAMBDA_NAME: 3})
 
 

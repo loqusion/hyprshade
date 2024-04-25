@@ -15,7 +15,8 @@ def render(
 ) -> str:
     import chevron
 
-    assert_no_duplicate_keys(data or {}, DEFAULT_RENDER_DATA)
+    if data is not None:
+        raise_if_reserved_keys(data)
 
     return chevron.render(template, {**DEFAULT_RENDER_DATA, **(data or {})})
 
@@ -44,6 +45,20 @@ NULLISH_COALESCE_LAMBDA_NAME: Final = "nc"
 DEFAULT_RENDER_DATA: Final = {NULLISH_COALESCE_LAMBDA_NAME: nullish_coalesce}
 
 
-def assert_no_duplicate_keys(d1: dict, d2: dict) -> None:
-    duplicate_keys = d1.keys() & d2.keys()
-    assert not duplicate_keys, f"Reserved keys: {', '.join(duplicate_keys)}"
+def raise_if_reserved_keys(d: dict) -> None:
+    if duplicate_keys := d.keys() & DEFAULT_RENDER_DATA.keys():
+        raise ReservedVariablesError(duplicate_keys)
+
+
+class ReservedVariablesError(Exception):
+    def __init__(self, duplicate_keys: set[str]) -> None:
+        self.duplicate_keys = duplicate_keys
+        super().__init__(
+            f"Invalid variable name{'s' if len(duplicate_keys) != 1 else ''}: {', '.join(duplicate_keys)}"
+        )
+        self.add_note(
+            f"The following names are reserved: {', '.join(DEFAULT_RENDER_DATA.keys())}"
+        )
+
+    def __repr__(self) -> str:
+        return f"ReservedVariablesError({self.duplicate_keys!r})"
