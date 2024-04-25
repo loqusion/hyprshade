@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import os
 import shlex
+from typing import Literal, TypeAlias
 
 import click
 
 from hyprshade.config.schedule import Schedule
+from hyprshade.utils.xdg import user_config_dir
 
-from .utils import ContextObject, get_script_path, write_systemd_user_unit
+from .utils import ContextObject, get_script_path
 
 
 @click.command(short_help="Install systemd user units")
@@ -47,3 +50,13 @@ Description=Apply screen filter on schedule
 WantedBy=timers.target
 """,
     )
+
+
+SystemdUnitType: TypeAlias = Literal["service", "timer"]
+
+
+def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:
+    dest_dir = user_config_dir("systemd/user")
+    os.makedirs(dest_dir, exist_ok=True)
+    with open(os.path.join(dest_dir, f"hyprshade.{unit_type}"), "w") as f:
+        f.write(body)

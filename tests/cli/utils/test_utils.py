@@ -1,18 +1,7 @@
 import pytest
 
-from hyprshade.cli.utils import ContextObject, write_systemd_user_unit
-from tests.conftest import Isolation
+from hyprshade.cli.utils import ContextObject
 from tests.types import ConfigFactory
-
-
-def test_write_systemd_user_unit(isolation: Isolation):
-    write_systemd_user_unit("service", "foo")
-    assert (
-        isolation.config_dir / "systemd/user/hyprshade.service"
-    ).read_text() == "foo"
-
-    write_systemd_user_unit("timer", "bar")
-    assert (isolation.config_dir / "systemd/user/hyprshade.timer").read_text() == "bar"
 
 
 class TestContextObject:

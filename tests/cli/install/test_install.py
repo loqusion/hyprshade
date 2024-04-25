@@ -7,6 +7,7 @@ from pathlib import Path
 from click.testing import CliRunner
 
 from hyprshade.cli import cli
+from hyprshade.cli.install import write_systemd_user_unit
 from tests.conftest import Isolation
 from tests.helpers import SystemdUnitParser
 from tests.types import ConfigFactory
@@ -138,3 +139,13 @@ def test_no_config(runner: CliRunner, isolation: Isolation):
     assert isinstance(result.exception, FileNotFoundError)
     assert not isolation.systemd_service_path.exists()
     assert not isolation.systemd_timer_path.exists()
+
+
+def test_write_systemd_user_unit(isolation: Isolation):
+    write_systemd_user_unit("service", "foo")
+    assert (
+        isolation.config_dir / "systemd/user/hyprshade.service"
+    ).read_text() == "foo"
+
+    write_systemd_user_unit("timer", "bar")
+    assert (isolation.config_dir / "systemd/user/hyprshade.timer").read_text() == "bar"

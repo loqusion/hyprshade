@@ -11,14 +11,12 @@ from hyprshade.config.core import Config
 from hyprshade.shader.core import Shader
 from hyprshade.utils.fs import ls_dirs
 from hyprshade.utils.path import stripped_basename
-from hyprshade.utils.xdg import user_config_dir
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
 
 T = TypeVar("T", str, int, float, bool, click.ParamType)
-SystemdUnitType = Literal["service", "timer"]
 
 
 def validate_optional_param(
@@ -49,13 +47,6 @@ def optional_param(
         "nargs": -1,
         "callback": merged_callback,
     }
-
-
-def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:
-    dest_dir = user_config_dir("systemd/user")
-    os.makedirs(dest_dir, exist_ok=True)
-    with open(os.path.join(dest_dir, f"hyprshade.{unit_type}"), "w") as f:
-        f.write(body)
 
 
 def get_script_path() -> str:  # pragma: no cover
