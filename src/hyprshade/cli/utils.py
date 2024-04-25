@@ -102,6 +102,46 @@ class ShaderParamType(click.ParamType):
         )
 
 
+class VarParamType(click.ParamType):
+    name: Final = "var"
+
+    def convert(
+        self,
+        value: str,
+        param: click.Parameter | None,
+        ctx: click.Context | None,
+    ) -> tuple[str, str]:
+        try:
+            key, value_ = value.split("=", 1)
+        except ValueError as e:
+            raise click.BadParameter("Must be in the form 'key=value'") from e
+        return key, value_
+
+
+def option_variables(
+    metavar: str | None = "KEY=VALUE",
+    *,
+    callback: Callable | None = None,
+) -> dict[str, Any]:
+    def __to_dict_callback(
+        ctx: click.Context,
+        param: click.Parameter,
+        value: tuple[tuple[str, str], ...],
+    ) -> dict[str, str]:
+        ret = dict(value)
+        if callback is not None:
+            return callback(ctx, param, ret)
+        return ret
+
+    return {
+        "type": VarParamType(),
+        "multiple": True,
+        "callback": __to_dict_callback,
+        "help": "Variables to pass to the shader",
+        "metavar": metavar,
+    }
+
+
 class ContextObject:
     _config: Config | None
 

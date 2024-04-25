@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import click
 
-from .utils import ShaderParamType
+from .utils import ShaderParamType, option_variables
 
 if TYPE_CHECKING:
     from hyprshade.shader.core import Shader
@@ -12,7 +12,13 @@ if TYPE_CHECKING:
 
 @click.command(short_help="Turn on screen shader")
 @click.argument("shader", type=ShaderParamType())
-def on(shader: Shader):
+@click.option(
+    "--var",
+    "-V",
+    "variables",
+    **option_variables(),
+)
+def on(shader: Shader, variables: dict[str, str]):
     """Turn on screen shader."""
 
-    shader.on()
+    shader.on(variables)

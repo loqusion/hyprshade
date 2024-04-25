@@ -10,7 +10,12 @@ from hyprshade.config.core import Config
 from hyprshade.config.schedule import Schedule
 from hyprshade.shader.core import Shader
 
-from .utils import ContextObject, ShaderParamType, optional_param
+from .utils import (
+    ContextObject,
+    ShaderParamType,
+    option_variables,
+    optional_param,
+)
 
 
 @click.command(short_help="Toggle screen shader")
@@ -37,6 +42,12 @@ from .utils import ContextObject, ShaderParamType, optional_param
     default=False,
     help="Automatically infer fallback",
 )
+@click.option(
+    "--var",
+    "-V",
+    "variables",
+    **option_variables(),
+)
 @click.pass_obj
 def toggle(
     obj: ContextObject,
@@ -44,6 +55,7 @@ def toggle(
     fallback: Shader | None,
     fallback_default: bool,
     fallback_auto: bool,
+    variables: dict[str, str],
 ):
     """Toggle screen shader.
 
@@ -101,7 +113,7 @@ def toggle(
     )
     shader_to_toggle = get_shader_to_toggle(shader, fallback)
     if shader_to_toggle:
-        shader_to_toggle.on()
+        shader_to_toggle.on(variables)
     else:
         Shader.off()
 
