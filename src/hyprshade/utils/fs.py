@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import os
+from os import PathLike
 from typing import TYPE_CHECKING, AnyStr
 
+from more_itertools import flatten
+
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator
 
     from _typeshed import GenericPath
 
@@ -25,3 +28,8 @@ def scandir_recursive(
 
     while dir_stack:
         yield from scandir_recursive(dir_stack.pop(), max_depth=max_depth - 1)
+
+
+def ls_dirs(dirs: Iterable[str | PathLike[str]]) -> Iterator[str]:
+    all_files = flatten(scandir_recursive(d, max_depth=5) for d in dirs)
+    return (f.path for f in sorted(all_files, key=lambda f: f.name))

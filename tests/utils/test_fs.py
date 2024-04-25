@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from hyprshade.utils.fs import scandir_recursive
+from hyprshade.utils.fs import ls_dirs, scandir_recursive
 
 
 class TestScandirRecursive:
@@ -61,3 +61,35 @@ class TestScandirRecursive:
     def test_invalid_path(self, tmp_path: Path):
         with pytest.raises(FileNotFoundError):
             list(scandir_recursive(tmp_path / "doesnotexist", max_depth=0))
+
+
+class TestLsDirs:
+    def test_empty(self):
+        assert list(ls_dirs([])) == []
+
+    def test_single(self, tmp_path: Path):
+        (tmp_file := tmp_path / "foo").touch()
+        assert list(ls_dirs([tmp_path])) == [str(tmp_file)]
+
+    def test_multiple(self, tmp_path: Path):
+        (tmp_file1 := tmp_path / "bar").touch()
+        (tmp_file2 := tmp_path / "foo").touch()
+        assert list(ls_dirs([tmp_path])) == list(map(str, [tmp_file1, tmp_file2]))
+
+    def test_multiple_dirs(self, tmp_path_factory: pytest.TempPathFactory):
+        paths = []
+        for name in ["foo", "bar", "baz"]:
+            tmp_path = tmp_path_factory.mktemp(name)
+            (tmp_path / f"qux{name}").touch()
+            paths.append(tmp_path)
+
+        assert list(ls_dirs(paths)) == list(
+            map(
+                str,
+                [
+                    paths[1] / "quxbar",
+                    paths[2] / "quxbaz",
+                    paths[0] / "quxfoo",
+                ],
+            )
+        )

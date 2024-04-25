@@ -7,8 +7,7 @@ from typing import final
 import click
 
 from hyprshade.shader.core import PureShader, Shader
-
-from .utils import ls_dirs
+from hyprshade.utils.fs import ls_dirs
 
 
 @click.command(short_help="List available screen shaders")

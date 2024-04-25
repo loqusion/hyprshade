@@ -5,17 +5,16 @@ import sys
 from typing import TYPE_CHECKING, Any, Final, Literal, TypeVar, overload
 
 import click
-from more_itertools import flatten, unique_justseen
+from more_itertools import unique_justseen
 
 from hyprshade.config.core import Config
 from hyprshade.shader.core import Shader
-from hyprshade.utils.fs import scandir_recursive
+from hyprshade.utils.fs import ls_dirs
 from hyprshade.utils.path import stripped_basename
 from hyprshade.utils.xdg import user_config_dir
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterable, Iterator
-    from os import PathLike
+    from collections.abc import Callable, Iterator
 
 
 T = TypeVar("T", str, int, float, bool, click.ParamType)
@@ -61,11 +60,6 @@ def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:
 
 def get_script_path() -> str:  # pragma: no cover
     return os.path.realpath(sys.argv[0], strict=True)
-
-
-def ls_dirs(dirs: Iterable[str | PathLike[str]]) -> Iterator[str]:
-    all_files = flatten(scandir_recursive(d, max_depth=5) for d in dirs)
-    return (f.path for f in sorted(all_files, key=lambda f: f.name))
 
 
 class ShaderParamType(click.ParamType):
