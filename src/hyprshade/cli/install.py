@@ -2,14 +2,16 @@ from __future__ import annotations
 
 import os
 import shlex
-from typing import Literal, TypeAlias
+import sys
+from typing import TYPE_CHECKING, Literal, TypeAlias
 
 import click
 
 from hyprshade.config.schedule import Schedule
 from hyprshade.utils.xdg import user_config_dir
 
-from .utils import ContextObject, get_script_path
+if TYPE_CHECKING:
+    from .utils import ContextObject
 
 
 @click.command(short_help="Install systemd user units")
@@ -53,6 +55,10 @@ WantedBy=timers.target
 
 
 SystemdUnitType: TypeAlias = Literal["service", "timer"]
+
+
+def get_script_path() -> str:  # pragma: no cover
+    return os.path.realpath(sys.argv[0], strict=True)
 
 
 def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:

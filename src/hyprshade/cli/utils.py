@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import sys
 from typing import TYPE_CHECKING, Any, Final, Literal, TypeVar, overload
 
 import click
@@ -47,10 +46,6 @@ def optional_param(
         "nargs": -1,
         "callback": merged_callback,
     }
-
-
-def get_script_path() -> str:  # pragma: no cover
-    return os.path.realpath(sys.argv[0], strict=True)
 
 
 class ShaderParamType(click.ParamType):
