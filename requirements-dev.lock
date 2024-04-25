@@ -12,14 +12,14 @@ chevron==0.14.0
     # via hyprshade
 click==8.1.7
     # via hyprshade
-coverage==7.4.4
-freezegun==1.4.0
-hatchling==1.22.5
+coverage==7.5.0
+freezegun==1.5.0
+hatchling==1.24.2
 iniconfig==2.0.0
     # via pytest
 more-itertools==10.2.0
     # via hyprshade
-mypy==1.9.0
+mypy==1.10.0
 mypy-extensions==1.0.0
     # via mypy
 packaging==24.0
@@ -27,13 +27,13 @@ packaging==24.0
     # via pytest
 pathspec==0.12.1
     # via hatchling
-pluggy==1.4.0
+pluggy==1.5.0
     # via hatchling
     # via pytest
 pytest==8.1.1
 python-dateutil==2.9.0.post0
     # via freezegun
-ruff==0.3.7
+ruff==0.4.1
 six==1.16.0
     # via python-dateutil
 tomlkit==0.12.4
