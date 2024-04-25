@@ -18,7 +18,7 @@ def render(
     if data is not None:
         raise_if_reserved_keys(data)
 
-    return chevron.render(template, {**DEFAULT_RENDER_DATA, **(data or {})})
+    return chevron.render(template, DEFAULT_RENDER_DATA | (data or {}))
 
 
 NULLISH_COALESCE_OPERATOR_PATTERN: Final = re.compile(r"\s*\?\s*")
