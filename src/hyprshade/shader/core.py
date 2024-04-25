@@ -113,11 +113,11 @@ class Shader(PureShader):
         )
         self._variables = variables
 
-    def on(self) -> None:
+    def on(self, extra_variables: ShaderVariables | None = None) -> None:
         source_path = self._resolve_path()
         _, source_path_extension = os.path.splitext(os.path.basename(source_path))
         if source_path_extension.strip(".") in TEMPLATE_EXTENSIONS:
-            rendered_path = self._render_template(source_path)
+            rendered_path = self._render_template(source_path, extra_variables)
         else:
             rendered_path = source_path
         logging.debug(f"Turning on shader '{self._name}' at '{rendered_path}'")
@@ -146,9 +146,12 @@ class Shader(PureShader):
             return self._variables()
         return self._variables
 
-    def _render_template(self, path: str) -> str:
+    def _render_template(
+        self, path: str, extra_variables: ShaderVariables | None = None
+    ) -> str:
         with open(path) as f:
-            content = mustache.render(f, self.variables)
+            variables = (self.variables or {}) | (extra_variables or {})
+            content = mustache.render(f, variables)
         metadata = TemplateInstanceMetadata(source=path)
         out_path = Shader._template_instance_path_from_source_path(path)
         os.makedirs(os.path.dirname(out_path), exist_ok=True)
