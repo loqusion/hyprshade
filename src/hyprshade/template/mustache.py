@@ -17,8 +17,13 @@ def render(
 
     if data is not None:
         raise_if_reserved_keys(data)
+        data = normalize_data(data)
 
     return chevron.render(template, DEFAULT_RENDER_DATA | (data or {}))
+
+
+def normalize_data(data: dict[str, Any]) -> dict[str, Any]:
+    return {x: (y.upper() if isinstance(y, str) else y) for x, y in data.items()}
 
 
 NULLISH_COALESCE_OPERATOR_PATTERN: Final = re.compile(r"\s*\?\s*")
