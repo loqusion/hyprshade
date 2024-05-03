@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from typing import Final
 
 import click
@@ -25,10 +26,14 @@ COMMANDS: Final = [
     on,
     toggle,
 ]
+COMMON_DECORATORS: Final = [
+    click.help_option(help="Show this message and exit"),
+]
 
 
 @click.group()
-@click.version_option()
+@click.version_option(help="Show the version and exit")
+@click.help_option(help="Show this message and exit")
 @click.option("-v", "--verbose", is_flag=True, help="Enable verbose output")
 @click.pass_context
 def cli(ctx: click.Context, verbose: bool):
@@ -42,8 +47,17 @@ def cli(ctx: click.Context, verbose: bool):
     ctx.obj = ContextObject(config)
 
 
+def compose(*decorators: Callable):
+    def decorator(f):
+        for d in decorators:
+            f = d(f)
+        return f
+
+    return decorator
+
+
 for command in COMMANDS:
-    cli.add_command(command)
+    cli.add_command(compose(*COMMON_DECORATORS)(command))
 
 
 def main():  # pragma: no cover
