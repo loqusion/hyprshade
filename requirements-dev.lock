@@ -31,11 +31,13 @@ pluggy==1.5.0
     # via hatchling
     # via pytest
 pytest==8.2.0
+    # via syrupy
 python-dateutil==2.9.0.post0
     # via freezegun
 ruff==0.4.2
 six==1.16.0
     # via python-dateutil
+syrupy==4.6.1
 tomlkit==0.12.4
 trove-classifiers==2024.4.10
     # via hatchling
