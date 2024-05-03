@@ -67,3 +67,4 @@ def test_normalize_string():
     assert normalize_string("foo-bar_baz") == "FOOBARBAZ"
     assert normalize_string("foo-bar_baz-qux") == "FOOBARBAZQUX"
     assert normalize_string("foo-bar_baz-qux_quux") == "FOOBARBAZQUXQUUX"
+    assert normalize_string("foo-_-_---_-___bar") == "FOOBAR"
