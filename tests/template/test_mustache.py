@@ -5,6 +5,7 @@ import pytest
 from hyprshade.template.mustache import (
     NULLISH_COALESCE_LAMBDA_NAME,
     ReservedVariablesError,
+    normalize_string,
     render,
 )
 
@@ -58,3 +59,11 @@ class TestNullishCoalesce:
     def test_multiple_operators(self):
         with pytest.raises(ValueError, match="must occur only once"):
             render(f"Hello, {nc('{{name}} ? world ? planet')}!")
+
+
+def test_normalize_string():
+    assert normalize_string("foo-bar") == "FOOBAR"
+    assert normalize_string("hello_world") == "HELLOWORLD"
+    assert normalize_string("foo-bar_baz") == "FOOBARBAZ"
+    assert normalize_string("foo-bar_baz-qux") == "FOOBARBAZQUX"
+    assert normalize_string("foo-bar_baz-qux_quux") == "FOOBARBAZQUXQUUX"
