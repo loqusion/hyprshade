@@ -32,7 +32,7 @@ def test_example_config(request: pytest.FixtureRequest):
                 "end_time": None,
                 "default": False,
                 "config": {
-                    "type": "protanopia",
+                    "type": "red-green",
                     "intensity": 1.0,
                 },
             },
