@@ -166,7 +166,7 @@ class TestShadersConfig:
     def test_dict(self):
         config = _RootConfig({"shaders": [{"name": "foo", "config": {"foo": "bar"}}]})
 
-        assert config.shaders[0].config == {"foo": "BAR"}
+        assert config.shaders[0].config == {"foo": "bar"}
 
     def test_not_dict(self):
         config = _RootConfig({"shaders": [{"name": "foo", "config": 9000}]})
