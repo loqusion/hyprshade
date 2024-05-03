@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable
-from typing import Final
+from typing import TYPE_CHECKING, Final
 
 import click
 
@@ -16,6 +15,10 @@ from .ls import ls
 from .off import off
 from .on import on
 from .toggle import toggle
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
 
 COMMANDS: Final = [
     auto,
