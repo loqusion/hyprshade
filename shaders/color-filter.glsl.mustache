@@ -10,8 +10,11 @@ const float intensity = {{#nc}}{{intensity}} ? 0.2{{/nc}};
 
 // Enum for color correction type
 const int PROTANOPIA = 0;
+const int REDGREEN = PROTANOPIA;
 const int DEUTERANOPIA = 1;
+const int GREENRED = DEUTERANOPIA;
 const int TRITANOPIA = 2;
+const int BLUEYELLOW = TRITANOPIA;
 
 // Color correction type
 const int type = {{#nc}}{{type}} ? PROTANOPIA{{/nc}};
