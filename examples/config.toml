@@ -10,5 +10,5 @@ end_time = 06:00:00
 [[shaders]]
 name = "color-filter"
 [shaders.config]
-type = "protanopia" # "protanopia", "deuteranopia", "tritanopia"
-intensity = 1.0     # 0.0 - 1.0
+type = "red-green" # "red-green", "green-red", "blue-yellow"
+intensity = 1.0    # 0.0 - 1.0
