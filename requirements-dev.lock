@@ -30,10 +30,10 @@ pathspec==0.12.1
 pluggy==1.5.0
     # via hatchling
     # via pytest
-pytest==8.1.1
+pytest==8.2.0
 python-dateutil==2.9.0.post0
     # via freezegun
-ruff==0.4.1
+ruff==0.4.2
 six==1.16.0
     # via python-dateutil
 tomlkit==0.12.4
