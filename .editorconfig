@@ -1,0 +1,4 @@
+root = true
+
+[*.ambr]
+trim_trailing_whitespace = false
