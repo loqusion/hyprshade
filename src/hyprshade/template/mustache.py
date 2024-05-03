@@ -23,7 +23,16 @@ def render(
 
 
 def normalize_data(data: dict[str, Any]) -> dict[str, Any]:
-    return {x: (y.upper() if isinstance(y, str) else y) for x, y in data.items()}
+    return {
+        x: (normalize_string(y) if isinstance(y, str) else y) for x, y in data.items()
+    }
+
+
+NORMALIZE_STRING_REPLACEMENT_PATTERN: Final = re.compile(r"[_-]")
+
+
+def normalize_string(data: str) -> str:
+    return NORMALIZE_STRING_REPLACEMENT_PATTERN.sub("", data.upper())
 
 
 NULLISH_COALESCE_OPERATOR_PATTERN: Final = re.compile(r"\s*\?\s*")
