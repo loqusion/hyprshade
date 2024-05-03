@@ -199,8 +199,6 @@ class ShaderConfig(LazyConfig):
                         self.raise_error(
                             f"key '{key}' is reserved", extra_steps=(str(key),)
                         )
-                    if isinstance(value, str):
-                        value = value.upper()
                     augmented_config[key] = value
 
                 self._field_config = augmented_config
