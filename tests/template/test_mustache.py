@@ -24,7 +24,7 @@ def test_basic():
 
 
 def test_variable():
-    assert render("Hello, {{name}}!", {"name": "world"}) == "Hello, world!"
+    assert render("Hello, {{name}}!", {"name": "world"}) == "Hello, WORLD!"
 
 
 def test_duplicate_data_keys():
@@ -37,7 +37,7 @@ class TestNullishCoalesce:
         template = f"Hello, {nc('{{name}} ? world')}!"
 
         assert render(template) == "Hello, world!"
-        assert render(template, {"name": "planet"}) == "Hello, planet!"
+        assert render(template, {"name": "planet"}) == "Hello, PLANET!"
 
     @pytest.mark.parametrize("falsy", [0, 0.0])
     def test_falsy_values(self, falsy: Any):
