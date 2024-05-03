@@ -121,8 +121,10 @@ def _clear_screen_shader():
         hyprctl.clear_screen_shader()
 
 
-def _write_shader(path: Path) -> Path:
-    path.write_text("void main() {}")
+def _write_shader(path: Path, text: str | None = None) -> Path:
+    if text is None:
+        text = "void main() {}"
+    path.write_text(text)
     return path
 
 
@@ -138,10 +140,11 @@ def shader_path_factory(isolation: Isolation) -> ShaderPathFactory:
         directory_name: HyprshadeDirectoryName = "system",
         *,
         extension: str = "glsl",
+        text: str | None = None,
     ) -> Path:
         directory = isolation.shaders_dir(directory_name)
         path = directory / ".".join([name, extension])
-        return _write_shader(path)
+        return _write_shader(path, text)
 
     return _shader_path
 

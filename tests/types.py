@@ -22,6 +22,7 @@ class ShaderPathFactory(Protocol):
         directory_name: HyprshadeDirectoryName = "system",
         *,
         extension: str = "glsl",
+        text: str | None = None,
     ) -> Path: ...
 
 
