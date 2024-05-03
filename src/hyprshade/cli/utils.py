@@ -109,7 +109,7 @@ def option_variables(
         value: tuple[tuple[str, str], ...],
     ) -> dict[str, str]:
         ret = dict(value)
-        if callback is not None:
+        if callback is not None:  # pragma: no cover
             return callback(ctx, param, ret)
         return ret
 

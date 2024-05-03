@@ -2,9 +2,11 @@ from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
+from syrupy.assertion import SnapshotAssertion
 
 from hyprshade.cli import cli
 from hyprshade.shader import hyprctl
+from hyprshade.shader.core import Shader
 from tests.types import ShaderPathFactory
 
 pytestmark = [
@@ -54,3 +56,103 @@ def test_invalid_shader_dot(runner: CliRunner, shader_path_factory: ShaderPathFa
     assert result.exit_code != 0
     assert isinstance(result.exception, ValueError)
     assert hyprctl.get_screen_shader() == initial_shader
+
+
+class TestVarOption:
+    def test(
+        self,
+        runner: CliRunner,
+        shader_path_factory: ShaderPathFactory,
+        snapshot: SnapshotAssertion,
+    ):
+        shader_path_factory(
+            "shader",
+            extension="glsl.mustache",
+            text=("""const int key = {{key}};\n""" """void main() {}"""),
+        )
+        result = runner.invoke(cli, ["on", "shader", "--var", "key=3"])
+
+        assert result.exit_code == 0
+        current_shader_path = hyprctl.get_screen_shader()
+        assert current_shader_path is not None
+        assert (
+            Shader._get_template_instance_content_without_metadata(current_shader_path)
+            == snapshot
+        )
+
+    def test_multiple(
+        self,
+        runner: CliRunner,
+        shader_path_factory: ShaderPathFactory,
+        snapshot: SnapshotAssertion,
+    ):
+        shader_path_factory(
+            "shader",
+            extension="glsl.mustache",
+            text=(
+                """const int WORLD = {{world}};\n"""
+                """const int key = {{key}};\n"""
+                """void main() {}"""
+            ),
+        )
+        result = runner.invoke(
+            cli, ["on", "shader", "--var", "key=world", "--var", "world=5"]
+        )
+
+        assert result.exit_code == 0
+        current_shader_path = hyprctl.get_screen_shader()
+        assert current_shader_path is not None
+        assert (
+            Shader._get_template_instance_content_without_metadata(current_shader_path)
+            == snapshot
+        )
+
+    def test_override(
+        self,
+        runner: CliRunner,
+        shader_path_factory: ShaderPathFactory,
+        snapshot: SnapshotAssertion,
+    ):
+        shader_path_factory(
+            "shader",
+            extension="glsl.mustache",
+            text=(
+                """const int WORLD = {{world}};\n"""
+                """const int key = {{key}};\n"""
+                """void main() {}"""
+            ),
+        )
+        result = runner.invoke(
+            cli,
+            [
+                "on",
+                "shader",
+                "--var",
+                "key=planet",
+                "--var",
+                "key=world",
+                "--var",
+                "world=5",
+            ],
+        )
+
+        assert result.exit_code == 0
+        current_shader_path = hyprctl.get_screen_shader()
+        assert current_shader_path is not None
+        assert (
+            Shader._get_template_instance_content_without_metadata(current_shader_path)
+            == snapshot
+        )
+
+    def test_no_equals(
+        self,
+        runner: CliRunner,
+        shader_path_factory: ShaderPathFactory,
+    ):
+        shader_path_factory(
+            "shader", extension="glsl.mustache", text="""void main() {}"""
+        )
+        result = runner.invoke(cli, ["on", "shader", "--var", "key"])
+
+        assert result.exit_code != 0
+        assert "Invalid value for '--var' / '-V'" in result.stderr

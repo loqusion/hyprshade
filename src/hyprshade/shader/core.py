@@ -190,6 +190,14 @@ class Shader(PureShader):
             ).strip()
             return TemplateInstanceMetadata.decode(metadata_str)
 
+    @staticmethod
+    def _get_template_instance_content_without_metadata(path: str) -> str:
+        with open(path) as f:
+            lines = f.readlines()
+            if not lines[0].startswith(Shader.TEMPLATE_METADATA_PREFIX):
+                return "".join(lines)
+            return "".join(lines[1:])
+
 
 @dataclass
 class TemplateInstanceMetadata:
