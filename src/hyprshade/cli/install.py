@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import shlex
+import subprocess
 import sys
 from typing import TYPE_CHECKING, Literal, TypeAlias
 
@@ -15,8 +16,9 @@ if TYPE_CHECKING:
 
 
 @click.command(short_help="Install systemd user units")
+@click.option("--enable", is_flag=True, help="Enable the units after installation")
 @click.pass_obj
-def install(obj: ContextObject):
+def install(obj: ContextObject, enable: bool):
     """Install systemd user units.
 
     Requires a schedule to be specified in hyprshade.toml.
@@ -52,6 +54,12 @@ Description=Apply screen filter on schedule
 WantedBy=timers.target
 """,
     )
+
+    if enable:
+        subprocess.run(
+            ["systemctl", "--user", "enable", "--now", "hyprshade.timer"],
+            check=True,
+        )
 
 
 SystemdUnitType: TypeAlias = Literal["service", "timer"]
