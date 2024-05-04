@@ -4,6 +4,7 @@ from configparser import SectionProxy
 from datetime import time
 from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 
 from hyprshade.cli import cli
@@ -130,6 +131,31 @@ def test_multiple_entries(
     assert re.search(r"14:00:00", timer_config["Timer"]["OnCalendar"][2])
     assert re.search(r"14:30:00", timer_config["Timer"]["OnCalendar"][3])
     assert re.search(r"15:00:00", timer_config["Timer"]["OnCalendar"][4])
+
+
+def test_option_enable(
+    runner: CliRunner,
+    isolation: Isolation,
+    config_factory: ConfigFactory,
+    monkeypatch: pytest.MonkeyPatch,
+):
+    from hyprshade.cli.install import subprocess
+
+    class SubprocessRunMock:
+        def __init__(self):
+            self.count = 0
+
+        def __call__(self, *args, **kwargs):
+            self.count += 1
+
+    subprocess_run_mock = SubprocessRunMock()
+    monkeypatch.setattr(subprocess, "run", subprocess_run_mock)
+
+    config_factory.write({"shaders": []})
+    result = runner.invoke(cli, ["install", "--enable"])
+
+    assert result.exit_code == 0
+    assert subprocess_run_mock.count == 1
 
 
 def test_no_config(runner: CliRunner, isolation: Isolation):
