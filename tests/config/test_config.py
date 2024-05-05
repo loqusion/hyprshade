@@ -33,7 +33,7 @@ def test_example_config(request: pytest.FixtureRequest):
                 "default": False,
                 "config": {
                     "type": "red-green",
-                    "intensity": 1.0,
+                    "strength": 1.0,
                 },
             },
         ]

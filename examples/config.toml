@@ -11,4 +11,4 @@ end_time = 06:00:00
 name = "color-filter"
 [shaders.config]
 type = "red-green" # "red-green", "green-red", "blue-yellow"
-intensity = 1.0    # 0.0 - 1.0
+strength = 1.0     # 0.0 - 1.0
