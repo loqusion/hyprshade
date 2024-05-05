@@ -107,6 +107,103 @@ class TestVarOption:
             == snapshot
         )
 
+    def test_dot(
+        self,
+        runner: CliRunner,
+        shader_path_factory: ShaderPathFactory,
+        snapshot: SnapshotAssertion,
+    ):
+        shader_path_factory(
+            "shader",
+            extension="glsl.mustache",
+            text=("""const int bar = {{foo.bar}};\n""" """void main() {}"""),
+        )
+        result = runner.invoke(cli, ["on", "shader", "--var", "foo.bar=3"])
+
+        assert result.exit_code == 0
+        current_shader_path = hyprctl.get_screen_shader()
+        assert current_shader_path is not None
+        assert (
+            Shader._get_template_instance_content_without_metadata(current_shader_path)
+            == snapshot
+        )
+
+    def test_dot_shallow_merge(
+        self,
+        runner: CliRunner,
+        shader_path_factory: ShaderPathFactory,
+        snapshot: SnapshotAssertion,
+    ):
+        shader_path_factory(
+            "shader",
+            extension="glsl.mustache",
+            text=(
+                """const int bar = {{foo.bar}};\n"""
+                """const int baz = {{foo.baz}};\n"""
+                """const int qux = {{foo.qux}};\n"""
+                """void main() {}"""
+            ),
+        )
+        result = runner.invoke(
+            cli,
+            [
+                "on",
+                "shader",
+                "--var",
+                "foo.bar=1",
+                "--var",
+                "foo.baz=2",
+                "--var",
+                "foo.qux=3",
+            ],
+        )
+
+        assert result.exit_code == 0
+        current_shader_path = hyprctl.get_screen_shader()
+        assert current_shader_path is not None
+        assert (
+            Shader._get_template_instance_content_without_metadata(current_shader_path)
+            == snapshot
+        )
+
+    def test_dot_deep_merge(
+        self,
+        runner: CliRunner,
+        shader_path_factory: ShaderPathFactory,
+        snapshot: SnapshotAssertion,
+    ):
+        shader_path_factory(
+            "shader",
+            extension="glsl.mustache",
+            text=(
+                """const int bar = {{foo.bar}};\n"""
+                """const int baz_qux = {{foo.baz.qux}};\n"""
+                """const int baz_baz_qux = {{foo.baz.baz.qux}};\n"""
+                """void main() {}"""
+            ),
+        )
+        result = runner.invoke(
+            cli,
+            [
+                "on",
+                "shader",
+                "--var",
+                "foo.bar=1",
+                "--var",
+                "foo.baz.qux=2",
+                "--var",
+                "foo.baz.baz.qux=3",
+            ],
+        )
+
+        assert result.exit_code == 0
+        current_shader_path = hyprctl.get_screen_shader()
+        assert current_shader_path is not None
+        assert (
+            Shader._get_template_instance_content_without_metadata(current_shader_path)
+            == snapshot
+        )
+
     def test_override(
         self,
         runner: CliRunner,
@@ -133,6 +230,70 @@ class TestVarOption:
                 "key=world",
                 "--var",
                 "world=5",
+            ],
+        )
+
+        assert result.exit_code == 0
+        current_shader_path = hyprctl.get_screen_shader()
+        assert current_shader_path is not None
+        assert (
+            Shader._get_template_instance_content_without_metadata(current_shader_path)
+            == snapshot
+        )
+
+    def test_override_deep(
+        self,
+        runner: CliRunner,
+        shader_path_factory: ShaderPathFactory,
+        snapshot: SnapshotAssertion,
+    ):
+        shader_path_factory(
+            "shader",
+            extension="glsl.mustache",
+            text=(
+                """const int foo_bar_baz = {{foo.bar.baz}};\n""" """void main() {}"""
+            ),
+        )
+        result = runner.invoke(
+            cli,
+            [
+                "on",
+                "shader",
+                "--var",
+                "foo.bar=0",
+                "--var",
+                "foo.bar.baz=1",
+            ],
+        )
+
+        assert result.exit_code == 0
+        current_shader_path = hyprctl.get_screen_shader()
+        assert current_shader_path is not None
+        assert (
+            Shader._get_template_instance_content_without_metadata(current_shader_path)
+            == snapshot
+        )
+
+    def test_override_from_deep(
+        self,
+        runner: CliRunner,
+        shader_path_factory: ShaderPathFactory,
+        snapshot: SnapshotAssertion,
+    ):
+        shader_path_factory(
+            "shader",
+            extension="glsl.mustache",
+            text=("""const int foo_bar = {{foo.bar}};\n""" """void main() {}"""),
+        )
+        result = runner.invoke(
+            cli,
+            [
+                "on",
+                "shader",
+                "--var",
+                "foo.bar.baz=0",
+                "--var",
+                "foo.bar=1",
             ],
         )
 
