@@ -12,6 +12,7 @@ from hyprshade.shader.core import Shader
 
 from .utils import (
     ContextObject,
+    MergedVarOption,
     ShaderParamType,
     option_variables,
     optional_param,
@@ -55,7 +56,7 @@ def toggle(
     fallback: Shader | None,
     fallback_default: bool,
     fallback_auto: bool,
-    variables: dict[str, str],
+    variables: MergedVarOption,
 ):
     """Toggle screen shader.
 

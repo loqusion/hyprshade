@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 import click
 
-from .utils import ShaderParamType, option_variables
+from .utils import MergedVarOption, ShaderParamType, option_variables
 
 if TYPE_CHECKING:
     from hyprshade.shader.core import Shader
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     "variables",
     **option_variables(),
 )
-def on(shader: Shader, variables: dict[str, str]):
+def on(shader: Shader, variables: MergedVarOption):
     """Turn on screen shader."""
 
     shader.on(variables)

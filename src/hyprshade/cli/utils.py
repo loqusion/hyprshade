@@ -1,7 +1,16 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any, Final, Literal, TypeVar, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Final,
+    Literal,
+    NamedTuple,
+    TypeAlias,
+    TypeVar,
+    overload,
+)
 
 import click
 from more_itertools import unique_justseen
@@ -12,7 +21,7 @@ from hyprshade.utils.fs import ls_dirs
 from hyprshade.utils.path import stripped_basename
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Callable, Iterable, Iterator
 
 
 T = TypeVar("T", str, int, float, bool, click.ParamType)
@@ -82,6 +91,31 @@ class ShaderParamType(click.ParamType):
         )
 
 
+def dict_set_deep(d: dict[str, Any], keys: list[str], value: str):
+    for key in keys[:-1]:
+        if not isinstance(d.get(key), dict):
+            d[key] = {}
+        d = d[key]
+    d[keys[-1]] = value
+
+
+MergedVarOption: TypeAlias = dict[str, Any]
+
+
+class VarOptionPair(NamedTuple):
+    key: str
+    value: str
+
+    @staticmethod
+    def merge(pairs: Iterable[VarOptionPair]) -> MergedVarOption:
+        merged: MergedVarOption = {}
+        for key, value in pairs:
+            keys = key.split(".")
+            dict_set_deep(merged, keys, value)
+
+        return merged
+
+
 class VarParamType(click.ParamType):
     name: Final = "var"
 
@@ -90,12 +124,12 @@ class VarParamType(click.ParamType):
         value: str,
         param: click.Parameter | None,
         ctx: click.Context | None,
-    ) -> tuple[str, str]:
+    ) -> VarOptionPair:
         try:
             key, value_ = value.split("=", 1)
         except ValueError as e:
             raise click.BadParameter("Must be in the form 'key=value'") from e
-        return key, value_
+        return VarOptionPair(key, value_)
 
 
 def option_variables(
@@ -106,12 +140,12 @@ def option_variables(
     def __to_dict_callback(
         ctx: click.Context,
         param: click.Parameter,
-        value: tuple[tuple[str, str], ...],
-    ) -> dict[str, str]:
-        ret = dict(value)
+        value: tuple[VarOptionPair, ...],
+    ) -> MergedVarOption:
+        merged = VarOptionPair.merge(value)
         if callback is not None:  # pragma: no cover
-            return callback(ctx, param, ret)
-        return ret
+            return callback(ctx, param, merged)
+        return merged
 
     return {
         "type": VarParamType(),
