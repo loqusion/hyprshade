@@ -69,10 +69,10 @@ def get_script_path() -> str:  # pragma: no cover
     return os.path.realpath(sys.argv[0], strict=True)
 
 
-def write_systemd_user_unit(unit_type: SystemdUnitType, body: str) -> None:
+def write_systemd_user_unit(unit_type: SystemdUnitType, text: str) -> None:
     dest_dir = user_config_dir("systemd/user")
     os.makedirs(dest_dir, exist_ok=True)
     path = os.path.join(dest_dir, f"hyprshade.{unit_type}")
     with open(path, "w") as f:
-        f.write(body)
+        f.write(text)
     click.echo(f"Wrote {unit_type} unit to {path}.", err=True)
