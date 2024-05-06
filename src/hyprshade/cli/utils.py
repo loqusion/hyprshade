@@ -41,22 +41,28 @@ def validate_optional_param(
     return None if len(value) == 0 else value[0]
 
 
-def optional_param(
-    metavar: str | None = None, *, callback: Callable | None = None
-) -> dict[str, Any]:
+def optional_argument(
+    *param_decls: str,
+    cls: type[click.Argument] | None = None,
+    metavar: str,
+    **attrs: Any,
+) -> Callable[[FC], FC]:
     def merged_callback(
         ctx: click.Context, param: click.Argument, value: tuple[T, ...]
     ):
-        value2 = validate_optional_param(ctx, param, value)
-        if callback is not None:
-            return callback(ctx, param, value2)
-        return value2
+        optional_value = validate_optional_param(ctx, param, value)
+        if (callback := attrs.get("callback")) is not None:  # pragma: no cover
+            return callback(ctx, param, optional_value)
+        return optional_value
 
-    return {
-        "metavar": metavar,
-        "nargs": -1,
-        "callback": merged_callback,
-    }
+    return click.argument(
+        *param_decls,
+        cls=cls,
+        metavar=metavar,
+        **attrs,
+        nargs=-1,
+        callback=merged_callback,
+    )
 
 
 class ShaderParamType(click.ParamType):

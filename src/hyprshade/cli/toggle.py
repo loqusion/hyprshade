@@ -14,17 +14,13 @@ from .utils import (
     ContextObject,
     MergedVarOption,
     ShaderParamType,
-    optional_param,
+    optional_argument,
     variables_option,
 )
 
 
 @click.command(short_help="Toggle screen shader")
-@click.argument(
-    "shader",
-    type=ShaderParamType(),
-    **optional_param("SHADER"),
-)
+@optional_argument("shader", type=ShaderParamType(), metavar="SHADER")
 @click.option(
     "--fallback",
     metavar="SHADER",
