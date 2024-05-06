@@ -1,11 +1,22 @@
-// Color blind shader for hyprland.
-// From: https://godotshaders.com/shader/colorblindness-correction-shader/
+/*
+ * Color Filter
+ *
+ * Adjust colors for color vision deficiencies.
+ * Supports protanopia (red-green), deuteranopia (green-red), and tritanopia (blue-yellow).
+ *
+ * Source: https://godotshaders.com/shader/colorblindness-correction-shader/
+ */
 
 precision highp float;
 varying vec2 v_texcoord;
 uniform sampler2D tex;
 
-// Intensity of filter (1.0 - 0.0)
+/**
+ * Strength of filter.
+ *
+ * @min 0.0
+ * @max 1.0
+ */
 const float intensity = float({{#nc}}{{strength}} ? 0.2{{/nc}});
 
 // Enum for color correction type
@@ -19,7 +30,9 @@ const int TRITANOPIA = 2;
 const int TRITAN = TRITANOPIA;
 const int BLUEYELLOW = TRITANOPIA;
 
-// Color correction type
+/**
+ * Type of color correction.
+ */
 const int type = {{#nc}}{{type}} ? PROTANOPIA{{/nc}};
 
 void main() {
