@@ -99,7 +99,7 @@ class ShaderParamType(click.ParamType):
         )
 
 
-def dict_set_deep(d: dict[str, Any], keys: list[str], value: str):
+def dict_set_deep(d: dict[str, Any], keys: list[str], value: Any):
     for key in keys[:-1]:
         if not isinstance(d.get(key), dict):
             d[key] = {}
@@ -108,11 +108,12 @@ def dict_set_deep(d: dict[str, Any], keys: list[str], value: str):
 
 
 MergedVarOption: TypeAlias = dict[str, Any]
+VarValue: TypeAlias = int | float | str
 
 
 class VarOptionPair(NamedTuple):
     key: str
-    value: str
+    value: VarValue
 
     @staticmethod
     def merge(pairs: Iterable[VarOptionPair]) -> MergedVarOption:
@@ -122,6 +123,16 @@ class VarOptionPair(NamedTuple):
             dict_set_deep(merged, keys, value)
 
         return merged
+
+    @staticmethod
+    def convert_value(value: str) -> VarValue:
+        try:
+            return int(value)
+        except ValueError:
+            try:
+                return float(value)
+            except ValueError:
+                return value
 
 
 class VarParamType(click.ParamType):
@@ -137,7 +148,7 @@ class VarParamType(click.ParamType):
             key, value_ = value.split("=", 1)
         except ValueError as e:
             raise click.BadParameter("Must be in the form 'key=value'") from e
-        return VarOptionPair(key, value_)
+        return VarOptionPair(key, VarOptionPair.convert_value(value_))
 
 
 def variables_option(
