@@ -19,7 +19,7 @@ uniform sampler2D tex;
  * @min 0.0
  * @max 10.0
  */
-const vec3 VIB_RGB_BALANCE = vec3(
+const vec3 Balance = vec3(
     float({{#nc}}{{balance.red}} ? 1.0{{/nc}}),
     float({{#nc}}{{balance.green}} ? 1.0{{/nc}}),
     float({{#nc}}{{balance.blue}} ? 1.0{{/nc}})
@@ -31,9 +31,9 @@ const vec3 VIB_RGB_BALANCE = vec3(
  * @min -1.0
  * @max 1.0
  */
-const float VIB_VIBRANCE = float({{#nc}}{{strength}} ? 0.15{{/nc}});
+const float Strength = float({{#nc}}{{strength}} ? 0.15{{/nc}});
 
-const vec3 VIB_coeffVibrance = VIB_RGB_BALANCE * -VIB_VIBRANCE;
+const vec3 VIB_coeffVibrance = Balance * -Strength;
 
 void main() {
     vec4 pixColor = texture2D(tex, v_texcoord);

@@ -16,7 +16,7 @@ uniform sampler2D tex;
  * @min 1000.0
  * @max 40000.0
  */
-const float temperature = float({{#nc}}{{temperature}} ? 2600.0{{/nc}});
+const float Temperature = float({{#nc}}{{temperature}} ? 2600.0{{/nc}});
 
 /**
  * Strength of filter.
@@ -24,7 +24,7 @@ const float temperature = float({{#nc}}{{temperature}} ? 2600.0{{/nc}});
  * @min 0.0
  * @max 1.0
  */
-const float temperatureStrength = float({{#nc}}{{strength}} ? 1.0{{/nc}});
+const float Strength = float({{#nc}}{{strength}} ? 1.0{{/nc}});
 
 #define WithQuickAndDirtyLuminancePreservation
 const float LuminancePreservationFactor = 1.0;
@@ -54,7 +54,7 @@ void main() {
                  LuminancePreservationFactor);
 #endif
 
-    color = mix(color, color * colorTemperatureToRGB(temperature), temperatureStrength);
+    color = mix(color, color * colorTemperatureToRGB(Temperature), Strength);
 
     vec4 outCol = vec4(color, pixColor[3]);
 

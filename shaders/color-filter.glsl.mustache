@@ -17,7 +17,7 @@ uniform sampler2D tex;
  * @min 0.0
  * @max 1.0
  */
-const float intensity = float({{#nc}}{{strength}} ? 0.2{{/nc}});
+const float Strength = float({{#nc}}{{strength}} ? 0.2{{/nc}});
 
 // Enum for color correction type
 const int PROTANOPIA = 0;
@@ -33,7 +33,7 @@ const int BLUEYELLOW = TRITANOPIA;
 /**
  * Type of color correction.
  */
-const int type = {{#nc}}{{type}} ? PROTANOPIA{{/nc}};
+const int Type = {{#nc}}{{type}} ? PROTANOPIA{{/nc}};
 
 void main() {
     vec4 pixColor = texture2D(tex, v_texcoord);
@@ -43,15 +43,15 @@ void main() {
     float S = (0.0299566 * pixColor.r) + (0.184309 * pixColor.g) + (1.46709 * pixColor.b);
 
     float l, m, s;
-    if (type == PROTANOPIA) {
+    if (Type == PROTANOPIA) {
         l = 0.0 * L + 2.02344 * M + -2.52581 * S;
         m = 0.0 * L + 1.0 * M + 0.0 * S;
         s = 0.0 * L + 0.0 * M + 1.0 * S;
-    } else if (type == DEUTERANOPIA) {
+    } else if (Type == DEUTERANOPIA) {
         l = 1.0 * L + 0.0 * M + 0.0 * S;
         m = 0.494207 * L + 0.0 * M + 1.24827 * S;
         s = 0.0 * L + 0.0 * M + 1.0 * S;
-    } else if (type == TRITANOPIA) {
+    } else if (Type == TRITANOPIA) {
         l = 1.0 * L + 0.0 * M + 0.0 * S;
         m = 0.0 * L + 1.0 * M + 0.0 * S;
         s = -0.395913 * L + 0.801109 * M + 0.0 * S;
@@ -68,7 +68,7 @@ void main() {
     correction.g = (diff.r * 0.7) + (diff.g * 1.0);
     correction.b = (diff.r * 0.7) + (diff.b * 1.0);
     correction = pixColor + correction;
-    correction.a = pixColor.a * intensity;
+    correction.a = pixColor.a * Strength;
 
     gl_FragColor = vec4(correction);
 }
