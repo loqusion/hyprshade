@@ -14,8 +14,8 @@ from .utils import (
     ContextObject,
     MergedVarOption,
     ShaderParamType,
-    option_variables,
     optional_param,
+    variables_option,
 )
 
 
@@ -43,12 +43,7 @@ from .utils import (
     default=False,
     help="Automatically infer fallback",
 )
-@click.option(
-    "--var",
-    "-V",
-    "variables",
-    **option_variables(),
-)
+@variables_option()
 @click.pass_obj
 def toggle(
     obj: ContextObject,

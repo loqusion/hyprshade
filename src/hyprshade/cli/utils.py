@@ -13,6 +13,7 @@ from typing import (
 )
 
 import click
+from click.decorators import FC
 from more_itertools import unique_justseen
 
 from hyprshade.config.core import Config
@@ -132,28 +133,32 @@ class VarParamType(click.ParamType):
         return VarOptionPair(key, value_)
 
 
-def option_variables(
-    metavar: str | None = "KEY=VALUE",
-    *,
-    callback: Callable | None = None,
-) -> dict[str, Any]:
+def variables_option(
+    *param_decls: str, cls: type[click.Option] | None = None, **attrs: Any
+) -> Callable[[FC], FC]:
     def __to_dict_callback(
         ctx: click.Context,
         param: click.Parameter,
         value: tuple[VarOptionPair, ...],
     ) -> MergedVarOption:
         merged = VarOptionPair.merge(value)
-        if callback is not None:  # pragma: no cover
+        if (callback := attrs.get("callback")) is not None:  # pragma: no cover
             return callback(ctx, param, merged)
         return merged
 
-    return {
-        "type": VarParamType(),
-        "multiple": True,
-        "callback": __to_dict_callback,
-        "help": "Variables to pass to the shader. May be specified multiple times.",
-        "metavar": metavar,
-    }
+    if len(param_decls) == 0:
+        param_decls = ("--var", "-V", "variables")
+
+    return click.option(
+        *param_decls,
+        cls=cls,
+        metavar="KEY=VALUE",
+        help="Variables to pass to the shader. May be specified multiple times.",
+        **attrs,
+        type=VarParamType(),
+        multiple=True,
+        callback=__to_dict_callback,
+    )
 
 
 class ContextObject:
