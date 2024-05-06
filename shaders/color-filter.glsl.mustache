@@ -6,7 +6,7 @@ varying vec2 v_texcoord;
 uniform sampler2D tex;
 
 // Intensity of filter (1.0 - 0.0)
-const float intensity = {{#nc}}{{strength}} ? 0.2{{/nc}};
+const float intensity = float({{#nc}}{{strength}} ? 0.2{{/nc}});
 
 // Enum for color correction type
 const int PROTANOPIA = 0;
