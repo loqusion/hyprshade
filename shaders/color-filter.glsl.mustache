@@ -67,8 +67,7 @@ void main() {
     correction.r = 0.0;
     correction.g = (diff.r * 0.7) + (diff.g * 1.0);
     correction.b = (diff.r * 0.7) + (diff.b * 1.0);
-    correction = pixColor + correction;
-    correction.a = pixColor.a * Strength;
+    correction = mix(pixColor, pixColor + correction, Strength);
 
     gl_FragColor = vec4(correction);
 }
