@@ -13,7 +13,6 @@ from typing import (
 )
 
 import click
-from click.decorators import FC
 from more_itertools import unique_justseen
 
 from hyprshade.config.core import Config
@@ -23,6 +22,8 @@ from hyprshade.utils.path import stripped_basename
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterable, Iterator
+
+    from click.decorators import FC
 
 
 T = TypeVar("T", str, int, float, bool, click.ParamType)
