@@ -151,7 +151,7 @@ def option_variables(
         "type": VarParamType(),
         "multiple": True,
         "callback": __to_dict_callback,
-        "help": "Variables to pass to the shader",
+        "help": "Variables to pass to the shader. May be specified multiple times.",
         "metavar": metavar,
     }
 
