@@ -11,6 +11,7 @@ from more_itertools import flatten
 
 from hyprshade.template import mustache
 from hyprshade.template.constants import TEMPLATE_EXTENSIONS
+from hyprshade.utils.dictionary import deep_merge
 from hyprshade.utils.fs import scandir_recursive
 from hyprshade.utils.path import strip_all_extensions, stripped_basename
 from hyprshade.utils.xdg import user_state_dir
@@ -150,7 +151,7 @@ class Shader(PureShader):
         self, path: str, extra_variables: ShaderVariables | None = None
     ) -> str:
         with open(path) as f:
-            variables = (self.variables or {}) | (extra_variables or {})
+            variables = deep_merge({}, self.variables or {}, extra_variables or {})
             content = mustache.render(f, variables)
         metadata = TemplateInstanceMetadata(source=path)
         out_path = Shader._template_instance_path_from_source_path(path)
