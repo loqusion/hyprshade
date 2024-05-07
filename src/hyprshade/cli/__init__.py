@@ -71,5 +71,8 @@ def main():  # pragma: no cover
             raise e
         message = str(e) or repr(e)
         click.echo(f"{click.style('Error', fg='red')}: {message}", err=True)
+        if e.__notes__:
+            for note in e.__notes__:
+                click.echo(f"{click.style('Note', bold=True)}: {note}", err=True)
         click.secho("Use --verbose to see the full traceback", fg="yellow", err=True)
         return 1
