@@ -70,7 +70,10 @@ def main():  # pragma: no cover
         if logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
             raise e
         message = str(e) or repr(e)
-        click.echo(f"{click.style('Error', fg='red')}: {message}", err=True)
+        click.echo(
+            f"{click.style('Error', fg='red')}: {click.style(message, bold=True)}",
+            err=True,
+        )
         if e.__notes__:
             for note in e.__notes__:
                 click.echo(f"{click.style('Note', bold=True)}: {note}", err=True)
