@@ -328,4 +328,4 @@ class TestVarOption:
         result = runner.invoke(cli, [subcommand, "shader", "--var", "key"])
 
         assert result.exit_code != 0
-        assert "Invalid value for '--var' / '-V'" in result.stderr
+        assert "Invalid value for '--var'" in result.stderr

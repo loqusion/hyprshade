@@ -165,7 +165,7 @@ def variables_option(
         return merged
 
     if len(param_decls) == 0:
-        param_decls = ("--var", "-V", "variables")
+        param_decls = ("--var", "variables")
 
     return click.option(
         *param_decls,
