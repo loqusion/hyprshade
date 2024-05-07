@@ -61,3 +61,9 @@ class TestDeepMerge:
         d: dict = {}
         assert deep_merge(d, {"foo": "bar"}, strategy="force") is d
         assert deep_merge(d, {"baz": "qux"}, strategy="keep") is d
+
+    def test_referential_inequality(self):
+        d: dict = {}
+        a = [1, 2, 3]
+        deep_merge(d, {"foo": a})
+        assert d["foo"] is not a

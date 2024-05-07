@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Literal, TypeAlias
 
 DeepMergeStrategy: TypeAlias = Literal["force", "keep"]
@@ -13,9 +14,9 @@ def __deep_merge_impl(
             if isinstance(dest[key], dict) and isinstance(source[key], dict):
                 __deep_merge_impl(dest[key], source[key], strategy=strategy)
             elif strategy == "force":
-                dest[key] = source[key]
+                dest[key] = deepcopy(source[key])
         else:
-            dest[key] = source[key]
+            dest[key] = deepcopy(source[key])
 
     return dest
 
