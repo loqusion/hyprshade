@@ -449,6 +449,53 @@ class TestVarOption:
             == snapshot
         )
 
+    def test_merge_with_config(
+        self,
+        runner: CliRunner,
+        shader_path_factory: ShaderPathFactory,
+        config_factory: ConfigFactory,
+        snapshot: SnapshotAssertion,
+    ):
+        shader_path_factory(
+            "shader",
+            extension="glsl.mustache",
+            text=(
+                """const int r = {{balance.r}};\n"""
+                """const int g = {{balance.g}};\n"""
+                """const int b = {{balance.b}};\n"""
+                """void main() {}"""
+            ),
+        )
+        config_factory.write(
+            {
+                "shaders": [
+                    {
+                        "name": "shader",
+                        "config": {"balance": {"r": 1, "g": 5}},
+                    }
+                ]
+            }
+        )
+        result = runner.invoke(
+            cli,
+            [
+                "on",
+                "shader",
+                "--var",
+                "balance.g=2",
+                "--var",
+                "balance.b=3",
+            ],
+        )
+
+        assert result.exit_code == 0
+        current_shader_path = hyprctl.get_screen_shader()
+        assert current_shader_path is not None
+        assert (
+            Shader._get_template_instance_content_without_metadata(current_shader_path)
+            == snapshot
+        )
+
     def test_no_equals(
         self,
         runner: CliRunner,
