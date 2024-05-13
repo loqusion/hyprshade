@@ -32,11 +32,11 @@ void main() {
     float gray;
     if (Type == LUMINOSITY) {
         // https://en.wikipedia.org/wiki/Grayscale#Luma_coding_in_video_systems
-        if (LuminosityType == 0) {
+        if (LuminosityType == PAL) {
             gray = dot(pixColor.rgb, vec3(0.299, 0.587, 0.114));
-        } else if (LuminosityType == 1) {
+        } else if (LuminosityType == HDTV) {
             gray = dot(pixColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-        } else if (LuminosityType == 2) {
+        } else if (LuminosityType == HDR) {
             gray = dot(pixColor.rgb, vec3(0.2627, 0.6780, 0.0593));
         }
     } else if (Type == LIGHTNESS) {
