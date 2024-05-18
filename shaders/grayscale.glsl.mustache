@@ -22,7 +22,8 @@ const int HDTV = 1;
 const int HDR = 2;
 
 /**
- * Standard for calculating luma component.
+ * Formula used to calculate relative luminance.
+ * (Only applies to type = "luminosity".)
  */
 const int LuminosityType = {{#nc}}{{luminosity_type}} ? HDR{{/nc}};
 
