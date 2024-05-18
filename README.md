@@ -2,6 +2,8 @@
 
 Front-end to Hyprland's screen shader feature
 
+> NOTE: Hyprshade is not an official Hyprland tool
+
 <details>
   <summary>Screenshots</summary>
 
