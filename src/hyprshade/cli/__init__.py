@@ -40,6 +40,12 @@ COMMON_DECORATORS: Final = [
 @click.option("-v", "--verbose", is_flag=True, help="Enable verbose output")
 @click.pass_context
 def cli(ctx: click.Context, verbose: bool):
+    """Improved UX for Hyprland shaders
+
+    For more detailed documentation, visit the project's GitHub page:
+    https://github.com/loqusion/hyprshade
+    """
+
     level = logging.DEBUG if verbose else logging.WARNING
     logging.basicConfig(level=level)
 
