@@ -154,3 +154,25 @@ exec = hyprshade auto
 ```
 
 This ensures that the correct shader is enabled when you log in.
+
+## FAQ
+
+<!-- markdownlint-disable line-length -->
+
+### I tried to copy something from the `examples/` or `shaders/` directory, but it's not working. What gives?
+
+<!-- markdownlint-enable line-length -->
+
+If you try to copy things from the `main` branch while you are using a stable
+release, it may not work properly. This repository has a single-branch
+development scheme, where all development is done on the `main` branch and
+stable versions are [pinned with
+tags](https://github.com/loqusion/hyprshade/tags). The only exception to this is
+that updates to the README pertaining to unreleased features are kept on
+separate branches to avoid advertising features not present in any stable
+version.
+
+If you'd like to try out unreleased features, you can use a development version
+of Hyprshade — currently, the only officially supported way to do this is to use
+the [`hyprshade-git` AUR
+package](https://aur.archlinux.org/packages/hyprshade-git).
