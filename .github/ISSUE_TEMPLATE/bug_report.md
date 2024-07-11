@@ -30,10 +30,12 @@ paste the ouput of `hyprctl version`
 ```
 paste ouput of `hyprshade --version`
 ```
+- **Hyprshade Installation Method**: [e.g. pip, AUR, nixpkgs]
+
 - **Linux Distro**: [e.g. Ubuntu, Fedora, Arch Linux]
 - **GPU (if any)**: [e.g. NVIDIA, AMD, Intel]
 
-- **Hyprshade config**: Please provide the contents of your `hyprshade.toml` file (generally at `$XDG_CONFIG_HOME/hypr/hyprshade.toml` or `~/.config/hypr/hyprshade.toml`, if not present then skip this section)
+- **Hyprshade config**: Please provide the contents of your `hyprshade.toml` file (generally at `$XDG_CONFIG_HOME/hypr/hyprshade.toml` or `~/.config/hypr/hyprshade.toml` or `~/.config/hyprshade/config.toml`. If not present then skip this section)
 ```toml
 # paste your hyprshade.toml file contents here
 ```
