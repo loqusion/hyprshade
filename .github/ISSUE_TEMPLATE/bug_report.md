@@ -41,8 +41,7 @@ paste ouput of `hyprshade --version`
 - **Hyprshade config**:
 
 ```toml
-# paste your config file contents here
-# (`~/.config/hypr/hyprshade.toml` or `~/.config/hyprshade/config.toml`)
+# paste your config file contents here (`~/.config/hypr/hyprshade.toml` or `~/.config/hyprshade/config.toml`)
 ```
 
 ### Optional (delete if unused)
