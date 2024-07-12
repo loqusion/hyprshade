@@ -1,18 +1,19 @@
 ---
 name: Bug report
-about: Report a nasty bug to help us improve hyprshade
-title: ''
+about: Report a nasty bug to help us improve Hyprshade
+title: ""
 labels: bug
-assignees: ''
-
+assignees: ""
 ---
 
 ### About the Bug
+
 **Describe the bug**
 A clear and concise description of what is happening.
 
-**To Reproduce**
+**To reproduce**
 Steps to reproduce the behavior: (feel free to remove bullets and use natural language)
+
 1. ...
 2. ...
 3. ...
@@ -23,26 +24,30 @@ A clear and concise description of what you expected to happen.
 ### Environment
 
 - **Hyprland version**:
-```
+
+```text
 paste the ouput of `hyprctl version`
 ```
+
 - **Hyprshade version**:
-```
+
+```text
 paste ouput of `hyprshade --version`
 ```
-- **Hyprshade Installation Method**: [e.g. pip, AUR, nixpkgs]
 
-- **Linux Distro**: [e.g. Ubuntu, Fedora, Arch Linux]
-- **GPU (if any)**: [e.g. NVIDIA, AMD, Intel]
+- **Installation method**: _e.g. AUR, nixpkgs, pip_
+- **Linux distribution**: _e.g. Arch, NixOS_
 
-- **Hyprshade config**: Please provide the contents of your `hyprshade.toml` file (generally at `$XDG_CONFIG_HOME/hypr/hyprshade.toml` or `~/.config/hypr/hyprshade.toml` or `~/.config/hyprshade/config.toml`. If not present then skip this section)
+- **Hyprshade config**:
+
 ```toml
-# paste your hyprshade.toml file contents here
+# paste your config file contents here
+# (`~/.config/hypr/hyprshade.toml` or `~/.config/hyprshade/config.toml`)
 ```
 
 ### Optional (delete if unused)
 
-**Suggest Solution**:
+**Suggest solution**:
 Any solution or fix that you have? Explain!
 
 **Screenshots**
