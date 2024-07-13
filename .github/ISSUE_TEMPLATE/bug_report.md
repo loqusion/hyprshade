@@ -9,7 +9,8 @@ assignees: ""
 ### About the Bug
 
 **Describe the bug**
-A clear and concise description of what is happening.
+A clear and concise description of what is happening. Include the command you
+ran and any error output if applicable.
 
 **To reproduce**
 Steps to reproduce the behavior: (feel free to remove bullets and use natural language)
