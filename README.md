@@ -54,17 +54,14 @@ makepkg -si
 ### PyPI
 
 If your distribution isn't officially supported, you can also install directly
-from [PyPI](https://pypi.org/project/hyprshade/) with pip:
-
-```sh
-pip install --user hyprshade
-```
-
-Or with [pipx](https://pypa.github.io/pipx/):
+from [PyPI](https://pypi.org/project/hyprshade/) with
+[pipx](https://pypa.github.io/pipx/)[^2]:
 
 ```sh
 pipx install hyprshade
 ```
+
+[^2]: Installing with `pip` outside of a venv is not recommended; see [this issue](https://github.com/loqusion/hyprshade/issues/43)
 
 ## Usage
 
@@ -101,13 +98,13 @@ If you provide the basename, Hyprshade searches in `~/.config/hypr/shaders` and 
 > For scheduling to work, `systemd --user` must have access to the environment variable
 > `HYPRLAND_INSTANCE_SIGNATURE`.
 >
-> Add the following line to `hyprland.conf`[^2]:
+> Add the following line to `hyprland.conf`[^3]:
 >
 > ```hypr
 > exec-once = dbus-update-activation-environment --systemd HYPRLAND_INSTANCE_SIGNATURE
 > ```
 >
-> [^2]: See also: [Hyprland FAQ][hyprland-faq-import-env] ([cache][hyprland-faq-import-env-cache])
+> [^3]: See also: [Hyprland FAQ][hyprland-faq-import-env] ([cache][hyprland-faq-import-env-cache])
 
 [hyprland-faq-import-env]: https://wiki.hyprland.org/FAQ/#some-of-my-apps-take-a-really-long-time-to-open
 [hyprland-faq-import-env-cache]: https://web.archive.org/web/20240226003306/https://wiki.hyprland.org/FAQ/#some-of-my-apps-take-a-really-long-time-to-open
