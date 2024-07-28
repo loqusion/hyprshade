@@ -61,7 +61,7 @@ from [PyPI](https://pypi.org/project/hyprshade/) with
 pipx install hyprshade
 ```
 
-[^2]: Installing with `pip` outside of a venv is not recommended; see [this issue](https://github.com/loqusion/hyprshade/issues/43)
+[^2]: Installing with `pip` outside of a venv is unsupported.
 
 ## Usage
 
