@@ -7,6 +7,7 @@ import click
 
 from hyprshade.cli.utils import ContextObject
 from hyprshade.config.core import Config
+from hyprshade.config.model import Options
 
 from .auto import auto
 from .current import current
@@ -38,8 +39,9 @@ COMMON_DECORATORS: Final = [
 @click.version_option(help="Show the version and exit")
 @click.help_option(help="Show this message and exit")
 @click.option("-v", "--verbose", is_flag=True, help="Enable verbose output")
+@click.option("--skip-gradual-shift", is_flag=True, help="Skip the gradual shift if it is configured for the shader")
 @click.pass_context
-def cli(ctx: click.Context, verbose: bool):
+def cli(ctx: click.Context, verbose: bool, skip_gradual_shift: bool):
     """Improved UX for Hyprland shaders
 
     For more detailed documentation, visit the project's GitHub page:
@@ -49,8 +51,10 @@ def cli(ctx: click.Context, verbose: bool):
     level = logging.DEBUG if verbose else logging.WARNING
     logging.basicConfig(level=level)
 
+    options = Options(skip_gradual_shift)
+
     try:
-        config = Config()
+        config = Config(options=options)
     except FileNotFoundError:
         config = None
     ctx.obj = ContextObject(config)

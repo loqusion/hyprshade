@@ -79,7 +79,10 @@ class ShaderParamType(click.ParamType):
         lazy_variables = (
             config.lazy_shader_variables(value) if config is not None else None
         )
-        return Shader(value, lazy_variables)
+        shader_conf = (
+                config.shader_config(value) if config is not None else None
+        )
+        return Shader(value, lazy_variables, shader_conf)
 
     def shell_complete(
         self, ctx: click.Context, param: click.Parameter, incomplete: str
