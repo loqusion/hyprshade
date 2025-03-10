@@ -154,6 +154,15 @@ This ensures that the correct shader is enabled when you log in.
 
 ## FAQ
 
+### How do I dismiss error messages from Hyprland?
+
+[`hyprctl seterror disable`]. (Contrary to what the command may seem to imply,
+this does _not_ disable any further error messages.) You may also use
+[`hyprctl reload`].
+
+[`hyprctl seterror disable`]: https://wiki.hyprland.org/Configuring/Using-hyprctl/#seterror
+[`hyprctl reload`]: https://wiki.hyprland.org/Configuring/Using-hyprctl/#reload
+
 <!-- markdownlint-disable line-length -->
 
 ### I tried to copy something from the `examples/` or `shaders/` directory, but it's not working. What gives?
