@@ -26,6 +26,8 @@ const float Temperature = float({{#nc}}{{temperature}} ? 2600.0{{/nc}});
  * @max 1.0
  */
 const float Strength = float({{#nc}}{{strength}} ? 1.0{{/nc}});
+// This variable is automatically handled with the `gradual_switch_duration` config variable
+const float gradualPercentage = {{#nc}}{{gradualPercentage}} ? 1.0{{/nc}};
 
 #define WithQuickAndDirtyLuminancePreservation
 const float LuminancePreservationFactor = 1.0;
@@ -55,7 +57,7 @@ void main() {
                  LuminancePreservationFactor);
 #endif
 
-    color = mix(color, color * colorTemperatureToRGB(Temperature), Strength);
+    color = mix(color, color * colorTemperatureToRGB(temperature), Strength * gradualPercentage);
 
     vec4 outCol = vec4(color, pixColor[3]);
 
