@@ -173,7 +173,7 @@ TL;DR: Hyprshade should work properly without needing to manually copy files.
 If activating a shader with `hyprshade on` does not work out of the box, feel
 free to [open a bug report].
 
-[open a bug report]: https://github.com/loqusion/hyprshade/issues/new?template=bug_report.md
+[open a bug report]: https://github.com/loqusion/hyprshade/issues/new?template=bug_report.yml
 
 If you try to copy things from the `main` branch while you are using a stable
 release, it may not work properly. This repository has a single-branch
