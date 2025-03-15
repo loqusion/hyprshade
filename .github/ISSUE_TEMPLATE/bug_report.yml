@@ -7,6 +7,15 @@ body:
     attributes:
       value: |
         **IMPORTANT:** _Before_ reporting an issue, make sure to read the [README](https://github.com/loqusion/hyprshade).
+  - type: checkboxes
+    attributes:
+      label: Did you check the docs?
+      description: Make sure you have checked all of the below before submitting an issue.
+      options:
+        - label: I have read the entire README.
+          required: true
+        - label: I did not manually copy any configuration or shader files from the repository.
+          required: true
   - type: input
     attributes:
       label: Installation method
