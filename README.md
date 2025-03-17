@@ -115,12 +115,12 @@ create a config file in either `~/.config/hypr/hyprshade.toml` or `~/.config/hyp
 ```toml
 [[shades]]
 name = "vibrance"
-default = true  # shader to use during times when there is no other shader scheduled
+default = true  # will be activated when no other shader is scheduled
 
 [[shades]]
 name = "blue-light-filter"
 start_time = 19:00:00
-end_time = 06:00:00   # optional if you have more than one shader with start_time
+end_time = 06:00:00   # optional if more than one shader has start_time
 ```
 
 For starters, you can copy the example config:
