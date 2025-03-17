@@ -15,13 +15,22 @@ body:
           required: true
         - label: I did not manually copy any configuration or shader files from the repository.
           required: true
-  - type: input
+  - type: dropdown
     attributes:
       label: Installation method
-      description: How you installed Hyprshade (e.g. AUR, Nixpkgs, `pipx`)
-      placeholder: AUR - `hyprshade`
+      description: How you installed Hyprshade
+      options:
+        - AUR - `hyprshade`
+        - AUR - `hyprshade-git`
+        - Nixpkgs
+        - "`pipx`"
+        - Other (describe below)
+  - type: input
+    attributes:
+      label: Other installation method
+      description: If you picked "Other" for installation method above, please describe.
     validations:
-      required: true
+      required: false
   - type: input
     attributes:
       label: Linux distribution
