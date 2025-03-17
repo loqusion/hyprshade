@@ -20,10 +20,10 @@ body:
       label: Installation method
       description: How you installed Hyprshade
       options:
-        - AUR - `hyprshade`
-        - AUR - `hyprshade-git`
+        - AUR - hyprshade
+        - AUR - hyprshade-git
         - Nixpkgs
-        - "`pipx`"
+        - pipx
         - Other (describe below)
       default: 4
   - type: input
