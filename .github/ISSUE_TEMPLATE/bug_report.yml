@@ -25,6 +25,7 @@ body:
         - Nixpkgs
         - "`pipx`"
         - Other (describe below)
+      default: 4
   - type: input
     attributes:
       label: Other installation method
