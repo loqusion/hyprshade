@@ -120,7 +120,7 @@ default = true  # shader to use during times when there is no other shader sched
 [[shades]]
 name = "blue-light-filter"
 start_time = 19:00:00
-end_time = 06:00:00   # optional if you have more than one shade with start_time
+end_time = 06:00:00   # optional if you have more than one shader with start_time
 ```
 
 For starters, you can copy the example config:
