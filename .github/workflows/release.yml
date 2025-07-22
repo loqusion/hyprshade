@@ -19,39 +19,44 @@ jobs:
     environment: PyPI
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ env.python_version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.python_version }}
-      - name: Set up Rye ${{ env.rye_version }}
-        uses: sksat/setup-rye@v0.31.0
-        with:
-          version: ${{ env.rye_version }}
-      - name: Install dependencies with rye
+      - name: Test
         run: |
-          rye sync
-      - name: Build
-        run: |
-          rye build
-      - name: Publish package
-        uses: pypa/gh-action-pypi-publish@v1.12.4
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          echo "This is main"
+          git branch -vv --list
+          git describe
+      # - name: Set up Python ${{ env.python_version }}
+      #   uses: actions/setup-python@v5
+      #   with:
+      #     python-version: ${{ env.python_version }}
+      # - name: Set up Rye ${{ env.rye_version }}
+      #   uses: sksat/setup-rye@v0.31.0
+      #   with:
+      #     version: ${{ env.rye_version }}
+      # - name: Install dependencies with rye
+      #   run: |
+      #     rye sync
+      # - name: Build
+      #   run: |
+      #     rye build
+      # - name: Publish package
+      #   uses: pypa/gh-action-pypi-publish@v1.12.4
+      #   with:
+      #     user: __token__
+      #     password: ${{ secrets.PYPI_API_TOKEN }}
 
-  aur-update:
-    name: publish to AUR
-    needs: release-pypi
-    runs-on: ubuntu-latest
-    environment: AUR
-    concurrency:
-      group: "aur"
-      cancel-in-progress: true
-    steps:
-      - name: Sleep to account for delay in PyPI package availability
-        run: sleep 120
-      - uses: actions/checkout@v4
-      - uses: loqusion/aur-publish-action@main
-        with:
-          ssh-private-key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-          package-name: hyprshade
+  # aur-update:
+  #   name: publish to AUR
+  #   needs: release-pypi
+  #   runs-on: ubuntu-latest
+  #   environment: AUR
+  #   concurrency:
+  #     group: "aur"
+  #     cancel-in-progress: true
+  #   steps:
+  #     - name: Sleep to account for delay in PyPI package availability
+  #       run: sleep 120
+  #     - uses: actions/checkout@v4
+  #     - uses: loqusion/aur-publish-action@main
+  #       with:
+  #         ssh-private-key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+  #         package-name: hyprshade
