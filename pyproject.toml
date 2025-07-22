@@ -63,7 +63,7 @@ packages = ["src/hyprshade"]
 "shaders" = "share/hyprshade/shaders"
 
 
-[tool.ruff]
+[tool.ruff.lint]
 select = [
   "B",   # flake8-bugbear
   "C4",  # flake8-comprehensions
@@ -84,7 +84,7 @@ select = [
 ]
 ignore = ["TC006"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["hyprshade"]
 
 [tool.mypy]
