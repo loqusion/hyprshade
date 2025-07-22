@@ -17,4 +17,4 @@ git add --verbose --all
 git commit --verbose --message="chore: bump version to $version"
 git tag --annotate --message="$version" "$version"
 git push --verbose --follow-tags
-gh release create --generate-notes "$version"
+gh release create --verify-tag --generate-notes "$version"
