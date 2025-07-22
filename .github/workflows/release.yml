@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: ${{ env.python_version }}
       - name: Set up Rye ${{ env.rye_version }}
-        uses: sksat/setup-rye@v0.7.0
+        uses: sksat/setup-rye@v0.31.0
         with:
           version: ${{ env.rye_version }}
       - name: Install dependencies with rye
@@ -34,7 +34,7 @@ jobs:
         run: |
           rye build
       - name: Publish package
-        uses: pypa/gh-action-pypi-publish@v1.8.10
+        uses: pypa/gh-action-pypi-publish@v1.12.4
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
