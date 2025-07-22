@@ -89,7 +89,7 @@ class TestDisplay:
         assert Shader(str(shader_path_env)).dirname() == str(shader_dir_env.resolve())
 
 
-@pytest.mark.requires_hyprland()
+@pytest.mark.requires_hyprland
 @pytest.mark.usefixtures("_save_screen_shader")
 class TestOnOff:
     def test_on(self, shader_path_env: Path):

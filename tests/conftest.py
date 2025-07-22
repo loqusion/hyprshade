@@ -28,12 +28,12 @@ def _save_screen_shader():
         os.system('notify-send "hyprshade" "Failed to restore screen shader"')
 
 
-@pytest.fixture()
+@pytest.fixture
 def _clear_shader_env(shader_dir_env, shader_dir_user, shader_dir_system):
     pass
 
 
-@pytest.fixture()
+@pytest.fixture
 def _clear_screen_shader():
     """Clear the current screen shader before and after each test"""
 
@@ -42,7 +42,7 @@ def _clear_screen_shader():
     hyprctl.clear_screen_shader()
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_dir_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     prev_env = os.environ.get(Shader.dirs.ENV_VAR_NAME)
 
@@ -57,7 +57,7 @@ def shader_dir_env(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
         monkeypatch.setenv(Shader.dirs.ENV_VAR_NAME, prev_env)
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_dir_user(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     xdg_config_home = os.environ.get("XDG_CONFIG_HOME")
 
@@ -74,7 +74,7 @@ def shader_dir_user(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
         monkeypatch.setenv("XDG_CONFIG_HOME", xdg_config_home)
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_dir_system(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
     prev_sysconfig_get_path = sysconfig.get_path
 
@@ -96,27 +96,27 @@ def _shader_path_at(dir_: Path) -> Path:
     return path_
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_path(tmp_path: Path) -> Path:
     return _shader_path_at(tmp_path)
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_path_env(shader_dir_env: Path) -> Path:
     return _shader_path_at(shader_dir_env)
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_path_user(shader_dir_user: Path) -> Path:
     return _shader_path_at(shader_dir_user)
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_path_system(shader_dir_system: Path) -> Path:
     return _shader_path_at(shader_dir_system)
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_path_factory(shader_dir_env: Path) -> ShaderPathFactory:
     def _shader_path(name: str) -> Path:
         path_ = shader_dir_env / f"{name}.glsl"

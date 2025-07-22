@@ -9,7 +9,7 @@ from tests.types import ShaderPathFactory
 pytestmark = [pytest.mark.usefixtures("_clear_shader_env")]
 
 
-@pytest.fixture()
+@pytest.fixture
 def _shaders(shader_path_factory: ShaderPathFactory):
     shader_path_factory("foo")
     shader_path_factory("bar")
@@ -18,7 +18,7 @@ def _shaders(shader_path_factory: ShaderPathFactory):
 ShaderComplete = Callable[[str], list[CompletionItem]]
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_complete() -> ShaderComplete:
     shader_param = ShaderParamType()
 

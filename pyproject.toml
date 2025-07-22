@@ -64,10 +64,12 @@ packages = ["src/hyprshade"]
 
 
 [tool.ruff]
-extend-select = [
+select = [
   "B",   # flake8-bugbear
   "C4",  # flake8-comprehensions
+  "E4", "E7", "E9",  # pycodestyle
   "ERA", # flake8-eradicate/eradicate
+  "F",   # pyflakes
   "I",   # isort
   "N",   # pep8-naming
   "PGH", # pygrep
@@ -75,11 +77,12 @@ extend-select = [
   "PT",  # flake8-pytest-style
   "RUF", # ruff checks
   "SIM", # flake8-simplify
-  "TCH", # flake8-type-checking
+  "TC",  # flake8-type-checking
   "TID", # flake8-tidy-imports
   "UP",  # pyupgrade
   "YTT", # flake8-2020
 ]
+ignore = ["TC006"]
 
 [tool.ruff.isort]
 known-first-party = ["hyprshade"]
