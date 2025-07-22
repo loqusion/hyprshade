@@ -6,11 +6,13 @@
 #   features: []
 #   all-features: false
 #   with-sources: false
+#   generate-hashes: false
+#   universal: false
 
 -e file:.
 chevron==0.14.0
     # via hyprshade
-click==8.1.7
+click==8.2.1
     # via hyprshade
-more-itertools==10.3.0
+more-itertools==10.7.0
     # via hyprshade

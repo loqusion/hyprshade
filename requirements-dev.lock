@@ -6,41 +6,46 @@
 #   features: []
 #   all-features: false
 #   with-sources: false
+#   generate-hashes: false
+#   universal: false
 
 -e file:.
 chevron==0.14.0
     # via hyprshade
-click==8.1.7
+click==8.2.1
     # via hyprshade
-coverage==7.5.4
-freezegun==1.5.1
-hatchling==1.25.0
-iniconfig==2.0.0
+coverage==7.9.2
+freezegun==1.5.3
+hatchling==1.27.0
+iniconfig==2.1.0
     # via pytest
-more-itertools==10.3.0
+more-itertools==10.7.0
     # via hyprshade
-mypy==1.10.1
-mypy-extensions==1.0.0
+mypy==1.17.0
+mypy-extensions==1.1.0
     # via mypy
-packaging==24.1
+packaging==25.0
     # via hatchling
     # via pytest
 pathspec==0.12.1
     # via hatchling
-pluggy==1.5.0
+    # via mypy
+pip==25.1.1
+pluggy==1.6.0
     # via hatchling
     # via pytest
-pytest==8.2.2
+pygments==2.19.2
+    # via pytest
+pytest==8.4.1
     # via syrupy
 python-dateutil==2.9.0.post0
     # via freezegun
-ruff==0.5.1
-six==1.16.0
+ruff==0.12.4
+six==1.17.0
     # via python-dateutil
-syrupy==4.6.1
-tomlkit==0.12.5
-trove-classifiers==2024.7.2
+syrupy==4.9.1
+tomlkit==0.13.3
+trove-classifiers==2025.5.9.12
     # via hatchling
-typing-extensions==4.12.2
+typing-extensions==4.14.1
     # via mypy
-pip==24.1.1
