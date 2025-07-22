@@ -10,6 +10,11 @@ elif ! git diff --quiet; then
 	exit 1
 fi
 
+cd "$(dirname "$(dirname "$0")")" || {
+	echo "Couldn't change directories" >&2
+	exit 1
+}
+
 hatch version "$1"
 version=$(hatch version)
 
