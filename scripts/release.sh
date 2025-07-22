@@ -15,8 +15,21 @@ cd "$(dirname "$(dirname "$0")")" || {
 	exit 1
 }
 
-hatch version "$1"
-version=$(hatch version)
+if [ ! -x ./.venv/bin/hatchling ]; then
+	read -r -p "Hatchling is not installed. Install it? [y/N]: " response
+	response=${response,,}
+	response=${response// /}
+
+	if [ "$response" = "y" ]; then
+		rye sync
+	else
+		echo "Exiting." >&2
+		exit 1
+	fi
+fi
+
+./.venv/bin/hatchling version "$1"
+version=$(./.venv/bin/hatchling version)
 
 git add --verbose --all
 git commit --verbose --message="chore: bump version to $version"
