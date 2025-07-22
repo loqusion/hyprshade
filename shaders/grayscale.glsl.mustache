@@ -2,9 +2,12 @@
  * Grayscale
  */
 
+#version 300 es
 precision highp float;
-varying vec2 v_texcoord;
+
+in vec2 v_texcoord;
 uniform sampler2D tex;
+out vec4 fragColor;
 
 // Enum for type of grayscale conversion
 const int LUMINOSITY = 0;
@@ -23,14 +26,14 @@ const int HDR = 2;
 
 /**
  * Formula used to calculate relative luminance.
- * (Only applies to type = "luminosity".)
+ * (Only applies when type = "luminosity".)
  */
 const int LuminosityType = {{#nc}}{{luminosity_type}} ? HDR{{/nc}};
 
 void main() {
-    vec4 pixColor = texture2D(tex, v_texcoord);
+    vec4 pixColor = texture(tex, v_texcoord);
+    float gray = 0.0;
 
-    float gray;
     if (Type == LUMINOSITY) {
         // https://en.wikipedia.org/wiki/Grayscale#Luma_coding_in_video_systems
         if (LuminosityType == PAL) {
@@ -41,15 +44,14 @@ void main() {
             gray = dot(pixColor.rgb, vec3(0.2627, 0.6780, 0.0593));
         }
     } else if (Type == LIGHTNESS) {
-        float maxPixColor = max(pixColor.r, max(pixColor.g, pixColor.b));
-        float minPixColor = min(pixColor.r, min(pixColor.g, pixColor.b));
-        gray = (maxPixColor + minPixColor) / 2.0;
+        float maxColor = max(pixColor.r, max(pixColor.g, pixColor.b));
+        float minColor = min(pixColor.r, min(pixColor.g, pixColor.b));
+        gray = (maxColor + minColor) / 2.0;
     } else if (Type == AVERAGE) {
         gray = (pixColor.r + pixColor.g + pixColor.b) / 3.0;
     }
-    vec3 grayscale = vec3(gray);
 
-    gl_FragColor = vec4(grayscale, pixColor.a);
+    fragColor = vec4(vec3(gray), pixColor.a);
 }
 
 // vim: ft=glsl
