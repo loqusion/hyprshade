@@ -126,7 +126,7 @@ class TestPureShaderResolvePath:
             PureShader("foo")._resolve_path()
 
 
-@pytest.mark.requires_hyprland()
+@pytest.mark.requires_hyprland
 class TestShaderOnOff:
     @pytest.mark.parametrize(
         "directory_name", ["env", "user_hypr", "user_hyprshade", "system"]
@@ -159,7 +159,7 @@ class TestShaderTemplate:
 
 
 class TestShaderIntegration:
-    @pytest.mark.requires_hyprland()
+    @pytest.mark.requires_hyprland
     @pytest.mark.parametrize("is_template", [False, True])
     def test_on_off_current_eq(
         self, is_template: bool, shader_path_factory: ShaderPathFactory

@@ -7,7 +7,7 @@ from hyprshade.cli.utils import ShaderParamType
 from tests.types import ShaderPathFactory
 
 
-@pytest.fixture()
+@pytest.fixture
 def _shaders(shader_path_factory: ShaderPathFactory):
     shader_path_factory("foo")
     shader_path_factory("bar")
@@ -16,7 +16,7 @@ def _shaders(shader_path_factory: ShaderPathFactory):
 ShaderComplete = Callable[[str], list[CompletionItem]]
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_complete() -> ShaderComplete:
     shader_param = ShaderParamType()
 

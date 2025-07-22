@@ -6,7 +6,7 @@ import pytest
 from hyprshade.shader import hyprctl
 
 
-@pytest.mark.requires_hyprland()
+@pytest.mark.requires_hyprland
 def test_hyprctl(shader_path: Path):
     hyprctl.set_screen_shader(str(shader_path))
     assert hyprctl.get_screen_shader() == str(shader_path)
@@ -36,7 +36,7 @@ def test_json_no_str():
         hyprctl.get_screen_shader()
 
 
-@pytest.fixture()
+@pytest.fixture
 def _mock_hyprctl_failure(monkeypatch: pytest.MonkeyPatch):
     def _subprocess_run_failure(args, **kwargs) -> subprocess.CompletedProcess:
         raise subprocess.CalledProcessError(1, args)
@@ -44,7 +44,7 @@ def _mock_hyprctl_failure(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(hyprctl.subprocess, "run", _subprocess_run_failure)
 
 
-@pytest.fixture()
+@pytest.fixture
 def _mock_hyprctl_invalid_json(monkeypatch: pytest.MonkeyPatch):
     def _subprocess_run_invalid_json(args, **kwargs) -> subprocess.CompletedProcess:
         return subprocess.CompletedProcess(
@@ -57,7 +57,7 @@ def _mock_hyprctl_invalid_json(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(hyprctl.subprocess, "run", _subprocess_run_invalid_json)
 
 
-@pytest.fixture()
+@pytest.fixture
 def _mock_hyprctl_json_no_str(monkeypatch: pytest.MonkeyPatch):
     def _subprocess_run_no_str(args, **kwargs) -> subprocess.CompletedProcess:
         return subprocess.CompletedProcess(

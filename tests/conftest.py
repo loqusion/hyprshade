@@ -112,7 +112,7 @@ def isolation(
         yield i
 
 
-@pytest.fixture()
+@pytest.fixture
 def _clear_screen_shader():
     with suppress(hyprctl.HyprctlError, FileNotFoundError):
         hyprctl.clear_screen_shader()
@@ -128,12 +128,12 @@ def _write_shader(path: Path, text: str | None = None) -> Path:
     return path
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_path(tmp_path: Path) -> Path:
     return _write_shader(tmp_path / "shader.glsl")
 
 
-@pytest.fixture()
+@pytest.fixture
 def shader_path_factory(isolation: Isolation) -> ShaderPathFactory:
     def _shader_path(
         name: str,
@@ -149,7 +149,7 @@ def shader_path_factory(isolation: Isolation) -> ShaderPathFactory:
     return _shader_path
 
 
-@pytest.fixture()
+@pytest.fixture
 def config_factory(isolation: Isolation) -> ConfigFactory:
     return ConfigFactory(isolation)
 
