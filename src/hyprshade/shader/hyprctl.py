@@ -4,6 +4,7 @@ import json
 import subprocess
 import textwrap
 from json import JSONDecodeError
+from os import path
 from typing import Final
 
 import click
@@ -75,4 +76,4 @@ This is likely a bug in Hyprland; go bug Vaxry about it (nicely :)).
     if shader == EMPTY_STR:
         return None
 
-    return shader
+    return path.expanduser(path.expandvars(shader))
