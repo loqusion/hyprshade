@@ -4,6 +4,7 @@ import json
 import subprocess
 import textwrap
 from json import JSONDecodeError
+from os import path
 from typing import Final
 
 import click
@@ -95,4 +96,4 @@ def get_screen_shader() -> str | None:
     if shader == EMPTY_STR:
         return None
 
-    return shader
+    return path.expanduser(path.expandvars(shader))
