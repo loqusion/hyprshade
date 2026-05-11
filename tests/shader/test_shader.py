@@ -19,7 +19,7 @@ class TestPureShaderConstructor:
         assert shader._given_path is None
 
     def test_invalid_name(self):
-        with pytest.raises(ValueError, match="must not contain a '.' character"):
+        with pytest.raises(ValueError, match=r"must not contain a '.' character"):
             _shader = PureShader("foo.glsl")
 
     def test_path(self, tmp_path: Path):
