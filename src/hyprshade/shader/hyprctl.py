@@ -31,10 +31,25 @@ class HyprctlError(Exception):
         super().__init__(message, *args, **kwargs)
 
 
+def lua_escape_str(s: str) -> str:
+    return s.translate(
+        str.maketrans(
+            {  # type: ignore[arg-type]
+                "\\": r"\\",
+                "'": r"\'",
+            }
+        )
+    )
+
+
 def set_screen_shader(shader_path: str) -> None:
     try:
         subprocess.run(
-            ["hyprctl", "keyword", "decoration:screen_shader", shader_path],
+            [
+                "hyprctl",
+                "eval",
+                f"hl.config({{ decoration = {{ screen_shader = '{lua_escape_str(shader_path)}' }} }})",
+            ],
             capture_output=True,
             check=True,
             encoding="utf-8",
@@ -50,7 +65,7 @@ def clear_screen_shader() -> None:
 def get_screen_shader() -> str | None:
     try:
         hyprctl_pipe = subprocess.run(
-            ["hyprctl", "-j", "getoption", "decoration:screen_shader"],
+            ["hyprctl", "-j", "getoption", "decoration.screen_shader"],
             capture_output=True,
             check=True,
             encoding="utf-8",
