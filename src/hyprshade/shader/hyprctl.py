@@ -58,7 +58,7 @@ def hyprctl_error_context(*, command: str, stdout: str, stderr: str) -> str:
 def lua_escape_str(s: str) -> str:
     return s.translate(
         str.maketrans(
-            {
+            {  # type: ignore[arg-type]
                 "\\": r"\\",
                 "'": r"\'",
             }
