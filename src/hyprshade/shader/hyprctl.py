@@ -72,7 +72,7 @@ def set_screen_shader(shader_path: str) -> None:
             [
                 "hyprctl",
                 "eval",
-                f"hl.config({{decoration = '{lua_escape_str(shader_path)}'}})",
+                f"hl.config({{ decoration = {{ screen_shader = '{lua_escape_str(shader_path)}' }} }})",
             ],
             capture_output=True,
             check=True,
