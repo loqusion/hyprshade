@@ -19,6 +19,10 @@ Front-end to Hyprland's screen shader feature
 
 ![Blue Light Filter](./.github/assets/blue-light-filter.png)
 
+### Terminal Example
+
+![Terminal Example](./.github/assets/hyprshade-terminal-example.png)
+
 </details>
 
 ## Description
